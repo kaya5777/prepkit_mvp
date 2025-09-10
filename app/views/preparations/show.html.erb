@@ -1,0 +1,52 @@
+<!-- app/views/preparations/show.html.erb -->
+
+<h1>面接準備キット</h1>
+
+<h2>質問リスト</h2>
+<% if @result[:questions]&.any? %>
+  <ul>
+    <% @result[:questions]&.each do |q| %>
+
+      <li><%= q %></li>
+    <% end %>
+  </ul>
+<% else %>
+  <p>質問はありません。</p>
+<% end %>
+
+<h2>STAR回答例</h2>
+<% if @result[:star_answers]&.any? %>
+  <% @result[:star_answers].each do |star| %>
+    <div style="margin-bottom: 1em; padding: 0.5em; border: 1px solid #ccc;">
+      <strong>質問:</strong> <%= star[:question] %><br>
+      <strong>Situation:</strong> <%= star[:situation] %><br>
+      <strong>Task:</strong> <%= star[:task] %><br>
+      <strong>Action:</strong> <%= star[:action] %><br>
+      <strong>Result:</strong> <%= star[:result] %>
+    </div>
+  <% end %>
+<% else %>
+  <p>STAR回答例はありません。</p>
+<% end %>
+
+<h2>逆質問リスト</h2>
+<% if @result[:reverse_questions]&.any? %>
+  <ul>
+    <% @result[:reverse_questions].each do |rq| %>
+      <li><%= rq %></li>
+    <% end %>
+  </ul>
+<% else %>
+  <p>逆質問はありません。</p>
+<% end %>
+
+<h2>技術チェックリスト</h2>
+<% if @result[:tech_checklist]&.any? %>
+  <ul>
+    <% @result[:tech_checklist].each do |tc| %>
+      <li><%= tc %></li>
+    <% end %>
+  </ul>
+<% else %>
+  <p>技術チェックリストはありません。</p>
+<% end %>

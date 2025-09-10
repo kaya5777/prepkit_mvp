@@ -1,0 +1,6 @@
+<h1>求人票 → 面接準備キット</h1>
+
+<%= form_with url: preparations_path, method: :post, local: true do |f| %>
+  <%= f.text_area :job_description, rows: 15, placeholder: "ここに求人票を貼り付けてください" %><br>
+  <%= f.submit "生成する" %>
+<% end %>
