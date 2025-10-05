@@ -8,10 +8,22 @@
       textarea { width: 100%; font-size: 14px; }
       .container { max-width: 900px; margin: auto; }
       .card { background: #fff; padding: 16px; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.08); margin-bottom: 16px; }
+      .flash { padding: 12px 14px; border-radius: 6px; margin-bottom: 16px; }
+      .flash-notice { background: #e6ffed; color: #046c4e; border: 1px solid #98f5b1; }
+      .flash-alert { background: #fff5f5; color: #c53030; border: 1px solid #feb2b2; }
+      .flash-error { background: #fff5f5; color: #c53030; border: 1px solid #feb2b2; }
     </style>
   </head>
   <body>
     <div class="container">
+      <% flash.each do |type, message| %>
+        <% css = case type.to_s %>
+        <% when 'notice' then 'flash flash-notice' %>
+        <% when 'alert' then 'flash flash-alert' %>
+        <% else 'flash flash-error' %>
+        <% end %>
+        <div class="<%= css %>"><%= message %></div>
+      <% end %>
       <%= yield %>
     </div>
   </body>
