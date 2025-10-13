@@ -47,4 +47,7 @@ Rails.application.configure do
 
   # Raise error when a before_action's only/except options reference missing actions.
   config.action_controller.raise_on_missing_callback_actions = true
+
+  # Allow any host in test (avoid Host Authorization 403 under Docker)
+  config.hosts.clear
 end

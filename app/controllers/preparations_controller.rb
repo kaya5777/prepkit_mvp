@@ -4,10 +4,10 @@ class PreparationsController < ApplicationController
 
   def create
     # 入力検証
-    jd = params.require(:job_description).to_s.strip
+    jd = params[:job_description].to_s.strip
     if jd.empty?
       flash.now[:alert] = "求人票の入力は必須です。"
-      return render :new, status: :unprocessable_entity
+      return render :new, status: :unprocessable_content
     end
 
     # OpenAI API キー事前チェック
@@ -26,7 +26,10 @@ class PreparationsController < ApplicationController
         ]
       )
 
-      content = response&.choices&.dig(0)&.message&.content
+      # OpenAIクライアントのオブジェクト（ChatCompletion）を前提とした取得
+      first_choice = response.respond_to?(:choices) ? response.choices&.first : nil
+      message = first_choice.respond_to?(:message) ? first_choice.message : (first_choice.is_a?(Hash) ? first_choice[:message] : nil)
+      content = message.respond_to?(:content) ? message.content : (message.is_a?(Hash) ? message[:content] : nil)
       if content.blank?
         Rails.logger.error "OpenAI 応答に content がありません: #{response.inspect}"
         flash.now[:alert] = "生成に失敗しました（code: content_blank）。しばらくしてから再度お試しください。"
@@ -39,10 +42,9 @@ class PreparationsController < ApplicationController
     rescue JSON::ParserError => e
       Rails.logger.error "JSON パース失敗: #{e.message}"
       flash.now[:alert] = "生成結果の形式が不正でした（#{e.message}）。もう一度お試しください。"
-      render :new, status: :unprocessable_entity
+      render :new, status: :unprocessable_content
     rescue StandardError => e
       Rails.logger.error "想定外のエラー: #{e.class} #{e.message}"
-      # 認証エラーをユーザー向けに分かりやすく表示
       if e.class.to_s.include?("AuthenticationError") || e.message.include?("status=>401")
         flash.now[:alert] = "OpenAI への認証に失敗しました（401）。APIキーが未設定または無効です。管理者にお問い合わせください。"
         return render :new, status: :service_unavailable
@@ -51,7 +53,7 @@ class PreparationsController < ApplicationController
       render :new, status: :internal_server_error
     end
   end
-  
+
   private
 
   def prompt_for(jd)

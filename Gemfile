@@ -6,3 +6,17 @@ gem 'puma', '~> 6.0'
 gem 'sqlite3', '~> 1.4'
 gem 'openai', '~> 0.23' # simple OpenAI client
 gem 'bootsnap', '>= 1.4.4', require: false
+
+group :development, :test do
+  gem 'rspec-rails', '~> 6.1'
+  gem 'factory_bot_rails', '~> 6.4'
+  gem 'faker', '~> 3.4'
+  gem 'rubocop', require: false
+end
+
+group :test do
+  gem 'shoulda-matchers', '~> 6.4'
+  gem 'simplecov', '~> 0.22', require: false
+  gem 'webmock', '~> 3.23'
+  gem 'vcr', '~> 6.3'
+end
