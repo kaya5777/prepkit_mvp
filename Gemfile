@@ -8,7 +8,7 @@ gem 'openai', '~> 0.23' # simple OpenAI client
 gem 'bootsnap', '>= 1.4.4', require: false
 
 group :development, :test do
-  gem 'rspec-rails', '~> 6.1'
+  gem 'rspec-rails', '~> 7.1'
   gem 'factory_bot_rails', '~> 6.4'
   gem 'faker', '~> 3.4'
   gem 'rubocop', require: false
