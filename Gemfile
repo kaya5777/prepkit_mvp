@@ -4,7 +4,7 @@ ruby '3.2.8'
 gem 'rails', '~> 7.1.5'
 gem 'puma', '~> 6.0'
 gem 'sqlite3', '~> 1.4'
-gem 'openai', '~> 0.23' # simple OpenAI client
+gem 'openai', '~> 0.32' # simple OpenAI client
 gem 'bootsnap', '>= 1.4.4', require: false
 
 group :development, :test do
