@@ -5,6 +5,7 @@ class PreparationsController < ApplicationController
   def create
     # 入力検証
     jd = params[:job_description].to_s.strip
+    cn = params[:company_name].to_s.strip
     if jd.empty?
       flash.now[:alert] = "求人票の入力は必須です。"
       return render :new, status: :unprocessable_content
@@ -38,6 +39,8 @@ class PreparationsController < ApplicationController
 
       json_string = content.gsub(/\A```json|```|\A```|\Z```/m, '').strip
       @result = JSON.parse(json_string, symbolize_names: true)
+      # 履歴も保存
+      History.create!(content: content, memo: "", asked_at: Time.current, job_description: jd, company_name: cn)
       render :show
     rescue JSON::ParserError => e
       Rails.logger.error "JSON パース失敗: #{e.message}"

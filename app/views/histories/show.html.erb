@@ -1,0 +1,68 @@
+<h1>履歴詳細</h1>
+<p style="margin-bottom:8px;">
+  <strong>会社名:</strong> <%= @history.company_name.presence || '（未登録）' %>
+  <span style="font-size:0.90em;color:#777; margin-left:8px;">（登録日: <%= @history.asked_at&.in_time_zone('Asia/Tokyo')&.strftime('%Y/%m/%d %H:%M') %>）</span>
+</p>
+<hr style="margin:10px 0">
+<p>
+  <strong>求人票データ:</strong><br>
+  <pre style="background:#f7f7f8; padding:10px; border-radius:4px; font-size:0.96em; white-space:pre-wrap; word-break:break-all; margin-bottom:10px;"> <%= @history.job_description.presence || '（求人票データなし）' %> </pre>
+</p>
+<hr style="margin:10px 0">
+<p>
+  <strong>想定質問（AI出力）:</strong><br>
+  <% begin %>
+    <% content_hash = JSON.parse(@history.content) rescue nil %>
+    <% if content_hash.is_a?(Hash) %>
+      <% if content_hash['questions'] || content_hash[:questions] %>
+        <div style="margin-bottom:2px;font-weight:bold;font-size:0.98em;">質問リスト</div>
+        <ul style="font-size:0.93em; margin:5px 0 14px 18px;">
+          <% (content_hash['questions'] || content_hash[:questions]).each do |q| %>
+            <li><%= q %></li>
+          <% end %>
+        </ul>
+      <% end %>
+      <% if content_hash['star_answers'] || content_hash[:star_answers] %>
+        <div style="margin-bottom:2px;font-weight:bold;font-size:0.98em;">STAR回答</div>
+        <% (content_hash['star_answers'] || content_hash[:star_answers]).each do |s| %>
+          <div style="margin-bottom:7px; padding-left:10px; font-size:0.93em;">
+            <b>質問:</b> <%= s['question'] || s[:question] %><br>
+            <b>S:</b> <%= s['situation'] || s[:situation] %><br>
+            <b>T:</b> <%= s['task'] || s[:task] %><br>
+            <b>A:</b> <%= s['action'] || s[:action] %><br>
+            <b>R:</b> <%= s['result'] || s[:result] %>
+          </div>
+        <% end %>
+      <% end %>
+      <% if content_hash['reverse_questions'] || content_hash[:reverse_questions] %>
+        <div style="margin-bottom:2px;font-weight:bold;font-size:0.98em;">逆質問</div>
+        <ul style="font-size:0.93em; margin:5px 0 14px 18px;">
+          <% (content_hash['reverse_questions'] || content_hash[:reverse_questions]).each do |q| %>
+            <li><%= q %></li>
+          <% end %>
+        </ul>
+      <% end %>
+      <% if content_hash['tech_checklist'] || content_hash[:tech_checklist] %>
+        <div style="margin-bottom:2px;font-weight:bold;font-size:0.98em;">技術チェックリスト</div>
+        <ul style="font-size:0.93em; margin:5px 0 14px 18px;">
+          <% (content_hash['tech_checklist'] || content_hash[:tech_checklist]).each do |q| %>
+            <li><%= q %></li>
+          <% end %>
+        </ul>
+      <% end %>
+    <% else %>
+      <pre style="background:#fff; padding:10px; border-radius:4px; font-size:0.96em; white-space:pre-wrap; word-break:break-all; border:1px solid #e1e1e1;"> <%= @history.content %> </pre>
+    <% end %>
+  <% rescue %>
+    <pre style="background:#fff; padding:10px; border-radius:4px; font-size:0.96em; white-space:pre-wrap; word-break:break-all; border:1px solid #e1e1e1;"> <%= @history.content %> </pre>
+  <% end %>
+</p>
+<hr style="margin:10px 0">
+<p>
+  <strong>メモ:</strong><br>
+  <%= simple_format(@history.memo) %>
+</p>
+<p>
+  <%= link_to '編集', edit_history_path(@history) %> |
+  <%= link_to 'TOPに戻る', root_path %>
+</p>

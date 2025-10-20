@@ -1,0 +1,23 @@
+<h1>履歴新規作成</h1>
+<%= form_with(model: @history, local: true) do |form| %>
+  <div>
+    <%= form.label :company_name, '会社名' %><br>
+    <%= form.text_field :company_name, required: false %>
+  </div>
+  <div>
+    <%= form.label :content, '質問内容' %><br>
+    <%= form.text_area :content, required: true %>
+  </div>
+  <div>
+    <%= form.label :asked_at, '質問日時（未入力時は現在時）' %><br>
+    <%= form.datetime_select :asked_at, include_blank: true %>
+  </div>
+  <div>
+    <%= form.label :memo, 'メモ' %><br>
+    <%= form.text_area :memo %>
+  </div>
+  <div>
+    <%= form.submit '登録' %>
+    <%= link_to '戻る', histories_path %>
+  </div>
+<% end %>
