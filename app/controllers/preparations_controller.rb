@@ -37,7 +37,7 @@ class PreparationsController < ApplicationController
         return render :new, status: :service_unavailable
       end
 
-      json_string = content.gsub(/\A```json|```|\A```|\Z```/m, '').strip
+      json_string = content.gsub(/\A```json|```|\A```|\Z```/m, "").strip
       @result = JSON.parse(json_string, symbolize_names: true)
       # 履歴も保存
       History.create!(content: content, memo: "", asked_at: Time.current, job_description: jd, company_name: cn)
