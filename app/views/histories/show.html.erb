@@ -12,7 +12,11 @@
 <p>
   <strong>想定質問（AI出力）:</strong><br>
   <% begin %>
-    <% content_hash = JSON.parse(@history.content) rescue nil %>
+    <%
+      # マークダウンコードブロック記法を除去してからJSONをパース
+      clean_content = @history.content.to_s.gsub(/```json\s*/, '').gsub(/```\s*$/, '').strip
+      content_hash = JSON.parse(clean_content) rescue nil
+    %>
     <% if content_hash.is_a?(Hash) %>
       <% if content_hash['questions'] || content_hash[:questions] %>
         <div style="margin-bottom:2px;font-weight:bold;font-size:0.98em;">質問リスト</div>

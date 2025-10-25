@@ -19,7 +19,7 @@ class HistoriesController < ApplicationController
     @history = History.new(history_params)
     @history.asked_at ||= Time.current
     if @history.save
-      redirect_to @history, notice: '履歴を登録しました。'
+      redirect_to @history, notice: "履歴を登録しました。"
     else
       render :new, status: :unprocessable_entity
     end
@@ -27,7 +27,7 @@ class HistoriesController < ApplicationController
 
   def update
     if @history.update(history_params)
-      redirect_to @history, notice: '履歴を更新しました。'
+      redirect_to @history, notice: "履歴を更新しました。"
     else
       render :edit, status: :unprocessable_entity
     end

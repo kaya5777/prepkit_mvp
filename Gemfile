@@ -12,6 +12,7 @@ group :development, :test do
   gem 'factory_bot_rails', '~> 6.4'
   gem 'faker', '~> 3.4'
   gem 'rubocop', require: false
+  gem 'rubocop-rails-omakase', require: false
 end
 
 group :test do
