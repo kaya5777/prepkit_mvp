@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_10_18_182351) do
+ActiveRecord::Schema[7.2].define(version: 2025_10_18_182351) do
   create_table "histories", force: :cascade do |t|
     t.text "content"
     t.datetime "asked_at"
@@ -20,5 +20,4 @@ ActiveRecord::Schema[7.1].define(version: 2025_10_18_182351) do
     t.text "job_description"
     t.string "company_name"
   end
-
 end
