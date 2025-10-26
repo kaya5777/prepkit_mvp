@@ -7,6 +7,7 @@ gem "sqlite3", "~> 1.4"
 gem "openai", "~> 0.23" # simple OpenAI client
 gem "bootsnap", ">= 1.4.4", require: false
 gem "importmap-rails"
+gem 'pg'
 
 group :development, :test do
   gem "rspec-rails", "~> 6.1"
