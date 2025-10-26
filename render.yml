@@ -1,0 +1,8 @@
+services:
+  - type: web
+    name: prepkit-mvp
+    env: ruby
+    plan: free
+    buildCommand: bundle install
+    startCommand: bundle exec rails server
+    postDeployCommand: bundle exec rails db:migrate
