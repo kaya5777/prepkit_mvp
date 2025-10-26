@@ -10,7 +10,7 @@ gem "importmap-rails"
 gem 'pg'
 
 group :development, :test do
-  gem "rspec-rails", "~> 6.1"
+  gem "rspec-rails", "~> 8.0"
   gem "factory_bot_rails", "~> 6.4"
   gem "faker", "~> 3.4"
   gem "rubocop", require: false
