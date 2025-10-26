@@ -12,7 +12,7 @@ class PreparationsController < ApplicationController
     end
 
     # OpenAI API キー事前チェック
-    if ENV["OPENAI_ACCESS_TOKEN"].to_s.strip.empty?
+    if ENV["OPENAI_API_KEY"].to_s.strip.empty?
       flash.now[:alert] = "OpenAI の API キーが設定されていません（code: missing_api_key）。管理者にお問い合わせください。"
       return render :new, status: :service_unavailable
     end
