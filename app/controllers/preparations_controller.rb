@@ -11,6 +11,20 @@ class PreparationsController < ApplicationController
       return render :new, status: :unprocessable_content
     end
 
+    # URL判定と取得処理
+    if url?(jd)
+      begin
+        jd = JobDescriptionFetcherService.call(jd)
+        if jd.empty?
+          flash.now[:alert] = "URLから求人情報を取得できませんでした。"
+          return render :new, status: :unprocessable_content
+        end
+      rescue JobDescriptionFetcherService::FetchError => e
+        flash.now[:alert] = e.message
+        return render :new, status: :unprocessable_content
+      end
+    end
+
     # OpenAI API キー事前チェック
     if ENV["OPENAI_API_KEY"].to_s.strip.empty?
       flash.now[:alert] = "OpenAI の API キーが設定されていません（code: missing_api_key）。管理者にお問い合わせください。"
@@ -58,6 +72,10 @@ class PreparationsController < ApplicationController
   end
 
   private
+
+  def url?(text)
+    text.match?(/\A(https?:\/\/)/)
+  end
 
   def prompt_for(jd)
     <<~PROMPT

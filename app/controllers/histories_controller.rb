@@ -1,5 +1,5 @@
 class HistoriesController < ApplicationController
-  before_action :set_history, only: %i[show edit update]
+  before_action :set_history, only: %i[show edit update destroy]
 
   def index
     @histories = History.order(asked_at: :desc)
@@ -31,6 +31,11 @@ class HistoriesController < ApplicationController
     else
       render :edit, status: :unprocessable_entity
     end
+  end
+
+  def destroy
+    @history.destroy
+    redirect_to root_path, notice: "履歴を削除しました。"
   end
 
   private

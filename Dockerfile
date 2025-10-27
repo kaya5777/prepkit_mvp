@@ -12,9 +12,15 @@ RUN bundle install
 # アプリ全体をコピー
 COPY . .
 
+# エントリーポイントスクリプトをコピーして実行権限を付与
+COPY docker-entrypoint.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/docker-entrypoint.sh
+
 # ポート設定
 EXPOSE 3000
 
+# エントリーポイントを設定
+ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
+
 # Railsサーバ起動
-# CMD ["bin/rails", "server", "-b", "0.0.0.0"]
 CMD ["sh", "-c", "bundle exec rails db:migrate && bundle exec rails server -b 0.0.0.0"]

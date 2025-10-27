@@ -8,6 +8,7 @@ gem "openai", "~> 0.23" # simple OpenAI client
 gem "bootsnap", ">= 1.4.4", require: false
 gem "importmap-rails"
 gem 'pg'
+gem 'nokogiri', '~> 1.16'
 
 group :development, :test do
   gem "rspec-rails", "~> 6.1"
@@ -24,3 +25,7 @@ group :test do
   gem "webmock", "~> 3.23"
   gem "vcr", "~> 6.3"
 end
+
+gem "tailwindcss-rails", "~> 4.3"
+
+gem "sprockets-rails", "~> 3.5"

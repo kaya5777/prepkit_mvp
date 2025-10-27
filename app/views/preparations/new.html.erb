@@ -1,15 +1,96 @@
-<h1>求人票から面接の想定質問を作る</h1>
+<div class="max-w-4xl">
+  <div class="mb-8">
+    <h1 class="text-4xl font-bold text-gray-900 mb-3">面接準備キットを作成</h1>
+    <p class="text-lg text-gray-600">求人票を入力して、AIが想定質問と回答例を生成します</p>
+  </div>
 
-<%= form_with url: preparations_path, method: :post, local: true do |f| %>
-  <div style="margin-bottom:18px">
-    <%= f.label :company_name, '会社名' %><br>
-    <%= f.text_field :company_name, placeholder: '例：〇〇株式会社', style: 'width:100%;font-size:1em;padding:8px;box-sizing:border-box;' %>
+  <%= form_with url: preparations_path, method: :post, local: true, class: "space-y-6", id: "preparation-form" do |f| %>
+    <div class="bg-white rounded-2xl elevation-2 p-8">
+      <div class="mb-8">
+        <%= f.label :company_name, '会社名（任意）', class: 'block text-sm font-bold text-gray-700 mb-3 uppercase tracking-wide' %>
+        <%= f.text_field :company_name,
+          placeholder: '例：株式会社サンプル',
+          class: 'w-full px-5 py-4 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-blue-100 focus:border-blue-500 transition-all duration-200 text-lg' %>
+      </div>
+
+      <div>
+        <%= f.label :job_description, '求人票 / 求人票URL *', class: 'block text-sm font-bold text-gray-700 mb-3 uppercase tracking-wide' %>
+        <%= f.text_area :job_description,
+          rows: 15,
+          placeholder: "求人票の内容、または求人票のURLを入力してください...\n\n【直接入力の例】\n・募集職種\n・業務内容\n・必須スキル\n・歓迎スキル\n\n【URL入力の例】\nhttps://example.com/jobs/123",
+          class: 'w-full px-5 py-4 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-blue-100 focus:border-blue-500 transition-all duration-200 resize-y min-h-[400px] font-mono text-sm' %>
+        <div class="mt-4 p-4 bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl">
+          <div class="flex items-start gap-3 mb-2">
+            <svg class="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+            </svg>
+            <div class="text-sm">
+              <p class="text-blue-800 font-semibold mb-1">2つの入力方法に対応</p>
+              <ul class="text-blue-700 space-y-1">
+                <li>• <strong>URL入力</strong>: 求人票のURLを入力すると自動で情報を取得</li>
+                <li>• <strong>直接入力</strong>: 求人票の内容を直接貼り付け</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="flex justify-end">
+      <%= f.submit "想定質問を生成",
+        class: 'ripple inline-flex items-center px-8 py-4 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-bold rounded-full elevation-3 hover:elevation-4 transition-all duration-200 cursor-pointer text-lg' %>
+    </div>
+  <% end %>
+</div>
+
+<!-- Loading Modal -->
+<div id="loadingModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+  <div class="bg-white rounded-3xl p-8 max-w-md mx-4 elevation-4">
+    <div class="text-center">
+      <!-- Spinner -->
+      <div class="mb-6 flex justify-center">
+        <div class="animate-spin rounded-full h-16 w-16 border-4 border-blue-200 border-t-blue-600"></div>
+      </div>
+
+      <!-- Title -->
+      <h3 class="text-2xl font-bold text-gray-900 mb-3">AIが分析中です</h3>
+
+      <!-- Message -->
+      <p class="text-gray-600 mb-2">求人票の内容を分析し、</p>
+      <p class="text-gray-600 mb-4">想定質問と回答例を生成しています...</p>
+
+      <!-- Progress indicators -->
+      <div class="space-y-2 text-sm text-gray-500">
+        <div class="flex items-center justify-center gap-2" id="step1">
+          <div class="w-2 h-2 bg-blue-600 rounded-full animate-pulse"></div>
+          <span>求人票を解析中</span>
+        </div>
+        <div class="flex items-center justify-center gap-2" id="step2">
+          <div class="w-2 h-2 bg-blue-400 rounded-full animate-pulse"></div>
+          <span>想定質問を生成中</span>
+        </div>
+        <div class="flex items-center justify-center gap-2" id="step3">
+          <div class="w-2 h-2 bg-blue-300 rounded-full animate-pulse"></div>
+          <span>回答例を作成中</span>
+        </div>
+      </div>
+
+      <!-- Warning -->
+      <div class="mt-6 p-3 bg-blue-50 rounded-xl">
+        <p class="text-xs text-blue-800">※ 処理には30秒〜1分程度かかる場合があります</p>
+      </div>
+    </div>
   </div>
-  <div style="width:100%;">
-    <%= f.text_area :job_description, rows: 15, placeholder: "ここに求人票を貼り付けてください",
-      style: 'width:100%;min-height:500px;max-height:60vh;resize:vertical;font-size:16px;padding:12px;box-sizing:border-box;' %>
-  </div>
-  <div style="margin-top:14px; text-align:right;">
-    <%= f.submit "想定質問を作る", style: 'font-size:1.1em;padding:8px 24px;' %>
-  </div>
-<% end %>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('preparation-form');
+    const modal = document.getElementById('loadingModal');
+
+    form.addEventListener('submit', function(e) {
+      // Show loading modal
+      modal.classList.remove('hidden');
+    });
+  });
+</script>

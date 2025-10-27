@@ -1,12 +1,27 @@
-<h1>メモ編集</h1>
-<%= form_with(model: @history, local: true) do |form| %>
-  <div>
-    <%= form.label :company_name, '会社名' %><br>
-    <%= form.text_field :company_name, value: @history.company_name, required: false %>
+<div class="max-w-4xl">
+  <div class="mb-8">
+    <h1 class="text-3xl font-bold text-gray-900 mb-2">履歴編集</h1>
+    <p class="text-gray-600">会社名とメモを編集できます</p>
   </div>
-  <div style="max-width:900px;margin:0 auto;">
-    <%= form.label :content, '想定質問（AI出力）' %><br>
-    <div style="max-height:400px; overflow-y:auto; background:#f9f9f9; border:1px solid #ececec; border-radius:7px; padding:16px; margin-bottom:20px;">
+
+  <%= form_with(model: @history, local: true, class: "space-y-8") do |form| %>
+    <!-- Company Name -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+      <%= form.label :company_name, '会社名', class: 'block text-sm font-medium text-gray-700 mb-2' %>
+      <%= form.text_field :company_name,
+        value: @history.company_name,
+        required: false,
+        placeholder: '例：株式会社サンプル',
+        class: 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-shadow' %>
+    </div>
+
+    <!-- AI Content Preview -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+      <div class="bg-gray-50 px-6 py-4 border-b border-gray-200">
+        <h2 class="text-lg font-bold text-gray-900">想定質問（AI出力）</h2>
+        <p class="text-sm text-gray-500 mt-1">この内容は編集できません</p>
+      </div>
+      <div class="p-6 max-h-[500px] overflow-y-auto bg-gray-50">
       <% begin %>
         <%
           # マークダウンコードブロック記法を除去してからJSONをパース
@@ -14,56 +29,85 @@
           content_hash = JSON.parse(clean_content) rescue nil
         %>
         <% if content_hash.is_a?(Hash) %>
-          <% if content_hash['questions'] || content_hash[:questions] %>
-            <div style="margin-bottom:6px;font-weight:bold;font-size:0.98em;">質問リスト</div>
-            <ul style="font-size:0.93em; margin:5px 0 14px 18px;">
-              <% (content_hash['questions'] || content_hash[:questions]).each do |q| %>
-                <li><%= q %></li>
-              <% end %>
-            </ul>
-          <% end %>
-          <% if content_hash['star_answers'] || content_hash[:star_answers] %>
-            <div style="margin-bottom:6px;font-weight:bold;font-size:0.98em;">STAR回答</div>
-            <% (content_hash['star_answers'] || content_hash[:star_answers]).each do |s| %>
-              <div style="margin-bottom:7px; padding-left:10px; font-size:0.93em;">
-                <b>質問:</b> <%= s['question'] || s[:question] %><br>
-                <b>S:</b> <%= s['situation'] || s[:situation] %><br>
-                <b>T:</b> <%= s['task'] || s[:task] %><br>
-                <b>A:</b> <%= s['action'] || s[:action] %><br>
-                <b>R:</b> <%= s['result'] || s[:result] %>
+          <div class="space-y-6">
+            <% if content_hash['questions'] || content_hash[:questions] %>
+              <div>
+                <h3 class="font-bold text-gray-900 mb-2">質問リスト</h3>
+                <ul class="space-y-2 text-sm text-gray-700">
+                  <% (content_hash['questions'] || content_hash[:questions]).each do |q| %>
+                    <li class="flex gap-2">
+                      <span class="text-indigo-600">•</span>
+                      <span><%= q %></span>
+                    </li>
+                  <% end %>
+                </ul>
               </div>
             <% end %>
-          <% end %>
-          <% if content_hash['reverse_questions'] || content_hash[:reverse_questions] %>
-            <div style="margin-bottom:6px;font-weight:bold;font-size:0.98em;">逆質問</div>
-            <ul style="font-size:0.93em; margin:5px 0 14px 18px;">
-              <% (content_hash['reverse_questions'] || content_hash[:reverse_questions]).each do |q| %>
-                <li><%= q %></li>
-              <% end %>
-            </ul>
-          <% end %>
-          <% if content_hash['tech_checklist'] || content_hash[:tech_checklist] %>
-            <div style="margin-bottom:6px;font-weight:bold;font-size:0.98em;">技術チェックリスト</div>
-            <ul style="font-size:0.93em; margin:5px 0 14px 18px;">
-              <% (content_hash['tech_checklist'] || content_hash[:tech_checklist]).each do |q| %>
-                <li><%= q %></li>
-              <% end %>
-            </ul>
-          <% end %>
+            <% if content_hash['star_answers'] || content_hash[:star_answers] %>
+              <div>
+                <h3 class="font-bold text-gray-900 mb-2">STAR回答</h3>
+                <% (content_hash['star_answers'] || content_hash[:star_answers]).each do |s| %>
+                  <div class="mb-4 text-sm text-gray-700 space-y-1">
+                    <p><strong>質問:</strong> <%= s['question'] || s[:question] %></p>
+                    <p><strong class="text-blue-600">S:</strong> <%= s['situation'] || s[:situation] %></p>
+                    <p><strong class="text-purple-600">T:</strong> <%= s['task'] || s[:task] %></p>
+                    <p><strong class="text-orange-600">A:</strong> <%= s['action'] || s[:action] %></p>
+                    <p><strong class="text-green-600">R:</strong> <%= s['result'] || s[:result] %></p>
+                  </div>
+                <% end %>
+              </div>
+            <% end %>
+            <% if content_hash['reverse_questions'] || content_hash[:reverse_questions] %>
+              <div>
+                <h3 class="font-bold text-gray-900 mb-2">逆質問</h3>
+                <ul class="space-y-2 text-sm text-gray-700">
+                  <% (content_hash['reverse_questions'] || content_hash[:reverse_questions]).each do |q| %>
+                    <li class="flex gap-2">
+                      <span class="text-purple-600">•</span>
+                      <span><%= q %></span>
+                    </li>
+                  <% end %>
+                </ul>
+              </div>
+            <% end %>
+            <% if content_hash['tech_checklist'] || content_hash[:tech_checklist] %>
+              <div>
+                <h3 class="font-bold text-gray-900 mb-2">技術チェックリスト</h3>
+                <ul class="space-y-2 text-sm text-gray-700">
+                  <% (content_hash['tech_checklist'] || content_hash[:tech_checklist]).each do |q| %>
+                    <li class="flex gap-2">
+                      <span class="text-orange-600">•</span>
+                      <span><%= q %></span>
+                    </li>
+                  <% end %>
+                </ul>
+              </div>
+            <% end %>
+          </div>
         <% else %>
-          <p style="background:#f7f7f8; padding:8px 10px; border-radius:6px; border:1px solid #ececec; font-size:0.98em;"> <%= @history.content %> </p>
+          <pre class="bg-white p-4 rounded-lg text-sm text-gray-700 whitespace-pre-wrap break-words"><%= @history.content %></pre>
         <% end %>
       <% rescue %>
-        <p style="background:#f7f7f8; padding:8px 10px; border-radius:6px; border:1px solid #ececec; font-size:0.98em;"> <%= @history.content %> </p>
+        <pre class="bg-white p-4 rounded-lg text-sm text-gray-700 whitespace-pre-wrap break-words"><%= @history.content %></pre>
       <% end %>
+      </div>
     </div>
-  </div>
-  <div style="max-width:900px;margin:0 auto;">
-    <%= form.label :memo, 'メモ' %><br>
-    <%= form.text_area :memo, style: 'min-height:120px;width:100%;font-size:1.06em;padding:10px;margin-bottom:10px;' %>
-    <div style="display:flex; gap:18px;">
-      <%= form.submit '更新', style: 'font-size:1.09em;padding:8px 28px;' %>
-      <%= link_to '戻る', root_path, style: 'font-size:1.02em;padding:8px 24px;background:#faf6f3;border-radius:6px;text-decoration:none;border:1px solid #eee;' %>
+
+    <!-- Memo -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+      <%= form.label :memo, 'メモ', class: 'block text-sm font-medium text-gray-700 mb-2' %>
+      <%= form.text_area :memo,
+        class: 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-shadow resize-y min-h-[150px]',
+        placeholder: 'メモを入力してください...' %>
     </div>
-  </div>
-<% end %>
+
+    <!-- Actions -->
+    <div class="flex gap-4 justify-end">
+      <%= link_to history_path(@history), class: "inline-flex items-center px-6 py-3 bg-white border border-gray-300 rounded-lg font-medium text-gray-700 hover:bg-gray-50 transition-colors" do %>
+        キャンセル
+      <% end %>
+      <%= form.submit '更新',
+        class: 'inline-flex items-center px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg shadow-sm transition-colors cursor-pointer' %>
+    </div>
+  <% end %>
+</div>

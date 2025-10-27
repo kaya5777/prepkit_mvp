@@ -271,10 +271,24 @@ GEM
       simplecov_json_formatter (~> 0.1)
     simplecov-html (0.13.2)
     simplecov_json_formatter (0.1.4)
+    sprockets (4.2.2)
+      concurrent-ruby (~> 1.0)
+      logger
+      rack (>= 2.2.4, < 4)
+    sprockets-rails (3.5.2)
+      actionpack (>= 6.1)
+      activesupport (>= 6.1)
+      sprockets (>= 3.0.0)
     sqlite3 (1.7.3-aarch64-linux)
     sqlite3 (1.7.3-arm64-darwin)
     sqlite3 (1.7.3-x86_64-linux)
     stringio (3.1.7)
+    tailwindcss-rails (4.3.0)
+      railties (>= 7.0.0)
+      tailwindcss-ruby (~> 4.0)
+    tailwindcss-ruby (4.1.13-aarch64-linux-gnu)
+    tailwindcss-ruby (4.1.13-arm64-darwin)
+    tailwindcss-ruby (4.1.13-x86_64-linux-gnu)
     thor (1.4.0)
     timeout (0.4.3)
     tsort (0.2.0)
@@ -307,6 +321,7 @@ DEPENDENCIES
   factory_bot_rails (~> 6.4)
   faker (~> 3.4)
   importmap-rails
+  nokogiri (~> 1.16)
   openai (~> 0.23)
   pg
   puma (~> 6.0)
@@ -316,7 +331,9 @@ DEPENDENCIES
   rubocop-rails-omakase
   shoulda-matchers (~> 6.4)
   simplecov (~> 0.22)
+  sprockets-rails (~> 3.5)
   sqlite3 (~> 1.4)
+  tailwindcss-rails (~> 4.3)
   vcr (~> 6.3)
   webmock (~> 3.23)
 
