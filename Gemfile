@@ -1,7 +1,7 @@
 source "https://rubygems.org"
 ruby "3.2.8"
 
-gem "rails", "~> 7.2.0"
+gem "rails", "~> 8.1.0"
 gem "puma", "~> 6.0"
 gem "sqlite3", "~> 1.4"
 gem "openai", "~> 0.23" # simple OpenAI client
