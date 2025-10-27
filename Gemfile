@@ -22,7 +22,7 @@ end
 group :test do
   gem "shoulda-matchers", "~> 6.4"
   gem "simplecov", "~> 0.22", require: false
-  gem "webmock", "~> 3.23"
+  gem "webmock", "~> 3.26"
   gem "vcr", "~> 6.3"
 end
 
