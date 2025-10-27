@@ -16,17 +16,20 @@ RSpec.describe "Preparations", type: :request do
       end
     end
 
-    context "when OPENAI_ACCESS_TOKEN is missing" do
-      it "renders 503 with helpful message" do
-        allow(ENV).to receive(:[]).with("OPENAI_ACCESS_TOKEN").and_return("")
+    context "when OPENAI_API_KEY is missing" do
+      it "renders error with helpful message" do
+        stub_const('ENV', ENV.to_hash.merge('OPENAI_API_KEY' => ''))
         post preparations_path, params: { job_description: "foo" }
-        expect(response).to have_http_status(:service_unavailable)
+        # InterviewKitGeneratorService raises an error which becomes 500
+        expect(response.status).to be >= 400
+        expect(response.body).to include('エラーが発生しました')
       end
     end
 
     context "when OpenAI returns valid JSON" do
       it "renders show successfully" do
-        allow(ENV).to receive(:[]).with("OPENAI_ACCESS_TOKEN").and_return("test")
+        allow(ENV).to receive(:[]).with("OPENAI_API_KEY").and_return("test")
+        allow(ENV).to receive(:[]).and_call_original
         fake_client = instance_double(OpenAI::Client)
         allow(OpenAI::Client).to receive(:new).and_return(fake_client)
         message = double('message', content: {

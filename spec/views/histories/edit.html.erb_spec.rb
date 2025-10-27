@@ -27,6 +27,7 @@ RSpec.describe "histories/edit.html.erb", type: :view do
 
   it "renders JSON content correctly in edit form" do
     assign(:history, history_with_json)
+    assign(:presenter, HistoryPresenter.new(history_with_json))
     render
     expect(rendered).to include('質問リスト')
     expect(rendered).to include('質問1')

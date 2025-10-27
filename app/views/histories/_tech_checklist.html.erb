@@ -1,0 +1,13 @@
+<div class="mb-8 bg-white rounded-lg shadow-sm border border-secondary-200 overflow-hidden">
+  <%= section_header("技術チェックリスト", "bg-gradient-to-r from-primary-100 to-secondary-100") %>
+  <div class="p-6">
+    <ul class="space-y-3">
+      <% tech_checklist.each do |item| %>
+        <li class="flex gap-3 p-4 bg-primary-50 rounded-lg">
+          <input type="checkbox" class="w-5 h-5 text-primary-600 border-secondary-300 rounded focus:ring-primary-500 flex-shrink-0 mt-0.5 cursor-pointer">
+          <span class="flex-1 text-secondary-800"><%= item %></span>
+        </li>
+      <% end %>
+    </ul>
+  </div>
+</div>

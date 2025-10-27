@@ -27,12 +27,13 @@ RSpec.describe "histories/show.html.erb", type: :view do
 
   it "renders JSON content correctly" do
     assign(:history, history_with_json)
+    assign(:presenter, HistoryPresenter.new(history_with_json))
     render
-    expect(rendered).to include('質問リスト')
+    expect(rendered).to include('想定質問リスト')
     expect(rendered).to include('質問1')
     expect(rendered).to include('質問2')
-    expect(rendered).to include('STAR回答')
-    expect(rendered).to include('逆質問')
+    expect(rendered).to include('STAR回答例')
+    expect(rendered).to include('逆質問リスト')
     expect(rendered).to include('技術チェックリスト')
   end
 end

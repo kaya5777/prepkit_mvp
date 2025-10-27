@@ -1,0 +1,8 @@
+<div class="mb-8 bg-white rounded-lg shadow-sm border border-secondary-200 overflow-hidden">
+  <%= section_header("STAR回答例", "bg-gradient-to-r from-primary-50 to-secondary-50") %>
+  <div class="p-6 space-y-6">
+    <% star_answers.each_with_index do |star, index| %>
+      <%= render "histories/star_answer", star: star, index: index %>
+    <% end %>
+  </div>
+</div>

@@ -1,5 +1,5 @@
-require 'open-uri'
-require 'nokogiri'
+require "open-uri"
+require "nokogiri"
 
 class JobDescriptionFetcherService
   class FetchError < StandardError; end
@@ -39,12 +39,12 @@ class JobDescriptionFetcherService
     doc = Nokogiri::HTML(html)
 
     # Remove script and style tags
-    doc.css('script, style').remove
+    doc.css("script, style").remove
 
     # Extract text content
-    text = doc.css('body').text
+    text = doc.css("body").text
 
     # Clean up whitespace
-    text.gsub(/\s+/, ' ').strip
+    text.gsub(/\s+/, " ").strip
   end
 end

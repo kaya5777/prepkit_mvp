@@ -3,21 +3,21 @@
   <div class="mb-8">
     <div class="flex items-center justify-between mb-4">
       <div>
-        <h1 class="text-3xl font-bold text-gray-900 mb-2">
-          <%= @history.company_name.presence || '（会社名未登録）' %>
+        <h1 class="text-3xl font-bold text-secondary-900 mb-2">
+          <%= @presenter.display_company_name %>
         </h1>
-        <p class="text-sm text-gray-500">
-          登録日: <%= @history.asked_at&.in_time_zone('Asia/Tokyo')&.strftime('%Y年%m月%d日 %H:%M') %>
+        <p class="text-sm text-secondary-500">
+          登録日: <%= @presenter.formatted_asked_at %>
         </p>
       </div>
       <div class="flex gap-3">
-        <%= link_to edit_history_path(@history), class: "inline-flex items-center px-4 py-2 bg-white border-2 border-gray-300 rounded-xl font-medium text-gray-700 hover:bg-gray-50 transition-all elevation-1 hover:elevation-2" do %>
+        <%= link_to edit_history_path(@history), class: "inline-flex items-center px-4 py-2 bg-white border-2 border-secondary-300 rounded-xl font-medium text-secondary-700 hover:bg-secondary-50 transition-all elevation-1 hover:elevation-2" do %>
           <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
           </svg>
           編集
         <% end %>
-        <button type="button" onclick="document.getElementById('deleteModal').classList.remove('hidden')" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 rounded-xl font-bold text-white transition-all elevation-2 hover:elevation-3">
+        <button type="button" onclick="document.getElementById('deleteModal').classList.remove('hidden')" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 rounded-xl font-bold text-white transition-all elevation-2 hover:elevation-3">
           <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
           </svg>
@@ -31,25 +31,25 @@
   <div id="deleteModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
     <div class="bg-white rounded-2xl elevation-4 max-w-md w-full p-8 transform transition-all">
       <div class="flex items-center gap-4 mb-6">
-        <div class="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center flex-shrink-0">
-          <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div class="w-12 h-12 bg-primary-100 rounded-full flex items-center justify-center flex-shrink-0">
+          <svg class="w-6 h-6 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
           </svg>
         </div>
         <div>
-          <h3 class="text-xl font-bold text-gray-900">履歴を削除</h3>
-          <p class="text-sm text-gray-600 mt-1">この操作は取り消せません</p>
+          <h3 class="text-xl font-bold text-secondary-900">履歴を削除</h3>
+          <p class="text-sm text-secondary-600 mt-1">この操作は取り消せません</p>
         </div>
       </div>
-      <p class="text-gray-700 mb-6">
+      <p class="text-secondary-700 mb-6">
         本当にこの履歴を削除しますか？<br>
-        <span class="font-semibold text-gray-900"><%= @history.company_name.presence || '（会社名未登録）' %></span> の履歴が完全に削除されます。
+        <span class="font-semibold text-secondary-900"><%= @presenter.display_company_name %></span> の履歴が完全に削除されます。
       </p>
       <div class="flex gap-3 justify-end">
-        <button onclick="document.getElementById('deleteModal').classList.add('hidden')" class="px-6 py-3 bg-gray-200 hover:bg-gray-300 rounded-xl font-medium text-gray-800 transition-colors">
+        <button onclick="document.getElementById('deleteModal').classList.add('hidden')" class="px-6 py-3 bg-secondary-100 hover:bg-secondary-200 rounded-xl font-medium text-secondary-800 transition-colors">
           キャンセル
         </button>
-        <%= button_to "削除する", history_path(@history), method: :delete, class: "ripple px-6 py-3 bg-red-600 hover:bg-red-700 rounded-xl font-medium text-white transition-all elevation-2 hover:elevation-3" %>
+        <%= button_to "削除する", history_path(@history), method: :delete, class: "ripple px-6 py-3 bg-primary-600 hover:bg-primary-700 rounded-xl font-medium text-white transition-all elevation-2 hover:elevation-3" %>
       </div>
     </div>
   </div>
@@ -67,118 +67,15 @@
   <% end %>
 
   <!-- AI Generated Content -->
-  <% begin %>
-    <%
-      clean_content = @history.content.to_s.gsub(/```json\s*/, '').gsub(/```\s*$/, '').strip
-      content_hash = JSON.parse(clean_content) rescue nil
-    %>
-    <% if content_hash.is_a?(Hash) %>
-      <!-- Questions -->
-      <% if (content_hash['questions'] || content_hash[:questions])&.any? %>
-        <div class="mb-8 bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-          <div class="bg-gradient-to-r from-blue-50 to-indigo-50 px-6 py-4 border-b border-gray-200">
-            <h2 class="text-xl font-bold text-gray-900">想定質問リスト</h2>
-          </div>
-          <div class="p-6">
-            <ul class="space-y-3">
-              <% (content_hash['questions'] || content_hash[:questions]).each_with_index do |q, index| %>
-                <li class="flex gap-3 p-4 bg-gray-50 rounded-lg">
-                  <span class="flex-shrink-0 w-8 h-8 bg-indigo-600 text-white rounded-full flex items-center justify-center font-semibold text-sm">
-                    <%= index + 1 %>
-                  </span>
-                  <span class="flex-1 text-gray-800"><%= q %></span>
-                </li>
-              <% end %>
-            </ul>
-          </div>
-        </div>
-      <% end %>
-
-      <!-- STAR Answers -->
-      <% if (content_hash['star_answers'] || content_hash[:star_answers])&.any? %>
-        <div class="mb-8 bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-          <div class="bg-gradient-to-r from-green-50 to-emerald-50 px-6 py-4 border-b border-gray-200">
-            <h2 class="text-xl font-bold text-gray-900">STAR回答例</h2>
-          </div>
-          <div class="p-6 space-y-6">
-            <% (content_hash['star_answers'] || content_hash[:star_answers]).each_with_index do |s, index| %>
-              <div class="border border-gray-200 rounded-lg p-6 bg-gradient-to-br from-white to-gray-50">
-                <div class="font-semibold text-lg text-gray-900 mb-4">
-                  <span class="text-green-600">#<%= index + 1 %></span> <%= s['question'] || s[:question] %>
-                </div>
-                <div class="space-y-3 ml-6">
-                  <div class="flex gap-3">
-                    <span class="font-bold text-blue-600 w-20 flex-shrink-0">S:</span>
-                    <span class="text-gray-700"><%= s['situation'] || s[:situation] %></span>
-                  </div>
-                  <div class="flex gap-3">
-                    <span class="font-bold text-purple-600 w-20 flex-shrink-0">T:</span>
-                    <span class="text-gray-700"><%= s['task'] || s[:task] %></span>
-                  </div>
-                  <div class="flex gap-3">
-                    <span class="font-bold text-orange-600 w-20 flex-shrink-0">A:</span>
-                    <span class="text-gray-700"><%= s['action'] || s[:action] %></span>
-                  </div>
-                  <div class="flex gap-3">
-                    <span class="font-bold text-green-600 w-20 flex-shrink-0">R:</span>
-                    <span class="text-gray-700"><%= s['result'] || s[:result] %></span>
-                  </div>
-                </div>
-              </div>
-            <% end %>
-          </div>
-        </div>
-      <% end %>
-
-      <!-- Reverse Questions -->
-      <% if (content_hash['reverse_questions'] || content_hash[:reverse_questions])&.any? %>
-        <div class="mb-8 bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-          <div class="bg-gradient-to-r from-purple-50 to-pink-50 px-6 py-4 border-b border-gray-200">
-            <h2 class="text-xl font-bold text-gray-900">逆質問リスト</h2>
-          </div>
-          <div class="p-6">
-            <ul class="space-y-3">
-              <% (content_hash['reverse_questions'] || content_hash[:reverse_questions]).each do |q| %>
-                <li class="flex gap-3 p-4 bg-purple-50 rounded-lg">
-                  <svg class="w-5 h-5 text-purple-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
-                  </svg>
-                  <span class="flex-1 text-gray-800"><%= q %></span>
-                </li>
-              <% end %>
-            </ul>
-          </div>
-        </div>
-      <% end %>
-
-      <!-- Tech Checklist -->
-      <% if (content_hash['tech_checklist'] || content_hash[:tech_checklist])&.any? %>
-        <div class="mb-8 bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-          <div class="bg-gradient-to-r from-orange-50 to-amber-50 px-6 py-4 border-b border-gray-200">
-            <h2 class="text-xl font-bold text-gray-900">技術チェックリスト</h2>
-          </div>
-          <div class="p-6">
-            <ul class="space-y-3">
-              <% (content_hash['tech_checklist'] || content_hash[:tech_checklist]).each do |q| %>
-                <li class="flex gap-3 p-4 bg-orange-50 rounded-lg">
-                  <input type="checkbox" class="w-5 h-5 text-orange-600 border-gray-300 rounded focus:ring-orange-500 flex-shrink-0 mt-0.5 cursor-pointer">
-                  <span class="flex-1 text-gray-800"><%= q %></span>
-                </li>
-              <% end %>
-            </ul>
-          </div>
-        </div>
-      <% end %>
-    <% else %>
-      <!-- Fallback for non-JSON content -->
-      <div class="mb-8 bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-        <pre class="bg-gray-50 p-4 rounded-lg text-sm text-gray-700 whitespace-pre-wrap break-words"><%= @history.content %></pre>
-      </div>
-    <% end %>
-  <% rescue %>
-    <!-- Error fallback -->
+  <% if @presenter.valid_json? %>
+    <%= render "histories/question_list", questions: @presenter.questions if @presenter.has_questions? %>
+    <%= render "histories/star_answers", star_answers: @presenter.star_answers if @presenter.has_star_answers? %>
+    <%= render "histories/reverse_questions", reverse_questions: @presenter.reverse_questions if @presenter.has_reverse_questions? %>
+    <%= render "histories/tech_checklist", tech_checklist: @presenter.tech_checklist if @presenter.has_tech_checklist? %>
+  <% else %>
+    <!-- Fallback for non-JSON content -->
     <div class="mb-8 bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-      <pre class="bg-gray-50 p-4 rounded-lg text-sm text-gray-700 whitespace-pre-wrap break-words"><%= @history.content %></pre>
+      <pre class="bg-gray-50 p-4 rounded-lg text-sm text-gray-700 whitespace-pre-wrap break-words"><%= @presenter.content %></pre>
     </div>
   <% end %>
 

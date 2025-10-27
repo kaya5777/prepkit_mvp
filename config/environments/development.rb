@@ -69,5 +69,4 @@ Rails.application.configure do
 
   # Allow Render.com hostname
   config.hosts << "prepkit-mvp.onrender.com"
-
 end

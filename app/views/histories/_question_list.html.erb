@@ -1,0 +1,13 @@
+<div class="mb-8 bg-white rounded-lg shadow-sm border border-secondary-200 overflow-hidden">
+  <%= section_header("想定質問リスト", "bg-gradient-to-r from-primary-50 to-primary-100") %>
+  <div class="p-6">
+    <ul class="space-y-3">
+      <% questions.each_with_index do |q, index| %>
+        <li class="flex gap-3 p-4 bg-secondary-50 rounded-lg">
+          <%= numbered_badge(index + 1, color_class: "bg-primary-500") %>
+          <span class="flex-1 text-secondary-800"><%= q %></span>
+        </li>
+      <% end %>
+    </ul>
+  </div>
+</div>

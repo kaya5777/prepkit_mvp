@@ -6,6 +6,7 @@ class HistoriesController < ApplicationController
   end
 
   def show
+    @presenter = HistoryPresenter.new(@history)
   end
 
   def new
@@ -13,6 +14,7 @@ class HistoriesController < ApplicationController
   end
 
   def edit
+    @presenter = HistoryPresenter.new(@history)
   end
 
   def create

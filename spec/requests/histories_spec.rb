@@ -1,45 +1,53 @@
 require 'rails_helper'
 
 RSpec.describe "Histories", type: :request do
-  describe "GET /index" do
+  let(:history) do
+    History.create!(
+      content: '{"questions":["Q1"]}',
+      asked_at: Time.current,
+      memo: 'test'
+    )
+  end
+
+  describe "GET /histories/:id" do
     it "returns http success" do
-      get "/histories/index"
+      get history_path(history)
       expect(response).to have_http_status(:success)
     end
   end
 
-  describe "GET /show" do
+  describe "GET /histories/new" do
     it "returns http success" do
-      get "/histories/show"
+      get new_history_path
       expect(response).to have_http_status(:success)
     end
   end
 
-  describe "GET /new" do
+  describe "GET /histories/:id/edit" do
     it "returns http success" do
-      get "/histories/new"
+      get edit_history_path(history)
       expect(response).to have_http_status(:success)
     end
   end
 
-  describe "GET /edit" do
-    it "returns http success" do
-      get "/histories/edit"
-      expect(response).to have_http_status(:success)
+  describe "POST /histories" do
+    it "creates a new history" do
+      post histories_path, params: { history: { content: 'test', memo: 'memo' } }
+      expect(response).to have_http_status(:redirect)
     end
   end
 
-  describe "GET /create" do
-    it "returns http success" do
-      get "/histories/create"
-      expect(response).to have_http_status(:success)
+  describe "PATCH /histories/:id" do
+    it "updates the history" do
+      patch history_path(history), params: { history: { memo: 'updated' } }
+      expect(response).to have_http_status(:redirect)
     end
   end
 
-  describe "GET /update" do
-    it "returns http success" do
-      get "/histories/update"
-      expect(response).to have_http_status(:success)
+  describe "DELETE /histories/:id" do
+    it "deletes the history" do
+      delete history_path(history)
+      expect(response).to have_http_status(:redirect)
     end
   end
 end

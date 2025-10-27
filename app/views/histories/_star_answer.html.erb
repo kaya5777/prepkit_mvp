@@ -1,0 +1,23 @@
+<div class="border border-secondary-200 rounded-lg p-6 bg-gradient-to-br from-white to-secondary-50">
+  <div class="font-semibold text-lg text-secondary-900 mb-4">
+    <span class="text-primary-600">#<%= index + 1 %></span> <%= star['question'] || star[:question] %>
+  </div>
+  <div class="space-y-3 ml-6">
+    <div class="flex gap-3">
+      <%= star_label("S", "text-primary-600") %>
+      <span class="text-secondary-700"><%= star['situation'] || star[:situation] %></span>
+    </div>
+    <div class="flex gap-3">
+      <%= star_label("T", "text-secondary-600") %>
+      <span class="text-secondary-700"><%= star['task'] || star[:task] %></span>
+    </div>
+    <div class="flex gap-3">
+      <%= star_label("A", "text-primary-500") %>
+      <span class="text-secondary-700"><%= star['action'] || star[:action] %></span>
+    </div>
+    <div class="flex gap-3">
+      <%= star_label("R", "text-secondary-700") %>
+      <span class="text-secondary-700"><%= star['result'] || star[:result] %></span>
+    </div>
+  </div>
+</div>

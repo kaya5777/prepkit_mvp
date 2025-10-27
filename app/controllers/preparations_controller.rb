@@ -4,68 +4,37 @@ class PreparationsController < ApplicationController
 
   def create
     # 入力検証
-    jd = params[:job_description].to_s.strip
-    cn = params[:company_name].to_s.strip
-    if jd.empty?
+    job_description = params[:job_description].to_s.strip
+    company_name = params[:company_name].to_s.strip
+
+    if job_description.empty?
       flash.now[:alert] = "求人票の入力は必須です。"
       return render :new, status: :unprocessable_content
     end
 
     # URL判定と取得処理
-    if url?(jd)
-      begin
-        jd = JobDescriptionFetcherService.call(jd)
-        if jd.empty?
-          flash.now[:alert] = "URLから求人情報を取得できませんでした。"
-          return render :new, status: :unprocessable_content
-        end
-      rescue JobDescriptionFetcherService::FetchError => e
-        flash.now[:alert] = e.message
-        return render :new, status: :unprocessable_content
-      end
-    end
+    job_description = fetch_from_url_if_needed(job_description)
+    return if performed? # エラー時は既にレンダリング済み
 
-    # OpenAI API キー事前チェック
-    if ENV["OPENAI_API_KEY"].to_s.strip.empty?
-      flash.now[:alert] = "OpenAI の API キーが設定されていません（code: missing_api_key）。管理者にお問い合わせください。"
-      return render :new, status: :service_unavailable
-    end
-
+    # InterviewKitGeneratorServiceで生成
     begin
-      client = OpenAI::Client.new
-      response = client.chat.completions.create(
-        model: "gpt-4o-mini",
-        messages: [
-          { role: "system", content: "あなたは面接官です。JSON形式で出力してください。" },
-          { role: "user", content: prompt_for(jd) }
-        ]
-      )
-
-      # OpenAIクライアントのオブジェクト（ChatCompletion）を前提とした取得
-      first_choice = response.respond_to?(:choices) ? response.choices&.first : nil
-      message = first_choice.respond_to?(:message) ? first_choice.message : (first_choice.is_a?(Hash) ? first_choice[:message] : nil)
-      content = message.respond_to?(:content) ? message.content : (message.is_a?(Hash) ? message[:content] : nil)
-      if content.blank?
-        Rails.logger.error "OpenAI 応答に content がありません: #{response.inspect}"
-        flash.now[:alert] = "生成に失敗しました（code: content_blank）。しばらくしてから再度お試しください。"
-        return render :new, status: :service_unavailable
-      end
-
-      json_string = content.gsub(/\A```json|```|\A```|\Z```/m, "").strip
-      @result = JSON.parse(json_string, symbolize_names: true)
-      # 履歴も保存
-      History.create!(content: content, memo: "", asked_at: Time.current, job_description: jd, company_name: cn)
+      result = InterviewKitGeneratorService.call(job_description, company_name)
+      @result = result[:result]
       render :show
-    rescue JSON::ParserError => e
-      Rails.logger.error "JSON パース失敗: #{e.message}"
-      flash.now[:alert] = "生成結果の形式が不正でした（#{e.message}）。もう一度お試しください。"
+    rescue InterviewKitGeneratorService::APIKeyMissingError => e
+      flash.now[:alert] = e.message
+      render :new, status: :service_unavailable
+    rescue InterviewKitGeneratorService::ContentBlankError => e
+      flash.now[:alert] = e.message
+      render :new, status: :service_unavailable
+    rescue InterviewKitGeneratorService::ParseError => e
+      flash.now[:alert] = e.message
       render :new, status: :unprocessable_content
+    rescue InterviewKitGeneratorService::AuthenticationError => e
+      flash.now[:alert] = e.message
+      render :new, status: :service_unavailable
     rescue StandardError => e
       Rails.logger.error "想定外のエラー: #{e.class} #{e.message}"
-      if e.class.to_s.include?("AuthenticationError") || e.message.include?("status=>401")
-        flash.now[:alert] = "OpenAI への認証に失敗しました（401）。APIキーが未設定または無効です。管理者にお問い合わせください。"
-        return render :new, status: :service_unavailable
-      end
       flash.now[:alert] = "エラーが発生しました（#{e.class}: #{e.message}）。時間をおいて再度お試しください。"
       render :new, status: :internal_server_error
     end
@@ -77,23 +46,21 @@ class PreparationsController < ApplicationController
     text.match?(/\A(https?:\/\/)/)
   end
 
-  def prompt_for(jd)
-    <<~PROMPT
-    以下の求人票をもとに面接準備キットを生成してください。
-    JSON形式で出力してください。
+  def fetch_from_url_if_needed(job_description)
+    return job_description unless url?(job_description)
 
-    出力フォーマット:
-    {
-      "questions": ["質問1", "質問2", ...],
-      "star_answers": [
-        {"question": "質問1", "situation": "...", "task": "...", "action": "...", "result": "..."}
-      ],
-      "reverse_questions": ["逆質問1", "逆質問2"],
-      "tech_checklist": ["チェック項目1", "チェック項目2"]
-    }
-
-    求人票:
-    #{jd}
-    PROMPT
+    begin
+      fetched_content = JobDescriptionFetcherService.call(job_description)
+      if fetched_content.empty?
+        flash.now[:alert] = "URLから求人情報を取得できませんでした。"
+        render :new, status: :unprocessable_content
+        return nil
+      end
+      fetched_content
+    rescue JobDescriptionFetcherService::FetchError => e
+      flash.now[:alert] = e.message
+      render :new, status: :unprocessable_content
+      nil
+    end
   end
 end

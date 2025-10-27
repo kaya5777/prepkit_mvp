@@ -1,0 +1,13 @@
+<div class="mb-8 bg-white rounded-lg shadow-sm border border-secondary-200 overflow-hidden">
+  <%= section_header("逆質問リスト", "bg-gradient-to-r from-secondary-50 to-primary-50") %>
+  <div class="p-6">
+    <ul class="space-y-3">
+      <% reverse_questions.each do |q| %>
+        <li class="flex gap-3 p-4 bg-secondary-50 rounded-lg">
+          <%= arrow_icon_filled(css_class: "w-5 h-5 text-primary-600 flex-shrink-0 mt-0.5") %>
+          <span class="flex-1 text-secondary-800"><%= q %></span>
+        </li>
+      <% end %>
+    </ul>
+  </div>
+</div>
