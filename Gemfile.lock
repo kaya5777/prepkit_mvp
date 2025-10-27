@@ -149,7 +149,7 @@ GEM
       racc (~> 1.4)
     nokogiri (1.18.10-x86_64-linux-gnu)
       racc (~> 1.4)
-    openai (0.23.0)
+    openai (0.34.1)
       connection_pool
     parallel (1.27.0)
     parser (3.3.9.0)
@@ -322,7 +322,7 @@ DEPENDENCIES
   faker (~> 3.4)
   importmap-rails
   nokogiri (~> 1.16)
-  openai (~> 0.23)
+  openai (~> 0.34)
   pg
   puma (~> 6.0)
   rails (~> 7.2.0)
