@@ -12,6 +12,10 @@ RUN bundle install
 # アプリ全体をコピー
 COPY . .
 
+# Tailwind CSSとアセットをビルド
+RUN bundle exec rails tailwindcss:build
+RUN SECRET_KEY_BASE=dummy bundle exec rails assets:precompile
+
 # エントリーポイントスクリプトをコピーして実行権限を付与
 COPY docker-entrypoint.sh /usr/local/bin/
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh
