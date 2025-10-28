@@ -41,9 +41,10 @@ class InterviewKitGeneratorService
     client.chat.completions.create(
       model: "gpt-4o-mini",
       messages: [
-        { role: "system", content: "あなたは面接官です。JSON形式で出力してください。" },
+        { role: "system", content: system_prompt },
         { role: "user", content: build_prompt }
-      ]
+      ],
+      temperature: 0.7
     )
   end
 
@@ -62,7 +63,24 @@ class InterviewKitGeneratorService
 
   def parse_json_content(content)
     json_string = content.gsub(/\A```json|```|\A```|\Z```/m, "").strip
-    JSON.parse(json_string, symbolize_names: true)
+    parsed = JSON.parse(json_string, symbolize_names: true)
+
+    # questionsが配列でない場合（オブジェクトの配列など）、文字列の配列に変換
+    if parsed[:questions].is_a?(Array) && parsed[:questions].first.is_a?(Hash)
+      parsed[:questions] = parsed[:questions].map { |q| q[:question] || q["question"] }
+    end
+
+    # reverse_questionsも同様に変換
+    if parsed[:reverse_questions].is_a?(Array) && parsed[:reverse_questions].first.is_a?(Hash)
+      parsed[:reverse_questions] = parsed[:reverse_questions].map { |q| q[:question] || q["question"] || q.to_s }
+    end
+
+    # tech_checklistも同様に変換
+    if parsed[:tech_checklist].is_a?(Array) && parsed[:tech_checklist].first.is_a?(Hash)
+      parsed[:tech_checklist] = parsed[:tech_checklist].map { |item| item[:item] || item["item"] || item.to_s }
+    end
+
+    parsed
   rescue JSON::ParserError => e
     Rails.logger.error "JSON パース失敗: #{e.message}"
     raise ParseError, "生成結果の形式が不正でした（#{e.message}）。もう一度お試しください。"
@@ -78,23 +96,41 @@ class InterviewKitGeneratorService
     )
   end
 
+  def system_prompt
+    <<~PROMPT
+    あなたは採用面接の専門家です。求人票から面接対策情報をJSON形式で生成します。
+    出力形式: {"questions":[],"star_answers":[],"reverse_questions":[],"tech_checklist":[]}
+    PROMPT
+  end
+
   def build_prompt
     <<~PROMPT
-    以下の求人票をもとに面接対策用の情報を生成してください。
-    JSON形式で出力してください。
+    求人票を分析し、面接対策情報を以下の形式のJSONで生成してください。
 
-    出力フォーマット:
+    【求人票】
+    #{@job_description}
+
+    【出力形式】
     {
-      "questions": ["質問1", "質問2", ...],
+      "questions": ["質問文1", "質問文2", "質問文3", "質問文4", "質問文5"],
       "star_answers": [
-        {"question": "質問1", "situation": "...", "task": "...", "action": "...", "result": "..."}
+        {"question": "質問文1", "situation": "状況", "task": "課題", "action": "行動", "result": "成果"},
+        {"question": "質問文2", "situation": "状況", "task": "課題", "action": "行動", "result": "成果"},
+        ...5個すべて
       ],
-      "reverse_questions": ["逆質問1", "逆質問2"],
-      "tech_checklist": ["チェック項目1", "チェック項目2"]
+      "reverse_questions": ["逆質問1", "逆質問2", ...],
+      "tech_checklist": ["確認項目1", "確認項目2", ...]
     }
 
-    求人票:
-    #{@job_description}
+    【要件】
+    - questions: 技術質問3個+行動面接質問2個の計5個（文字列の配列）
+    - star_answers: questionsの5問全てに対応するSTAR回答（各要素2文程度）
+    - reverse_questions: 深掘りできる逆質問5-7個（文字列の配列）
+    - tech_checklist: 面接前の確認項目5-8個（文字列の配列）
+
+    ※questionsとreverse_questions、tech_checklistは必ず文字列の配列にすること
+    ※求人内容に特化した具体的な内容にする
+    ※JSONのみ出力（説明文不要）
     PROMPT
   end
 

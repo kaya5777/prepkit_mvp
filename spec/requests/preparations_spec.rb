@@ -33,18 +33,18 @@ RSpec.describe "Preparations", type: :request do
         fake_client = instance_double(OpenAI::Client)
         allow(OpenAI::Client).to receive(:new).and_return(fake_client)
         message = double('message', content: {
-          questions: [ "Q1" ],
+          questions: [ "Q1", "Q2" ],
           star_answers: [
-            { question: "Q1", situation: "S", task: "T", action: "A", result: "R" }
+            { question: "Q1", situation: "具体的な状況説明", task: "課題の定義", action: "取った行動", result: "定量的な成果" }
           ],
-          reverse_questions: [ "RQ1" ],
-          tech_checklist: [ "C1" ]
+          reverse_questions: [ "企業の技術スタックについて教えてください", "チームの開発プロセスはどうなっていますか" ],
+          tech_checklist: [ "技術項目1を理解している", "技術項目2を説明できる" ]
         }.to_json)
         choice = double('choice', message: message)
         chat_completion = double('chat_completion', choices: [ choice ])
         allow(fake_client).to receive_message_chain(:chat, :completions, :create).and_return(chat_completion)
 
-        post preparations_path, params: { job_description: "foo" }
+        post preparations_path, params: { job_description: "Railsエンジニア募集" }
         expect(response).to have_http_status(:ok)
       end
     end
