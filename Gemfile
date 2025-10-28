@@ -26,6 +26,6 @@ group :test do
   gem "vcr", "~> 6.3"
 end
 
-gem "tailwindcss-rails", "~> 4.3"
+gem "tailwindcss-rails", "~> 4.4"
 
 gem "sprockets-rails", "~> 3.5"
