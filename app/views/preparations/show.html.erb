@@ -12,7 +12,7 @@
         </div>
         <h1 class="text-4xl font-bold">面接対策ノートが完成しました！</h1>
       </div>
-      <p class="text-primary-50 text-lg ml-16">AIが生成した想定質問と回答例を確認して、面接対策を始めましょう</p>
+      <p class="text-primary-50 text-lg ml-16">AIが生成した想定質問と回答ポイントを確認して、面接対策を始めましょう</p>
     </div>
   </div>
 
@@ -28,14 +28,67 @@
     </div>
     <div class="p-6">
       <% if @result[:questions]&.any? %>
-        <ul class="space-y-3">
+        <ul class="space-y-4">
           <% @result[:questions]&.each_with_index do |q, index| %>
-            <li class="flex gap-3 p-4 bg-secondary-50 rounded-lg">
-              <span class="flex-shrink-0 w-8 h-8 bg-primary-500 text-white rounded-full flex items-center justify-center font-semibold text-sm">
-                <%= index + 1 %>
-              </span>
-              <span class="flex-1 text-secondary-800"><%= q %></span>
-            </li>
+            <% if q.is_a?(Hash) %>
+              <!-- 新形式: intent, answer_points, level付き -->
+              <li class="border border-secondary-200 rounded-lg p-5 bg-gradient-to-br from-white to-secondary-50">
+                <div class="flex gap-3 mb-3">
+                  <span class="flex-shrink-0 w-8 h-8 bg-primary-500 text-white rounded-full flex items-center justify-center font-semibold text-sm">
+                    <%= index + 1 %>
+                  </span>
+                  <div class="flex-1">
+                    <span class="text-lg font-semibold text-secondary-900">
+                      <%= q[:question] || q["question"] %>
+                    </span>
+                  </div>
+                </div>
+
+                <% if (q[:intent] || q["intent"]).present? %>
+                  <div class="ml-11 mb-3 p-3 bg-amber-50 border-l-4 border-amber-400 rounded">
+                    <div class="flex gap-2 items-start">
+                      <svg class="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M11 3a1 1 0 10-2 0v1a1 1 0 102 0V3zM15.657 5.757a1 1 0 00-1.414-1.414l-.707.707a1 1 0 001.414 1.414l.707-.707zM18 10a1 1 0 01-1 1h-1a1 1 0 110-2h1a1 1 0 011 1zM5.05 6.464A1 1 0 106.464 5.05l-.707-.707a1 1 0 00-1.414 1.414l.707.707zM5 10a1 1 0 01-1 1H3a1 1 0 110-2h1a1 1 0 011 1zM8 16v-1h4v1a2 2 0 11-4 0zM12 14c.015-.34.208-.646.477-.859a4 4 0 10-4.954 0c.27.213.462.519.476.859h4.002z"/>
+                      </svg>
+                      <div class="flex-1">
+                        <div class="text-xs font-semibold text-amber-800 mb-1">面接官の意図</div>
+                        <div class="text-sm text-amber-900"><%= q[:intent] || q["intent"] %></div>
+                      </div>
+                    </div>
+                  </div>
+                <% end %>
+
+                <% answer_points = q[:answer_points] || q["answer_points"] %>
+                <% if answer_points.present? && answer_points.any? %>
+                  <div class="ml-11 p-3 bg-primary-50 rounded">
+                    <div class="flex gap-2 items-start">
+                      <svg class="w-5 h-5 text-primary-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                      </svg>
+                      <div class="flex-1">
+                        <div class="text-xs font-semibold text-primary-800 mb-2">回答のポイント</div>
+                        <ul class="space-y-1.5">
+                          <% answer_points.each do |point| %>
+                            <li class="flex gap-2 items-start">
+                              <span class="text-primary-600 text-sm flex-shrink-0">•</span>
+                              <span class="text-sm text-secondary-700"><%= point %></span>
+                            </li>
+                          <% end %>
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+                <% end %>
+              </li>
+            <% else %>
+              <!-- 旧形式: 文字列のみ -->
+              <li class="flex gap-3 p-4 bg-secondary-50 rounded-lg">
+                <span class="flex-shrink-0 w-8 h-8 bg-primary-500 text-white rounded-full flex items-center justify-center font-semibold text-sm">
+                  <%= index + 1 %>
+                </span>
+                <span class="flex-1 text-secondary-800"><%= q %></span>
+              </li>
+            <% end %>
           <% end %>
         </ul>
       <% else %>
@@ -44,48 +97,6 @@
     </div>
   </div>
 
-  <!-- STAR Answers Section -->
-  <div class="mb-8 bg-white rounded-lg shadow-sm border border-secondary-200 overflow-hidden">
-    <div class="bg-gradient-to-r from-primary-50 to-secondary-50 px-6 py-4 border-b border-gray-200">
-      <div class="flex items-center gap-2">
-        <svg class="w-6 h-6 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
-        </svg>
-        <h2 class="text-xl font-bold text-gray-900">STAR回答例</h2>
-      </div>
-    </div>
-    <div class="p-6 space-y-6">
-      <% if @result[:star_answers]&.any? %>
-        <% @result[:star_answers].each_with_index do |star, index| %>
-          <div class="border border-secondary-200 rounded-lg p-6 bg-gradient-to-br from-white to-secondary-50">
-            <div class="font-semibold text-lg text-secondary-900 mb-4">
-              <span class="text-primary-600">#<%= index + 1 %></span> <%= star[:question] %>
-            </div>
-            <div class="space-y-3 ml-6">
-              <div class="flex gap-3">
-                <span class="font-bold text-primary-600 w-20 flex-shrink-0">S:</span>
-                <span class="text-secondary-700"><%= star[:situation] %></span>
-              </div>
-              <div class="flex gap-3">
-                <span class="font-bold text-secondary-600 w-20 flex-shrink-0">T:</span>
-                <span class="text-secondary-700"><%= star[:task] %></span>
-              </div>
-              <div class="flex gap-3">
-                <span class="font-bold text-primary-500 w-20 flex-shrink-0">A:</span>
-                <span class="text-secondary-700"><%= star[:action] %></span>
-              </div>
-              <div class="flex gap-3">
-                <span class="font-bold text-secondary-700 w-20 flex-shrink-0">R:</span>
-                <span class="text-secondary-700"><%= star[:result] %></span>
-              </div>
-            </div>
-          </div>
-        <% end %>
-      <% else %>
-        <p class="text-gray-500 text-center py-4">STAR回答例はありません。</p>
-      <% end %>
-    </div>
-  </div>
 
   <!-- Reverse Questions Section -->
   <div class="mb-8 bg-white rounded-lg shadow-sm border border-secondary-200 overflow-hidden">
@@ -94,23 +105,16 @@
         <svg class="w-6 h-6 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
         </svg>
-        <h2 class="text-xl font-bold text-secondary-900">逆質問リスト</h2>
+        <h2 class="text-xl font-bold text-secondary-900">逆質問のアドバイス</h2>
       </div>
     </div>
     <div class="p-6">
-      <% if @result[:reverse_questions]&.any? %>
-        <ul class="space-y-3">
-          <% @result[:reverse_questions].each do |rq| %>
-            <li class="flex gap-3 p-4 bg-secondary-50 rounded-lg hover:bg-primary-50 transition-colors">
-              <svg class="w-5 h-5 text-primary-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
-              </svg>
-              <span class="flex-1 text-secondary-800"><%= rq %></span>
-            </li>
-          <% end %>
-        </ul>
+      <% if @result[:reverse_questions].present? %>
+        <div class="p-5 bg-gradient-to-br from-secondary-50 to-primary-50 rounded-lg border border-secondary-200">
+          <p class="text-secondary-800 leading-relaxed whitespace-pre-line"><%= @result[:reverse_questions] %></p>
+        </div>
       <% else %>
-        <p class="text-gray-500 text-center py-4">逆質問はありません。</p>
+        <p class="text-gray-500 text-center py-4">逆質問のアドバイスはありません。</p>
       <% end %>
     </div>
   </div>

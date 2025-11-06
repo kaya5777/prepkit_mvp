@@ -55,23 +55,48 @@
       <!-- Title -->
       <h3 class="text-2xl font-bold text-secondary-900 mb-3">AIが分析中です</h3>
 
-      <!-- Message -->
-      <p class="text-secondary-600 mb-2">求人票の内容を分析し、</p>
-      <p class="text-secondary-600 mb-4">想定質問と回答例を生成しています...</p>
+      <!-- Progress Bar -->
+      <div class="mb-4">
+        <div class="w-full bg-secondary-200 rounded-full h-2 overflow-hidden">
+          <div id="progressBar" class="bg-gradient-to-r from-primary-500 to-primary-600 h-2 rounded-full transition-all duration-1000 ease-out" style="width: 0%"></div>
+        </div>
+        <p class="text-sm text-secondary-600 mt-2">
+          <span id="progressText">準備中...</span>
+          <span id="progressPercent" class="font-semibold text-primary-600">0%</span>
+        </p>
+      </div>
 
       <!-- Progress indicators -->
-      <div class="space-y-2 text-sm text-secondary-500">
-        <div class="flex items-center justify-center gap-2" id="step1">
-          <div class="w-2 h-2 bg-primary-600 rounded-full animate-pulse"></div>
-          <span>求人票を解析中</span>
+      <div class="space-y-3 text-sm">
+        <div class="flex items-center gap-3 p-2 rounded-lg transition-all duration-300" id="step1">
+          <div class="w-6 h-6 rounded-full flex items-center justify-center bg-secondary-200" id="step1-icon">
+            <div class="w-2 h-2 bg-secondary-400 rounded-full"></div>
+          </div>
+          <span class="text-secondary-500" id="step1-text">求人票を解析中</span>
         </div>
-        <div class="flex items-center justify-center gap-2" id="step2">
-          <div class="w-2 h-2 bg-primary-500 rounded-full animate-pulse"></div>
-          <span>想定質問を生成中</span>
+        <div class="flex items-center gap-3 p-2 rounded-lg transition-all duration-300" id="step2">
+          <div class="w-6 h-6 rounded-full flex items-center justify-center bg-secondary-200" id="step2-icon">
+            <div class="w-2 h-2 bg-secondary-400 rounded-full"></div>
+          </div>
+          <span class="text-secondary-500" id="step2-text">想定質問を生成中</span>
         </div>
-        <div class="flex items-center justify-center gap-2" id="step3">
-          <div class="w-2 h-2 bg-primary-400 rounded-full animate-pulse"></div>
-          <span>回答例を作成中</span>
+        <div class="flex items-center gap-3 p-2 rounded-lg transition-all duration-300" id="step3">
+          <div class="w-6 h-6 rounded-full flex items-center justify-center bg-secondary-200" id="step3-icon">
+            <div class="w-2 h-2 bg-secondary-400 rounded-full"></div>
+          </div>
+          <span class="text-secondary-500" id="step3-text">質問の意図と回答ポイントを分析中</span>
+        </div>
+        <div class="flex items-center gap-3 p-2 rounded-lg transition-all duration-300" id="step4">
+          <div class="w-6 h-6 rounded-full flex items-center justify-center bg-secondary-200" id="step4-icon">
+            <div class="w-2 h-2 bg-secondary-400 rounded-full"></div>
+          </div>
+          <span class="text-secondary-500" id="step4-text">逆質問のアドバイスを生成中</span>
+        </div>
+        <div class="flex items-center gap-3 p-2 rounded-lg transition-all duration-300" id="step5">
+          <div class="w-6 h-6 rounded-full flex items-center justify-center bg-secondary-200" id="step5-icon">
+            <div class="w-2 h-2 bg-secondary-400 rounded-full"></div>
+          </div>
+          <span class="text-secondary-500" id="step5-text">技術チェックリストを作成中</span>
         </div>
       </div>
 
@@ -87,10 +112,78 @@
   document.addEventListener('DOMContentLoaded', function() {
     const form = document.getElementById('preparation-form');
     const modal = document.getElementById('loadingModal');
+    const progressBar = document.getElementById('progressBar');
+    const progressPercent = document.getElementById('progressPercent');
+    const progressText = document.getElementById('progressText');
+
+    const steps = [
+      { id: 1, text: '求人票を解析中...', duration: 3000, progress: 20 },
+      { id: 2, text: '想定質問を生成中...', duration: 8000, progress: 40 },
+      { id: 3, text: '質問の意図と回答ポイントを分析中...', duration: 12000, progress: 60 },
+      { id: 4, text: '逆質問のアドバイスを生成中...', duration: 6000, progress: 80 },
+      { id: 5, text: '技術チェックリストを作成中...', duration: 5000, progress: 95 }
+    ];
+
+    function activateStep(stepId) {
+      const step = document.getElementById(`step${stepId}`);
+      const icon = document.getElementById(`step${stepId}-icon`);
+      const text = document.getElementById(`step${stepId}-text`);
+
+      // アクティブ状態のスタイル
+      step.classList.add('bg-primary-50');
+      icon.innerHTML = '<div class="w-3 h-3 bg-primary-600 rounded-full animate-pulse"></div>';
+      text.classList.remove('text-secondary-500');
+      text.classList.add('text-secondary-900', 'font-semibold');
+    }
+
+    function completeStep(stepId) {
+      const step = document.getElementById(`step${stepId}`);
+      const icon = document.getElementById(`step${stepId}-icon`);
+      const text = document.getElementById(`step${stepId}-text`);
+
+      // 完了状態のスタイル
+      step.classList.remove('bg-primary-50');
+      icon.classList.add('bg-primary-500');
+      icon.innerHTML = `
+        <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path>
+        </svg>
+      `;
+      text.classList.remove('font-semibold');
+      text.classList.add('line-through', 'text-secondary-400');
+    }
+
+    function updateProgress(percent, text) {
+      progressBar.style.width = percent + '%';
+      progressPercent.textContent = percent + '%';
+      progressText.textContent = text;
+    }
 
     form.addEventListener('submit', function(e) {
-      // Show loading modal
       modal.classList.remove('hidden');
+
+      let currentStep = 0;
+
+      function processNextStep() {
+        if (currentStep > 0) {
+          completeStep(currentStep);
+        }
+
+        currentStep++;
+
+        if (currentStep <= steps.length) {
+          const step = steps[currentStep - 1];
+          activateStep(step.id);
+          updateProgress(step.progress, step.text);
+
+          setTimeout(processNextStep, step.duration);
+        } else {
+          updateProgress(100, '完成しました！');
+        }
+      }
+
+      // 最初のステップを開始
+      setTimeout(processNextStep, 500);
     });
   });
 </script>

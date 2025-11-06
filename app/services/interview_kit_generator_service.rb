@@ -65,17 +65,40 @@ class InterviewKitGeneratorService
     json_string = content.gsub(/\A```json|```|\A```|\Z```/m, "").strip
     parsed = JSON.parse(json_string, symbolize_names: true)
 
-    # questionsが配列でない場合（オブジェクトの配列など）、文字列の配列に変換
-    if parsed[:questions].is_a?(Array) && parsed[:questions].first.is_a?(Hash)
-      parsed[:questions] = parsed[:questions].map { |q| q[:question] || q["question"] }
+    # questionsが正しい形式（オブジェクトの配列）であることを確認
+    if parsed[:questions].is_a?(Array)
+      parsed[:questions] = parsed[:questions].map do |q|
+        if q.is_a?(Hash)
+          # 新形式: {question, intent, answer_points, level}
+          {
+            question: q[:question] || q["question"],
+            intent: q[:intent] || q["intent"] || "",
+            answer_points: q[:answer_points] || q["answer_points"] || [],
+            level: q[:level] || q["level"] || ""
+          }
+        else
+          # 旧形式の文字列の場合は変換
+          {
+            question: q.to_s,
+            intent: "",
+            answer_points: [],
+            level: ""
+          }
+        end
+      end
     end
 
-    # reverse_questionsも同様に変換
-    if parsed[:reverse_questions].is_a?(Array) && parsed[:reverse_questions].first.is_a?(Hash)
-      parsed[:reverse_questions] = parsed[:reverse_questions].map { |q| q[:question] || q["question"] || q.to_s }
+    # reverse_questionsが文字列であることを確認（新形式）または配列から文字列に変換（旧形式との互換性）
+    if parsed[:reverse_questions].is_a?(Array)
+      # 旧形式: 配列の場合は改行で結合
+      parsed[:reverse_questions] = parsed[:reverse_questions].map do |q|
+        q.is_a?(Hash) ? (q[:question] || q["question"] || q.to_s) : q.to_s
+      end.join("\n")
+    elsif !parsed[:reverse_questions].is_a?(String)
+      parsed[:reverse_questions] = ""
     end
 
-    # tech_checklistも同様に変換
+    # tech_checklistが文字列の配列であることを確認
     if parsed[:tech_checklist].is_a?(Array) && parsed[:tech_checklist].first.is_a?(Hash)
       parsed[:tech_checklist] = parsed[:tech_checklist].map { |item| item[:item] || item["item"] || item.to_s }
     end
@@ -99,7 +122,7 @@ class InterviewKitGeneratorService
   def system_prompt
     <<~PROMPT
     あなたは採用面接の専門家です。求人票から面接対策情報をJSON形式で生成します。
-    出力形式: {"questions":[],"star_answers":[],"reverse_questions":[],"tech_checklist":[]}
+    出力形式: {"questions":[],"reverse_questions":[],"tech_checklist":[]}
     PROMPT
   end
 
@@ -112,24 +135,57 @@ class InterviewKitGeneratorService
 
     【出力形式】
     {
-      "questions": ["質問文1", "質問文2", "質問文3", "質問文4", "質問文5"],
-      "star_answers": [
-        {"question": "質問文1", "situation": "状況", "task": "課題", "action": "行動", "result": "成果"},
-        {"question": "質問文2", "situation": "状況", "task": "課題", "action": "行動", "result": "成果"},
-        ...5個すべて
+      "questions": [
+        {
+          "question": "質問文",
+          "intent": "この質問で面接官が知りたいこと（1-2文）",
+          "answer_points": ["回答のポイント1", "回答のポイント2", "回答のポイント3"],
+          "level": "募集職種のレベル（例：Junior Engineer, Mid-level Engineer, Senior Engineer, Tech Lead, Engineering Manager, など）"
+        }
       ],
-      "reverse_questions": ["逆質問1", "逆質問2", ...],
+      "reverse_questions": "逆質問のアドバイス（2-3行の文章）",
       "tech_checklist": ["確認項目1", "確認項目2", ...]
     }
 
-    【要件】
-    - questions: 技術質問3個+行動面接質問2個の計5個（文字列の配列）
-    - star_answers: questionsの5問全てに対応するSTAR回答（各要素2文程度）
-    - reverse_questions: 深掘りできる逆質問5-7個（文字列の配列）
-    - tech_checklist: 面接前の確認項目5-8個（文字列の配列）
+    【重要な指示】
 
-    ※questionsとreverse_questions、tech_checklistは必ず文字列の配列にすること
+    1. questions: 技術質問3個+行動面接質問2個の計5個
+       - question: 質問文
+       - intent: 面接官がこの質問で本当に知りたいこと（深層心理）
+       - answer_points: **募集職種のレベルに応じて、その役職に期待される回答ポイント**を3-4個
+
+         例：
+         - 「Junior Engineer」募集の場合
+           → 基礎知識の理解度、学習意欲、成長ポテンシャルを示すポイント
+
+         - 「Senior Engineer」募集の場合
+           → 実装力だけでなく、設計判断、技術選定の根拠、パフォーマンス最適化の経験など
+
+         - 「Engineering Manager (EM)」募集の場合
+           → チームマネジメント経験、1on1やパフォーマンス評価の手法、技術的意思決定とビジネス目標のバランス、採用・育成の実績など
+
+         - 「Tech Lead」募集の場合
+           → アーキテクチャ設計の主導経験、技術的負債の解消戦略、メンバーのコードレビューやメンタリング、ステークホルダーとの技術コミュニケーションなど
+
+       - level: 求人票から判断した募集職種のレベル（日本語または英語で具体的に記述）
+         例：「Junior Engineer」「Senior Engineer」「Engineering Manager」「Tech Lead」「Staff Engineer」など
+
+    2. reverse_questions: **募集職種のレベルと理想的な人物像に合わせた逆質問のアドバイス**（2-3行の文章）
+
+         例：
+         - Junior Engineer募集の場合
+           「技術スタックの学習機会や、メンターシップ制度の有無について確認しましょう。成長環境として、コードレビューの文化やペアプログラミングの頻度、オンボーディングプロセスについて聞くことで、学習意欲をアピールできます。」
+
+         - Senior Engineer募集の場合
+           「技術的意思決定のプロセスや、アーキテクチャ設計への関与度について確認しましょう。技術的負債への取り組み方や、新技術導入の判断基準、チーム内での技術リーダーシップの期待値について聞くことで、シニアとしての視点をアピールできます。」
+
+         - Engineering Manager募集の場合
+           「チームの構成や評価制度、1on1の頻度と内容について確認しましょう。採用プロセスへの関与度、キャリア開発の支援体制、エンジニアリングとビジネス目標のバランスをどう取っているかを聞くことで、マネジメント経験と関心をアピールできます。」
+
+    3. tech_checklist: 面接前の確認項目5-8個（文字列の配列）
+
     ※求人内容に特化した具体的な内容にする
+    ※answer_pointsとreverse_questionsは必ず募集職種のレベル（Junior/Senior/EM/Tech Leadなど）を考慮して記述すること
     ※JSONのみ出力（説明文不要）
     PROMPT
   end

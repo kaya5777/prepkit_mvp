@@ -1,13 +1,21 @@
 <div class="mb-8 bg-white rounded-lg shadow-sm border border-secondary-200 overflow-hidden">
-  <%= section_header("逆質問リスト", "bg-gradient-to-r from-secondary-50 to-primary-50") %>
+  <%= section_header("逆質問のアドバイス", "bg-gradient-to-r from-secondary-50 to-primary-50") %>
   <div class="p-6">
-    <ul class="space-y-3">
-      <% reverse_questions.each do |q| %>
-        <li class="flex gap-3 p-4 bg-secondary-50 rounded-lg">
-          <%= arrow_icon_filled(css_class: "w-5 h-5 text-primary-600 flex-shrink-0 mt-0.5") %>
-          <span class="flex-1 text-secondary-800"><%= q %></span>
-        </li>
-      <% end %>
-    </ul>
+    <% if reverse_questions.is_a?(String) %>
+      <!-- 新形式: 文章 -->
+      <div class="p-5 bg-gradient-to-br from-secondary-50 to-primary-50 rounded-lg border border-secondary-200">
+        <p class="text-secondary-800 leading-relaxed whitespace-pre-line"><%= reverse_questions %></p>
+      </div>
+    <% elsif reverse_questions.is_a?(Array) %>
+      <!-- 旧形式: 配列（後方互換性） -->
+      <ul class="space-y-3">
+        <% reverse_questions.each do |q| %>
+          <li class="flex gap-3 p-4 bg-secondary-50 rounded-lg">
+            <%= arrow_icon_filled(css_class: "w-5 h-5 text-primary-600 flex-shrink-0 mt-0.5") %>
+            <span class="flex-1 text-secondary-800"><%= q %></span>
+          </li>
+        <% end %>
+      </ul>
+    <% end %>
   </div>
 </div>

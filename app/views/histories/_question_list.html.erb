@@ -1,12 +1,63 @@
 <div class="mb-8 bg-white rounded-lg shadow-sm border border-secondary-200 overflow-hidden">
   <%= section_header("想定質問リスト", "bg-gradient-to-r from-primary-50 to-primary-100") %>
   <div class="p-6">
-    <ul class="space-y-3">
+    <ul class="space-y-4">
       <% questions.each_with_index do |q, index| %>
-        <li class="flex gap-3 p-4 bg-secondary-50 rounded-lg">
-          <%= numbered_badge(index + 1, color_class: "bg-primary-500") %>
-          <span class="flex-1 text-secondary-800"><%= q %></span>
-        </li>
+        <% if q.is_a?(Hash) %>
+          <!-- 新形式: intent, answer_points, level付き -->
+          <li class="border border-secondary-200 rounded-lg p-5 bg-gradient-to-br from-white to-secondary-50">
+            <div class="flex gap-3 mb-3">
+              <%= numbered_badge(index + 1, color_class: "bg-primary-500") %>
+              <div class="flex-1">
+                <span class="text-lg font-semibold text-secondary-900">
+                  <%= q[:question] || q["question"] %>
+                </span>
+              </div>
+            </div>
+
+            <% if (q[:intent] || q["intent"]).present? %>
+              <div class="ml-11 mb-3 p-3 bg-amber-50 border-l-4 border-amber-400 rounded">
+                <div class="flex gap-2 items-start">
+                  <svg class="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M11 3a1 1 0 10-2 0v1a1 1 0 102 0V3zM15.657 5.757a1 1 0 00-1.414-1.414l-.707.707a1 1 0 001.414 1.414l.707-.707zM18 10a1 1 0 01-1 1h-1a1 1 0 110-2h1a1 1 0 011 1zM5.05 6.464A1 1 0 106.464 5.05l-.707-.707a1 1 0 00-1.414 1.414l.707.707zM5 10a1 1 0 01-1 1H3a1 1 0 110-2h1a1 1 0 011 1zM8 16v-1h4v1a2 2 0 11-4 0zM12 14c.015-.34.208-.646.477-.859a4 4 0 10-4.954 0c.27.213.462.519.476.859h4.002z"/>
+                  </svg>
+                  <div class="flex-1">
+                    <div class="text-xs font-semibold text-amber-800 mb-1">面接官の意図</div>
+                    <div class="text-sm text-amber-900"><%= q[:intent] || q["intent"] %></div>
+                  </div>
+                </div>
+              </div>
+            <% end %>
+
+            <% answer_points = q[:answer_points] || q["answer_points"] %>
+            <% if answer_points.present? && answer_points.any? %>
+              <div class="ml-11 p-3 bg-primary-50 rounded">
+                <div class="flex gap-2 items-start">
+                  <svg class="w-5 h-5 text-primary-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                  </svg>
+                  <div class="flex-1">
+                    <div class="text-xs font-semibold text-primary-800 mb-2">回答のポイント</div>
+                    <ul class="space-y-1.5">
+                      <% answer_points.each do |point| %>
+                        <li class="flex gap-2 items-start">
+                          <span class="text-primary-600 text-sm flex-shrink-0">•</span>
+                          <span class="text-sm text-secondary-700"><%= point %></span>
+                        </li>
+                      <% end %>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            <% end %>
+          </li>
+        <% else %>
+          <!-- 旧形式: 文字列のみ -->
+          <li class="flex gap-3 p-4 bg-secondary-50 rounded-lg">
+            <%= numbered_badge(index + 1, color_class: "bg-primary-500") %>
+            <span class="flex-1 text-secondary-800"><%= q %></span>
+          </li>
+        <% end %>
       <% end %>
     </ul>
   </div>

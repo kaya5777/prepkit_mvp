@@ -33,7 +33,7 @@ RSpec.describe "histories/show.html.erb", type: :view do
     expect(rendered).to include('質問1')
     expect(rendered).to include('質問2')
     expect(rendered).to include('STAR回答例')
-    expect(rendered).to include('逆質問リスト')
+    expect(rendered).to include('逆質問のアドバイス')
     expect(rendered).to include('技術チェックリスト')
   end
 end

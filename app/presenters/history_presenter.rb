@@ -39,10 +39,12 @@ class HistoryPresenter
     parsed_content[:star_answers] || parsed_content["star_answers"] || []
   end
 
-  # 逆質問リスト
+  # 逆質問（文字列または配列）
   def reverse_questions
-    return [] unless valid_json?
-    parsed_content[:reverse_questions] || parsed_content["reverse_questions"] || []
+    return "" unless valid_json?
+    result = parsed_content[:reverse_questions] || parsed_content["reverse_questions"]
+    # 新形式（文字列）または旧形式（配列）をそのまま返す
+    result || ""
   end
 
   # 技術チェックリスト
@@ -61,7 +63,14 @@ class HistoryPresenter
   end
 
   def has_reverse_questions?
-    reverse_questions.any?
+    rq = reverse_questions
+    if rq.is_a?(String)
+      rq.present?
+    elsif rq.is_a?(Array)
+      rq.any?
+    else
+      false
+    end
   end
 
   def has_tech_checklist?
