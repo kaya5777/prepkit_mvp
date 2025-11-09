@@ -116,7 +116,7 @@ class HistoryPresenter
   # いずれかのステージにデータがあるか
   def has_any_stage_data?
     return true unless multi_stage?
-    [1, 2, 3].any? { |stage| has_questions?(stage) }
+    [ 1, 2, 3 ].any? { |stage| has_questions?(stage) }
   end
 
   # ステージ別メモを取得

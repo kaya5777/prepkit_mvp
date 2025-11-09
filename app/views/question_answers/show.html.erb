@@ -1,0 +1,148 @@
+<div class="max-w-4xl mx-auto">
+  <!-- 成功メッセージ -->
+  <% if notice %>
+    <div class="mb-6 p-4 bg-primary-50 border-l-4 border-primary-500 rounded-lg">
+      <p class="text-primary-800"><%= notice %></p>
+    </div>
+  <% end %>
+
+  <!-- 採点結果ヘッダー -->
+  <div class="mb-8 bg-gradient-to-br from-primary-500 via-primary-600 to-primary-700 rounded-3xl elevation-4 p-10 text-white">
+    <div class="text-center">
+      <h1 class="text-4xl font-bold mb-2">📊 採点結果</h1>
+      <p class="text-primary-50">AIがあなたの回答を分析しました</p>
+    </div>
+
+    <!-- スコア表示 -->
+    <div class="mt-8 text-center">
+      <div class="text-7xl font-bold mb-4" id="scoreDisplay">0</div>
+      <div class="text-2xl mb-4">/ 100点</div>
+
+      <!-- プログレスバー -->
+      <div class="w-full max-w-md mx-auto bg-white bg-opacity-20 rounded-full h-4 overflow-hidden">
+        <div id="scoreBar" class="bg-white h-4 rounded-full transition-all duration-1000 ease-out" style="width: 0%"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 質問と回答 -->
+  <div class="mb-6 bg-white rounded-lg shadow-sm border border-secondary-200 p-6">
+    <h2 class="text-lg font-bold text-secondary-900 mb-3">質問</h2>
+    <p class="text-secondary-800 mb-4"><%= @question_answer.question_text %></p>
+
+    <h2 class="text-lg font-bold text-secondary-900 mb-3">あなたの回答</h2>
+    <div class="p-4 bg-secondary-50 rounded-lg">
+      <p class="text-secondary-800 whitespace-pre-wrap"><%= @question_answer.user_answer %></p>
+    </div>
+  </div>
+
+  <!-- フィードバック -->
+  <div class="space-y-6 mb-8">
+    <!-- 良かった点 -->
+    <div class="bg-white rounded-lg shadow-sm border border-secondary-200 overflow-hidden">
+      <div class="bg-gradient-to-r from-green-50 to-green-100 px-6 py-4 border-b border-green-200">
+        <div class="flex items-center gap-2">
+          <svg class="w-6 h-6 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+          </svg>
+          <h2 class="text-xl font-bold text-green-900">良かった点</h2>
+        </div>
+      </div>
+      <div class="p-6">
+        <ul class="space-y-3">
+          <% @question_answer.good_points.each do |point| %>
+            <li class="flex gap-3 items-start">
+              <svg class="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+              </svg>
+              <span class="text-secondary-800"><%= point %></span>
+            </li>
+          <% end %>
+        </ul>
+      </div>
+    </div>
+
+    <!-- 改善点 -->
+    <div class="bg-white rounded-lg shadow-sm border border-secondary-200 overflow-hidden">
+      <div class="bg-gradient-to-r from-amber-50 to-amber-100 px-6 py-4 border-b border-amber-200">
+        <div class="flex items-center gap-2">
+          <svg class="w-6 h-6 text-amber-600" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+          </svg>
+          <h2 class="text-xl font-bold text-amber-900">改善できる点</h2>
+        </div>
+      </div>
+      <div class="p-6">
+        <ul class="space-y-3">
+          <% @question_answer.improvements.each do |improvement| %>
+            <li class="flex gap-3 items-start">
+              <svg class="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+              </svg>
+              <span class="text-secondary-800"><%= improvement %></span>
+            </li>
+          <% end %>
+        </ul>
+      </div>
+    </div>
+
+    <!-- 改善例 -->
+    <% if @question_answer.improvement_example.present? %>
+      <div class="bg-white rounded-lg shadow-sm border border-secondary-200 overflow-hidden">
+        <div class="bg-gradient-to-r from-primary-50 to-primary-100 px-6 py-4 border-b border-primary-200">
+          <div class="flex items-center gap-2">
+            <svg class="w-6 h-6 text-primary-600" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M11 3a1 1 0 10-2 0v1a1 1 0 102 0V3zM15.657 5.757a1 1 0 00-1.414-1.414l-.707.707a1 1 0 001.414 1.414l.707-.707zM18 10a1 1 0 01-1 1h-1a1 1 0 110-2h1a1 1 0 011 1zM5.05 6.464A1 1 0 106.464 5.05l-.707-.707a1 1 0 00-1.414 1.414l.707.707zM5 10a1 1 0 01-1 1H3a1 1 0 110-2h1a1 1 0 011 1zM8 16v-1h4v1a2 2 0 11-4 0zM12 14c.015-.34.208-.646.477-.859a4 4 0 10-4.954 0c.27.213.462.519.476.859h4.002z"/>
+            </svg>
+            <h2 class="text-xl font-bold text-primary-900">改善のヒント</h2>
+          </div>
+        </div>
+        <div class="p-6">
+          <p class="text-secondary-800 leading-relaxed"><%= @question_answer.improvement_example %></p>
+        </div>
+      </div>
+    <% end %>
+  </div>
+
+  <!-- アクションボタン -->
+  <div class="flex gap-4 justify-center">
+    <%= link_to history_path(@history), class: "inline-flex items-center px-6 py-3 bg-white border-2 border-secondary-300 rounded-lg font-medium text-secondary-700 hover:bg-secondary-50 transition-colors" do %>
+      <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+      </svg>
+      履歴に戻る
+    <% end %>
+
+    <%= link_to new_history_question_answer_path(@history, question_index: @question_answer.question_index), class: "inline-flex items-center px-6 py-3 bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 text-white font-bold rounded-lg elevation-2 hover:elevation-3 transition-all" do %>
+      <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+      </svg>
+      もう一度練習する
+    <% end %>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const targetScore = <%= @question_answer.score || 0 %>;
+    const scoreDisplay = document.getElementById('scoreDisplay');
+    const scoreBar = document.getElementById('scoreBar');
+
+    // スコアアニメーション
+    let currentScore = 0;
+    const duration = 1500; // 1.5秒
+    const steps = 60;
+    const increment = targetScore / steps;
+    const stepDuration = duration / steps;
+
+    const interval = setInterval(() => {
+      currentScore += increment;
+      if (currentScore >= targetScore) {
+        currentScore = targetScore;
+        clearInterval(interval);
+      }
+      scoreDisplay.textContent = Math.round(currentScore);
+      scoreBar.style.width = currentScore + '%';
+    }, stepDuration);
+  });
+</script>

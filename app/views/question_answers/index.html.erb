@@ -1,0 +1,156 @@
+<div class="max-w-6xl mx-auto">
+  <!-- ヘッダー -->
+  <div class="mb-6 flex items-center justify-between">
+    <div>
+      <h1 class="text-3xl font-bold text-secondary-900 mb-2">回答練習履歴</h1>
+      <p class="text-secondary-600">
+        <%= link_to @history.company_name.presence || "面接対策ノート", history_path(@history), class: "text-primary-600 hover:text-primary-700 font-medium" %>
+        の練習回答一覧
+      </p>
+    </div>
+    <%= link_to history_path(@history), class: "px-4 py-2 bg-secondary-100 hover:bg-secondary-200 rounded-lg font-medium text-secondary-800 transition-colors" do %>
+      <svg class="w-5 h-5 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+      </svg>
+      戻る
+    <% end %>
+  </div>
+
+  <!-- フィルターとソート -->
+  <div class="mb-6 bg-white rounded-lg shadow-sm border border-secondary-200 p-4">
+    <%= form_with url: history_question_answers_path(@history), method: :get, class: "flex flex-wrap gap-4 items-end" do |f| %>
+      <!-- 質問フィルター -->
+      <div class="flex-1 min-w-[250px]">
+        <%= f.label :question_index, "質問で絞り込み", class: "block text-sm font-semibold text-secondary-700 mb-2" %>
+        <%= f.select :question_index,
+          options_for_select(
+            [["全ての質問", ""]] + @questions.each_with_index.map { |q, i|
+              question_text = q.is_a?(Hash) ? (q[:question] || q["question"]) : q
+              ["Q#{i + 1}: #{question_text.truncate(50)}", i]
+            },
+            params[:question_index]
+          ),
+          {},
+          class: "w-full px-3 py-2 border border-secondary-300 rounded-lg focus:ring-2 focus:ring-primary-100 focus:border-primary-500" %>
+      </div>
+
+      <!-- ソート -->
+      <div class="flex-1 min-w-[200px]">
+        <%= f.label :sort, "並び替え", class: "block text-sm font-semibold text-secondary-700 mb-2" %>
+        <%= f.select :sort,
+          options_for_select(
+            [
+              ["最新順", ""],
+              ["スコア: 高い順", "score_desc"],
+              ["スコア: 低い順", "score_asc"]
+            ],
+            params[:sort]
+          ),
+          {},
+          class: "w-full px-3 py-2 border border-secondary-300 rounded-lg focus:ring-2 focus:ring-primary-100 focus:border-primary-500" %>
+      </div>
+
+      <!-- 適用ボタン -->
+      <div>
+        <%= f.submit "適用", class: "px-6 py-2 bg-primary-500 hover:bg-primary-600 text-white font-semibold rounded-lg transition-colors cursor-pointer" %>
+      </div>
+    <% end %>
+  </div>
+
+  <!-- 統計情報 -->
+  <% if @question_answers.any? %>
+    <div class="mb-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div class="bg-white rounded-lg shadow-sm border border-secondary-200 p-4">
+        <div class="text-sm text-secondary-600 mb-1">総練習回数</div>
+        <div class="text-2xl font-bold text-secondary-900"><%= @question_answers.count %>回</div>
+      </div>
+      <div class="bg-white rounded-lg shadow-sm border border-secondary-200 p-4">
+        <div class="text-sm text-secondary-600 mb-1">平均スコア</div>
+        <div class="text-2xl font-bold text-primary-600"><%= @question_answers.average(:score).to_i %>点</div>
+      </div>
+      <div class="bg-white rounded-lg shadow-sm border border-secondary-200 p-4">
+        <div class="text-sm text-secondary-600 mb-1">最高スコア</div>
+        <div class="text-2xl font-bold text-green-600"><%= @question_answers.maximum(:score) %>点</div>
+      </div>
+    </div>
+  <% end %>
+
+  <!-- 回答一覧 -->
+  <div class="space-y-4">
+    <% if @question_answers.any? %>
+      <% @question_answers.each do |answer| %>
+        <div class="bg-white rounded-lg shadow-sm border border-secondary-200 overflow-hidden hover:shadow-md transition-shadow">
+          <%= link_to history_question_answer_path(@history, answer), class: "block p-6" do %>
+            <div class="flex items-start gap-4">
+              <!-- スコアバッジ -->
+              <div class="flex-shrink-0">
+                <div class="w-20 h-20 rounded-full <%= answer.score >= 80 ? 'bg-gradient-to-br from-green-400 to-green-600' : answer.score >= 60 ? 'bg-gradient-to-br from-blue-400 to-blue-600' : 'bg-gradient-to-br from-amber-400 to-amber-600' %> flex flex-col items-center justify-center text-white shadow-lg">
+                  <div class="text-2xl font-bold"><%= answer.score %></div>
+                  <div class="text-xs">点</div>
+                </div>
+              </div>
+
+              <!-- 回答情報 -->
+              <div class="flex-1 min-w-0">
+                <!-- 質問番号とタイトル -->
+                <div class="flex items-center gap-2 mb-2">
+                  <span class="flex-shrink-0 px-2 py-1 bg-primary-100 text-primary-700 rounded text-xs font-semibold">
+                    Q<%= answer.question_index + 1 %>
+                  </span>
+                  <h3 class="text-lg font-semibold text-secondary-900 truncate">
+                    <%= answer.question_text %>
+                  </h3>
+                </div>
+
+                <!-- 回答プレビュー -->
+                <p class="text-sm text-secondary-600 mb-3 line-clamp-2">
+                  <%= answer.user_answer.truncate(150) %>
+                </p>
+
+                <!-- フィードバックサマリー -->
+                <div class="flex flex-wrap gap-3 text-xs">
+                  <% if answer.good_points.any? %>
+                    <span class="flex items-center gap-1 text-green-700">
+                      <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                      </svg>
+                      良い点: <%= answer.good_points.count %>個
+                    </span>
+                  <% end %>
+                  <% if answer.improvements.any? %>
+                    <span class="flex items-center gap-1 text-amber-700">
+                      <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                      </svg>
+                      改善点: <%= answer.improvements.count %>個
+                    </span>
+                  <% end %>
+                </div>
+              </div>
+
+              <!-- 日時 -->
+              <div class="flex-shrink-0 text-right">
+                <div class="text-xs text-secondary-500">
+                  <%= answer.created_at.strftime('%Y/%m/%d') %>
+                </div>
+                <div class="text-xs text-secondary-500">
+                  <%= answer.created_at.strftime('%H:%M') %>
+                </div>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      <% end %>
+    <% else %>
+      <!-- 空の状態 -->
+      <div class="bg-white rounded-lg shadow-sm border border-secondary-200 p-12 text-center">
+        <svg class="w-16 h-16 mx-auto text-secondary-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+        </svg>
+        <h3 class="text-xl font-semibold text-secondary-700 mb-2">まだ練習回答がありません</h3>
+        <p class="text-secondary-500 mb-6">想定質問に対する回答を練習してみましょう</p>
+        <%= link_to "想定質問を見る", history_path(@history), class: "inline-flex items-center px-6 py-3 bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 text-white font-bold rounded-lg elevation-2 hover:elevation-3 transition-all" %>
+      </div>
+    <% end %>
+  </div>
+</div>
