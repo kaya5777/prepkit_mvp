@@ -20,9 +20,9 @@ RSpec.describe "Preparations", type: :request do
       it "renders error with helpful message" do
         stub_const('ENV', ENV.to_hash.merge('OPENAI_API_KEY' => ''))
         post preparations_path, params: { job_description: "foo" }
-        # InterviewKitGeneratorService raises an error which becomes 500
+        # InterviewKitGeneratorService raises an error which becomes 422
         expect(response.status).to be >= 400
-        expect(response.body).to include('エラーが発生しました')
+        expect(response.body).to include('API キーが設定されていません')
       end
     end
 

@@ -46,6 +46,6 @@ class HistoriesController < ApplicationController
   end
 
   def history_params
-    params.require(:history).permit(:content, :asked_at, :memo, :company_name)
+    params.require(:history).permit(:content, :asked_at, :memo, :company_name, :stage_1_memo, :stage_2_memo, :stage_3_memo)
   end
 end

@@ -5,23 +5,39 @@ class InterviewKitGeneratorService
   class AuthenticationError < StandardError; end
 
   SYSTEM_PROMPT = <<~PROMPT.freeze
-    あなたは採用面接の専門家です。求人票から面接対策情報をJSON形式で生成します。
-    出力形式: {"questions":[],"reverse_questions":[],"tech_checklist":[]}
+    あなたは採用面接の専門家です。求人票から、1次面接（現場クラス）、2次面接（マネージャークラス）、3次面接（社長・役員クラス）の3段階の面接対策情報をJSON形式で生成します。
   PROMPT
 
   OUTPUT_FORMAT = <<~FORMAT.freeze
     {
-      "questions": [
-        {
-          "question": "質問文",
-          "intent": "この質問で面接官が知りたいこと（1-2文）",
-          "answer_points": ["回答のポイント1", "回答のポイント2", "回答のポイント3"],
-          "level": "募集職種のレベル（例：Junior Engineer, Mid-level Engineer, Senior Engineer, Tech Lead, Engineering Manager, など）"
-        }
-      ],
-      "reverse_questions": "逆質問のアドバイス（2-3行の文章）",
-      "tech_checklist": ["確認項目1", "確認項目2", ...]
+      "stage_1": {
+        "questions": [
+          {
+            "question": "1次面接の質問文",
+            "intent": "この質問で面接官が知りたいこと（1-2文）",
+            "answer_points": ["回答のポイント1", "回答のポイント2", "回答のポイント3"],
+            "level": "募集職種のレベル"
+          }
+        ],
+        "reverse_questions": "1次面接での逆質問のアドバイス（2-3行の文章）",
+        "tech_checklist": ["1次面接で確認すべき項目1", "確認項目2", ...]
+      },
+      "stage_2": {
+        "questions": [...],
+        "reverse_questions": "2次面接での逆質問のアドバイス（2-3行の文章）",
+        "tech_checklist": ["2次面接で確認すべき項目1", ...]
+      },
+      "stage_3": {
+        "questions": [...],
+        "reverse_questions": "3次面接での逆質問のアドバイス（2-3行の文章）",
+        "tech_checklist": ["3次面接で確認すべき項目1", ...]
+      }
     }
+
+    ※各段階の特徴：
+    - stage_1 (1次面接 - 現場クラス): 技術的な深掘り、実装経験、問題解決能力を重視
+    - stage_2 (2次面接 - マネージャークラス): チーム適合性、コミュニケーション力、マネジメント経験を重視
+    - stage_3 (3次面接 - 社長・役員クラス): ビジョン共感、キャリア志向、経営視点での貢献を重視
   FORMAT
 
   LEVEL_EXAMPLES = <<~EXAMPLES.freeze
@@ -71,7 +87,7 @@ class InterviewKitGeneratorService
     history = save_history(content)
 
     { result: parsed_result, history: history }
-  rescue OpenAI::Error => e
+  rescue StandardError => e
     handle_openai_error(e)
   end
 

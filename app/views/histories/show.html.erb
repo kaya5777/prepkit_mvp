@@ -61,17 +61,120 @@
         <h2 class="text-lg font-bold text-gray-900">求人票</h2>
       </div>
       <div class="p-6">
-        <pre class="bg-gray-50 p-4 rounded-lg text-sm text-gray-700 whitespace-pre-wrap break-words font-mono"><%= @history.job_description %></pre>
+        <div class="bg-gray-50 p-4 rounded-lg" style="max-height: 360px; overflow-y: auto;">
+          <pre class="text-sm text-gray-700 whitespace-pre-wrap break-words font-mono"><%= @history.job_description %></pre>
+        </div>
       </div>
     </div>
   <% end %>
 
   <!-- AI Generated Content -->
   <% if @presenter.valid_json? %>
-    <%= render "histories/question_list", questions: @presenter.questions if @presenter.has_questions? %>
-    <%= render "histories/star_answers", star_answers: @presenter.star_answers if @presenter.has_star_answers? %>
-    <%= render "histories/reverse_questions", reverse_questions: @presenter.reverse_questions if @presenter.has_reverse_questions? %>
-    <%= render "histories/tech_checklist", tech_checklist: @presenter.tech_checklist if @presenter.has_tech_checklist? %>
+    <% if @presenter.multi_stage? %>
+      <!-- 多段階面接タブ -->
+      <div class="mb-8">
+        <!-- タブナビゲーション -->
+        <div class="bg-white rounded-t-lg shadow-sm border border-secondary-200 border-b-0">
+          <div class="flex border-b border-secondary-200">
+            <button type="button" onclick="switchTab(1)" id="tab-1" class="flex-1 px-6 py-4 text-center font-semibold transition-all border-b-2 border-primary-500 text-primary-600 bg-primary-50">
+              1次面接（現場クラス）
+            </button>
+            <button type="button" onclick="switchTab(2)" id="tab-2" class="flex-1 px-6 py-4 text-center font-semibold transition-all border-b-2 border-transparent text-secondary-600 hover:bg-secondary-50">
+              2次面接（マネージャークラス）
+            </button>
+            <button type="button" onclick="switchTab(3)" id="tab-3" class="flex-1 px-6 py-4 text-center font-semibold transition-all border-b-2 border-transparent text-secondary-600 hover:bg-secondary-50">
+              3次面接（社長・役員クラス）
+            </button>
+          </div>
+        </div>
+
+        <!-- タブコンテンツ -->
+        <div id="content-1" class="tab-content">
+          <%= render "histories/question_list", questions: @presenter.questions(1), history: @history, stage: 1 if @presenter.has_questions?(1) %>
+          <%= render "histories/star_answers", star_answers: @presenter.star_answers(1), stage: 1 if @presenter.has_star_answers?(1) %>
+          <%= render "histories/reverse_questions", reverse_questions: @presenter.reverse_questions(1), stage: 1 if @presenter.has_reverse_questions?(1) %>
+          <%= render "histories/tech_checklist", tech_checklist: @presenter.tech_checklist(1), stage: 1 if @presenter.has_tech_checklist?(1) %>
+
+          <!-- Stage 1 Memo -->
+          <% if @presenter.has_stage_memo?(1) %>
+            <div class="mb-8 bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+              <div class="bg-yellow-50 px-6 py-4 border-b border-gray-200">
+                <h2 class="text-xl font-bold text-gray-900">メモ</h2>
+              </div>
+              <div class="p-6">
+                <div class="text-gray-700 whitespace-pre-wrap"><%= simple_format(@presenter.stage_memo(1)) %></div>
+              </div>
+            </div>
+          <% end %>
+        </div>
+
+        <div id="content-2" class="tab-content hidden">
+          <%= render "histories/question_list", questions: @presenter.questions(2), history: @history, stage: 2 if @presenter.has_questions?(2) %>
+          <%= render "histories/star_answers", star_answers: @presenter.star_answers(2), stage: 2 if @presenter.has_star_answers?(2) %>
+          <%= render "histories/reverse_questions", reverse_questions: @presenter.reverse_questions(2), stage: 2 if @presenter.has_reverse_questions?(2) %>
+          <%= render "histories/tech_checklist", tech_checklist: @presenter.tech_checklist(2), stage: 2 if @presenter.has_tech_checklist?(2) %>
+
+          <!-- Stage 2 Memo -->
+          <% if @presenter.has_stage_memo?(2) %>
+            <div class="mb-8 bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+              <div class="bg-yellow-50 px-6 py-4 border-b border-gray-200">
+                <h2 class="text-xl font-bold text-gray-900">メモ</h2>
+              </div>
+              <div class="p-6">
+                <div class="text-gray-700 whitespace-pre-wrap"><%= simple_format(@presenter.stage_memo(2)) %></div>
+              </div>
+            </div>
+          <% end %>
+        </div>
+
+        <div id="content-3" class="tab-content hidden">
+          <%= render "histories/question_list", questions: @presenter.questions(3), history: @history, stage: 3 if @presenter.has_questions?(3) %>
+          <%= render "histories/star_answers", star_answers: @presenter.star_answers(3), stage: 3 if @presenter.has_star_answers?(3) %>
+          <%= render "histories/reverse_questions", reverse_questions: @presenter.reverse_questions(3), stage: 3 if @presenter.has_reverse_questions?(3) %>
+          <%= render "histories/tech_checklist", tech_checklist: @presenter.tech_checklist(3), stage: 3 if @presenter.has_tech_checklist?(3) %>
+
+          <!-- Stage 3 Memo -->
+          <% if @presenter.has_stage_memo?(3) %>
+            <div class="mb-8 bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+              <div class="bg-yellow-50 px-6 py-4 border-b border-gray-200">
+                <h2 class="text-xl font-bold text-gray-900">メモ</h2>
+              </div>
+              <div class="p-6">
+                <div class="text-gray-700 whitespace-pre-wrap"><%= simple_format(@presenter.stage_memo(3)) %></div>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      </div>
+
+      <script>
+        function switchTab(tabNumber) {
+          // 全てのタブボタンを非アクティブに
+          for (let i = 1; i <= 3; i++) {
+            const tab = document.getElementById(`tab-${i}`);
+            const content = document.getElementById(`content-${i}`);
+
+            if (i === tabNumber) {
+              // アクティブなタブ
+              tab.classList.add('border-primary-500', 'text-primary-600', 'bg-primary-50');
+              tab.classList.remove('border-transparent', 'text-secondary-600');
+              content.classList.remove('hidden');
+            } else {
+              // 非アクティブなタブ
+              tab.classList.remove('border-primary-500', 'text-primary-600', 'bg-primary-50');
+              tab.classList.add('border-transparent', 'text-secondary-600');
+              content.classList.add('hidden');
+            }
+          }
+        }
+      </script>
+    <% else %>
+      <!-- 従来の単一データ表示 -->
+      <%= render "histories/question_list", questions: @presenter.questions, history: @history if @presenter.has_questions? %>
+      <%= render "histories/star_answers", star_answers: @presenter.star_answers if @presenter.has_star_answers? %>
+      <%= render "histories/reverse_questions", reverse_questions: @presenter.reverse_questions if @presenter.has_reverse_questions? %>
+      <%= render "histories/tech_checklist", tech_checklist: @presenter.tech_checklist if @presenter.has_tech_checklist? %>
+    <% end %>
   <% else %>
     <!-- Fallback for non-JSON content -->
     <div class="mb-8 bg-white rounded-lg shadow-sm border border-gray-200 p-6">

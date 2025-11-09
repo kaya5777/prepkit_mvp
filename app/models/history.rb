@@ -1,4 +1,6 @@
 class History < ApplicationRecord
+  has_many :question_answers, dependent: :destroy
+
   validates :content, presence: true
 
   # マークダウンコードブロック記法を除去
