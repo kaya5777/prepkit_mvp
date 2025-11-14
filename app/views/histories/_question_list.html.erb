@@ -64,7 +64,9 @@
             <!-- 回答を練習ボタン -->
             <% if defined?(history) && history %>
               <div class="ml-11 mt-3">
-                <%= link_to new_history_question_answer_path(history, question_index: index), class: "inline-flex items-center px-4 py-2 bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 text-white font-semibold rounded-lg elevation-1 hover:elevation-2 transition-all text-sm" do %>
+                <% link_params = { question_index: index } %>
+                <% link_params[:stage] = stage if defined?(stage) && stage %>
+                <%= link_to new_history_question_answer_path(history, link_params), class: "inline-flex items-center px-4 py-2 bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 text-white font-semibold rounded-lg elevation-1 hover:elevation-2 transition-all text-sm" do %>
                   <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
                   </svg>

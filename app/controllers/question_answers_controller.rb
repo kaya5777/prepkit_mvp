@@ -84,6 +84,26 @@ class QuestionAnswersController < ApplicationController
   def get_question_data(index)
     return nil unless @history.valid_json_content?
 
+    presenter = HistoryPresenter.new(@history)
+
+    # 多段階データの場合
+    if presenter.multi_stage?
+      # stageパラメータがあればそれを使用、なければ全ステージから探す
+      if params[:stage].present?
+        stage = params[:stage].to_i
+        questions = presenter.questions(stage)
+        return questions[index] if questions.is_a?(Array) && questions[index]
+      else
+        # 全ステージから該当するインデックスの質問を探す
+        [ 1, 2, 3 ].each do |stage|
+          questions = presenter.questions(stage)
+          return questions[index] if questions.is_a?(Array) && questions[index]
+        end
+      end
+      return nil
+    end
+
+    # 従来の単一データの場合
     questions = @history.parsed_content[:questions] || @history.parsed_content["questions"]
     return nil unless questions.is_a?(Array) && questions[index]
 
@@ -93,6 +113,19 @@ class QuestionAnswersController < ApplicationController
   def get_all_questions
     return [] unless @history.valid_json_content?
 
+    presenter = HistoryPresenter.new(@history)
+
+    # 多段階データの場合
+    if presenter.multi_stage?
+      all_questions = []
+      [ 1, 2, 3 ].each do |stage|
+        stage_questions = presenter.questions(stage)
+        all_questions.concat(stage_questions) if stage_questions.is_a?(Array)
+      end
+      return all_questions
+    end
+
+    # 従来の単一データの場合
     questions = @history.parsed_content[:questions] || @history.parsed_content["questions"]
     return [] unless questions.is_a?(Array)
 
