@@ -17,8 +17,13 @@ class ApplicationController < ActionController::Base
   def set_sidebar_histories
     return unless current_user
 
-    @my_sidebar_histories = current_user.histories.order(asked_at: :desc).limit(5)
-    @all_sidebar_histories = History.where("user_id IS NULL OR user_id != ?", current_user.id).order(asked_at: :desc).limit(5)
+    @my_sidebar_histories = current_user.histories
+      .order(asked_at: :desc)
+      .limit(5)
+    @all_sidebar_histories = History
+      .where("user_id IS NULL OR user_id != ?", current_user.id)
+      .order(asked_at: :desc)
+      .limit(5)
   end
 
   def render_bad_request(exception)

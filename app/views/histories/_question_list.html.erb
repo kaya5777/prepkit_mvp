@@ -74,8 +74,9 @@
                 <% end %>
 
                 <!-- 過去の練習回答 -->
-                <% my_answers = history.question_answers.for_question(index).where(user: current_user).scored.recent_first.limit(3) %>
-                <% all_answers = history.question_answers.for_question(index).scored.recent_first.limit(3) %>
+                <% answers_for_question = defined?(@grouped_answers) ? (@grouped_answers[index] || []) : history.question_answers.for_question(index).includes(:user).scored.recent_first %>
+                <% my_answers = answers_for_question.select { |a| a.user_id == current_user.id }.take(3) %>
+                <% all_answers = answers_for_question.take(3) %>
                 <% if my_answers.any? || all_answers.any? %>
                   <div class="mt-3 pt-3 border-t border-secondary-200">
                     <!-- タブナビゲーション -->

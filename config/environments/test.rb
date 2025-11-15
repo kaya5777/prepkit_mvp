@@ -50,4 +50,11 @@ Rails.application.configure do
 
   # Allow any host in test (avoid Host Authorization 403 under Docker)
   config.hosts.clear
+
+  # Bullet configuration for N+1 query detection in tests
+  config.after_initialize do
+    Bullet.enable = true
+    Bullet.bullet_logger = true
+    Bullet.raise = true # Raise an error if N+1 query detected
+  end
 end

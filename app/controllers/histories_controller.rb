@@ -14,11 +14,14 @@ class HistoriesController < ApplicationController
     # 過去の練習回答を取得
     if @answers_tab == "all_answers"
       # みんなの練習回答
-      @past_answers = @history.question_answers.scored.order(created_at: :desc).limit(5)
+      @past_answers = @history.question_answers.includes(:user).scored.order(created_at: :desc).limit(5)
     else
       # 過去の練習回答（自分のみ）
       @past_answers = @history.question_answers.scored.where(user: current_user).order(created_at: :desc).limit(5)
     end
+
+    # 質問リストで使用する回答を事前読み込み（question_indexごとにグルーピング）
+    @grouped_answers = @history.question_answers.includes(:user).scored.recent_first.group_by(&:question_index)
   end
 
   def new
@@ -54,11 +57,17 @@ class HistoriesController < ApplicationController
   end
 
   def my_histories
-    @histories = current_user.histories.order(asked_at: :desc)
+    @histories = current_user.histories
+      .for_listing
+      .order(asked_at: :desc)
   end
 
   def all_histories
-    @histories = History.where("user_id IS NULL OR user_id != ?", current_user.id).order(asked_at: :desc)
+    @histories = History
+      .for_listing
+      .includes(:user)
+      .where("user_id IS NULL OR user_id != ?", current_user.id)
+      .order(asked_at: :desc)
   end
 
   private
