@@ -1,7 +1,7 @@
 class ApplicationController < ActionController::Base
   protect_from_forgery with: :exception
 
-  before_action :authenticate_user!
+  before_action :authenticate_user!, unless: :devise_controller?
   before_action :set_sidebar_histories
 
   rescue_from ActionController::ParameterMissing, with: :render_bad_request
