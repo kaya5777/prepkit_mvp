@@ -15,6 +15,8 @@ class ApplicationController < ActionController::Base
   private
 
   def set_sidebar_histories
+    return unless current_user
+
     @my_sidebar_histories = current_user.histories.order(asked_at: :desc).limit(5)
     @all_sidebar_histories = History.order(asked_at: :desc).limit(5)
   end
