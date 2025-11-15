@@ -165,7 +165,7 @@ GEM
       timeout
     net-smtp (0.5.1)
       net-protocol
-    nio4r (2.7.4)
+    nio4r (2.7.5)
     nokogiri (1.18.10-aarch64-linux-gnu)
       racc (~> 1.4)
     nokogiri (1.18.10-arm64-darwin)
@@ -214,7 +214,7 @@ GEM
       date
       stringio
     public_suffix (6.0.2)
-    puma (6.6.1)
+    puma (7.1.0)
       nio4r (~> 2.0)
     racc (1.8.1)
     rack (3.1.18)
@@ -391,7 +391,7 @@ DEPENDENCIES
   omniauth-rails_csrf_protection (~> 1.0)
   openai (~> 0.23)
   pg
-  puma (~> 6.0)
+  puma (~> 7.1)
   rails (~> 7.2.0)
   rspec-rails (~> 6.1)
   rubocop
