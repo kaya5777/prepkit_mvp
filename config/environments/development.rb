@@ -69,4 +69,7 @@ Rails.application.configure do
 
   # Allow Render.com hostname
   config.hosts << "prepkit-mvp.onrender.com"
+
+  # Force SSL when deployed on HTTPS (e.g., Render.com)
+  config.force_ssl = ENV['FORCE_SSL'] == 'true'
 end
