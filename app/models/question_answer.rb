@@ -1,5 +1,6 @@
 class QuestionAnswer < ApplicationRecord
   belongs_to :history
+  belongs_to :user, optional: true
 
   validates :question_index, presence: true, numericality: { only_integer: true, greater_than_or_equal_to: 0 }
   validates :question_text, presence: true

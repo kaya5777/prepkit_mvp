@@ -10,7 +10,15 @@
   <div class="mb-8 bg-gradient-to-br from-primary-500 via-primary-600 to-primary-700 rounded-3xl elevation-4 p-10 text-white">
     <div class="text-center">
       <h1 class="text-4xl font-bold mb-2">📊 採点結果</h1>
-      <p class="text-primary-50">AIがあなたの回答を分析しました</p>
+      <p class="text-primary-50">
+        <% if @question_answer.user == current_user %>
+          AIがあなたの回答を分析しました
+        <% elsif @question_answer.user.present? %>
+          AIが<%= @question_answer.user.name || @question_answer.user.email.split('@').first %>さんの回答を分析しました
+        <% else %>
+          AIが？？？さんの回答を分析しました
+        <% end %>
+      </p>
     </div>
 
     <!-- スコア表示 -->
@@ -30,7 +38,15 @@
     <h2 class="text-lg font-bold text-secondary-900 mb-3">質問</h2>
     <p class="text-secondary-800 mb-4"><%= @question_answer.question_text %></p>
 
-    <h2 class="text-lg font-bold text-secondary-900 mb-3">あなたの回答</h2>
+    <h2 class="text-lg font-bold text-secondary-900 mb-3">
+      <% if @question_answer.user == current_user %>
+        あなたの回答
+      <% elsif @question_answer.user.present? %>
+        <%= @question_answer.user.name || @question_answer.user.email.split('@').first %>さんの回答
+      <% else %>
+        ？？？さんの回答
+      <% end %>
+    </h2>
     <div class="p-4 bg-secondary-50 rounded-lg">
       <p class="text-secondary-800 whitespace-pre-wrap"><%= @question_answer.user_answer %></p>
     </div>
@@ -114,10 +130,17 @@
     <% end %>
 
     <%= link_to new_history_question_answer_path(@history, question_index: @question_answer.question_index), class: "inline-flex items-center px-6 py-3 bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 text-white font-bold rounded-lg elevation-2 hover:elevation-3 transition-all" do %>
-      <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-      </svg>
-      もう一度練習する
+      <% if @question_answer.user == current_user %>
+        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+        </svg>
+        もう一度練習する
+      <% else %>
+        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+        </svg>
+        回答してみる
+      <% end %>
     <% end %>
   </div>
 </div>

@@ -3,11 +3,22 @@ class QuestionAnswersController < ApplicationController
   before_action :set_question_answer, only: [ :show, :destroy ]
 
   def index
-    @question_answers = @history.question_answers.scored.recent_first
+    # タブの選択（デフォルトは「過去の練習回答」）
+    @tab = params[:tab] || "my_answers"
+
+    if @tab == "all_answers"
+      # みんなの練習回答
+      @question_answers = @history.question_answers.scored.recent_first
+    else
+      # 過去の練習回答（自分のみ）
+      @question_answers = @history.question_answers.scored.where(user: current_user).recent_first
+    end
 
     # 質問番号でフィルタリング
     if params[:question_index].present?
-      @question_answers = @question_answers.for_question(params[:question_index].to_i)
+      @question_index = params[:question_index].to_i
+      @question_answers = @question_answers.for_question(@question_index)
+      @question_data = get_question_data(@question_index)
     end
 
     # ソート
@@ -42,6 +53,7 @@ class QuestionAnswersController < ApplicationController
 
   def create
     @question_answer = @history.question_answers.build(question_answer_params)
+    @question_answer.user = current_user
     @question_data = get_question_data(@question_answer.question_index)
 
     if params[:save_only]

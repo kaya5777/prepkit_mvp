@@ -1,6 +1,7 @@
 class ApplicationController < ActionController::Base
   protect_from_forgery with: :exception
 
+  before_action :authenticate_user!
   before_action :set_sidebar_histories
 
   rescue_from ActionController::ParameterMissing, with: :render_bad_request
@@ -14,7 +15,8 @@ class ApplicationController < ActionController::Base
   private
 
   def set_sidebar_histories
-    @sidebar_histories = History.order(asked_at: :desc).limit(30)
+    @my_sidebar_histories = current_user.histories.order(asked_at: :desc).limit(5)
+    @all_sidebar_histories = History.order(asked_at: :desc).limit(5)
   end
 
   def render_bad_request(exception)

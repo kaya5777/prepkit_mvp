@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_11_09_145120) do
+ActiveRecord::Schema[7.2].define(version: 2025_11_15_093917) do
   create_table "histories", force: :cascade do |t|
     t.text "content"
     t.datetime "asked_at"
@@ -22,6 +22,8 @@ ActiveRecord::Schema[7.2].define(version: 2025_11_09_145120) do
     t.text "stage_1_memo"
     t.text "stage_2_memo"
     t.text "stage_3_memo"
+    t.integer "user_id"
+    t.index ["user_id"], name: "index_histories_on_user_id"
   end
 
   create_table "question_answers", force: :cascade do |t|
@@ -34,9 +36,29 @@ ActiveRecord::Schema[7.2].define(version: 2025_11_09_145120) do
     t.string "status", default: "draft", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "user_id"
     t.index ["history_id", "question_index"], name: "index_question_answers_on_history_id_and_question_index"
     t.index ["history_id"], name: "index_question_answers_on_history_id"
+    t.index ["user_id"], name: "index_question_answers_on_user_id"
   end
 
+  create_table "users", force: :cascade do |t|
+    t.string "email", default: "", null: false
+    t.string "encrypted_password", default: "", null: false
+    t.string "reset_password_token"
+    t.datetime "reset_password_sent_at"
+    t.datetime "remember_created_at"
+    t.string "provider"
+    t.string "uid"
+    t.string "name"
+    t.string "avatar_url"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["email"], name: "index_users_on_email", unique: true
+    t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
+  end
+
+  add_foreign_key "histories", "users"
   add_foreign_key "question_answers", "histories"
+  add_foreign_key "question_answers", "users"
 end

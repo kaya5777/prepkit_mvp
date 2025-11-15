@@ -1,4 +1,5 @@
 class History < ApplicationRecord
+  belongs_to :user, optional: true
   has_many :question_answers, dependent: :destroy
 
   validates :content, presence: true

@@ -1,0 +1,80 @@
+<div class="max-w-6xl mx-auto">
+  <!-- ヘッダー -->
+  <div class="mb-6">
+    <h1 class="text-3xl font-bold text-secondary-900 mb-2">みんなの履歴</h1>
+    <p class="text-secondary-600">全ユーザーの面接対策ノート一覧</p>
+  </div>
+
+  <!-- 履歴一覧 -->
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <% @histories.each do |history| %>
+      <div class="bg-white rounded-lg shadow-sm border border-secondary-200 overflow-hidden hover:shadow-md transition-shadow">
+        <%= link_to history_path(history), class: "block p-6" do %>
+          <!-- ユーザー情報 -->
+          <% if history.user.present? %>
+            <div class="flex items-center gap-2 mb-3">
+              <% if history.user.avatar_url.present? %>
+                <%= image_tag history.user.avatar_url, alt: history.user.name, class: "w-6 h-6 rounded-full object-cover" %>
+              <% else %>
+                <div class="w-6 h-6 rounded-full bg-primary-100 flex items-center justify-center">
+                  <span class="text-primary-600 font-semibold text-xs">
+                    <%= history.user.name&.first&.upcase || history.user.email&.first&.upcase %>
+                  </span>
+                </div>
+              <% end %>
+              <span class="text-sm text-secondary-600">
+                <%= history.user.name || history.user.email.split('@').first %>
+              </span>
+            </div>
+          <% else %>
+            <div class="flex items-center gap-2 mb-3">
+              <div class="w-6 h-6 rounded-full bg-secondary-100 flex items-center justify-center">
+                <span class="text-secondary-600 font-semibold text-xs">?</span>
+              </div>
+              <span class="text-sm text-secondary-600">？？？</span>
+            </div>
+          <% end %>
+
+          <div class="mb-4">
+            <h3 class="text-xl font-bold text-secondary-900 mb-2">
+              <%= history.company_name.presence || '（会社名なし）' %>
+            </h3>
+            <div class="text-sm text-secondary-500 flex items-center gap-2">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <%= history.asked_at&.in_time_zone('Asia/Tokyo')&.strftime('%Y年%m月%d日 %H:%M') %>
+            </div>
+          </div>
+
+          <% if history.valid_json_content? %>
+            <% presenter = HistoryPresenter.new(history) %>
+            <div class="flex items-center gap-4 text-sm text-secondary-600">
+              <div class="flex items-center gap-1">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <% if presenter.multi_stage? %>
+                  <% total = [1, 2, 3].sum { |stage| presenter.questions(stage).count } %>
+                  <span><%= total %>問</span>
+                <% else %>
+                  <span><%= presenter.questions.count %>問</span>
+                <% end %>
+              </div>
+            </div>
+          <% end %>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+
+  <% if @histories.empty? %>
+    <div class="bg-white rounded-lg shadow-sm border border-secondary-200 p-12 text-center">
+      <svg class="w-16 h-16 mx-auto text-secondary-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+      </svg>
+      <h3 class="text-xl font-semibold text-secondary-700 mb-2">まだ履歴がありません</h3>
+      <p class="text-secondary-500">まだ誰も面接対策ノートを作成していません</p>
+    </div>
+  <% end %>
+</div>

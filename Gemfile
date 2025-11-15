@@ -9,6 +9,9 @@ gem "bootsnap", ">= 1.4.4", require: false
 gem "importmap-rails"
 gem "pg"
 gem "nokogiri", "~> 1.16"
+gem "devise", "~> 4.9"
+gem "omniauth-google-oauth2", "~> 1.1"
+gem "omniauth-rails_csrf_protection", "~> 1.0"
 
 group :development, :test do
   gem "rspec-rails", "~> 6.1"
