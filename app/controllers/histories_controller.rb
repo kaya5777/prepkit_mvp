@@ -58,7 +58,7 @@ class HistoriesController < ApplicationController
   end
 
   def all_histories
-    @histories = History.order(asked_at: :desc)
+    @histories = History.where("user_id IS NULL OR user_id != ?", current_user.id).order(asked_at: :desc)
   end
 
   private

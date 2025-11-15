@@ -67,13 +67,14 @@ class InterviewKitGeneratorService
       「チームの構成や評価制度、1on1の頻度と内容について確認しましょう。採用プロセスへの関与度、キャリア開発の支援体制、エンジニアリングとビジネス目標のバランスをどう取っているかを聞くことで、マネジメント経験と関心をアピールできます。」
   EXAMPLES
 
-  def self.call(job_description, company_name = nil)
-    new(job_description, company_name).call
+  def self.call(job_description, company_name = nil, current_user = nil)
+    new(job_description, company_name, current_user).call
   end
 
-  def initialize(job_description, company_name = nil)
+  def initialize(job_description, company_name = nil, current_user = nil)
     @job_description = job_description
     @company_name = company_name
+    @current_user = current_user
   end
 
   def call
@@ -198,7 +199,8 @@ class InterviewKitGeneratorService
       memo: "",
       asked_at: Time.current,
       job_description: @job_description,
-      company_name: @company_name
+      company_name: @company_name,
+      user: @current_user
     )
   end
 

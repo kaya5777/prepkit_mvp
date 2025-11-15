@@ -10,20 +10,22 @@
           登録日: <%= @presenter.formatted_asked_at %>
         </p>
       </div>
-      <div class="flex gap-3">
-        <%= link_to edit_history_path(@history), class: "inline-flex items-center px-4 py-2 bg-white border-2 border-secondary-300 rounded-xl font-medium text-secondary-700 hover:bg-secondary-50 transition-all elevation-1 hover:elevation-2" do %>
-          <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-          </svg>
-          編集
-        <% end %>
-        <button type="button" onclick="document.getElementById('deleteModal').classList.remove('hidden')" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 rounded-xl font-bold text-white transition-all elevation-2 hover:elevation-3">
-          <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-          </svg>
-          削除
-        </button>
-      </div>
+      <% if @history.user == current_user %>
+        <div class="flex gap-3">
+          <%= link_to edit_history_path(@history), class: "inline-flex items-center px-4 py-2 bg-white border-2 border-secondary-300 rounded-xl font-medium text-secondary-700 hover:bg-secondary-50 transition-all elevation-1 hover:elevation-2" do %>
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+            </svg>
+            編集
+          <% end %>
+          <button type="button" onclick="document.getElementById('deleteModal').classList.remove('hidden')" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 rounded-xl font-bold text-white transition-all elevation-2 hover:elevation-3">
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+            </svg>
+            削除
+          </button>
+        </div>
+      <% end %>
     </div>
   </div>
 
@@ -96,7 +98,7 @@
           <%= render "histories/tech_checklist", tech_checklist: @presenter.tech_checklist(1), stage: 1 if @presenter.has_tech_checklist?(1) %>
 
           <!-- Stage 1 Memo -->
-          <% if @presenter.has_stage_memo?(1) %>
+          <% if @history.user == current_user && @presenter.has_stage_memo?(1) %>
             <div class="mb-8 bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
               <div class="bg-yellow-50 px-6 py-4 border-b border-gray-200">
                 <h2 class="text-xl font-bold text-gray-900">メモ</h2>
@@ -115,7 +117,7 @@
           <%= render "histories/tech_checklist", tech_checklist: @presenter.tech_checklist(2), stage: 2 if @presenter.has_tech_checklist?(2) %>
 
           <!-- Stage 2 Memo -->
-          <% if @presenter.has_stage_memo?(2) %>
+          <% if @history.user == current_user && @presenter.has_stage_memo?(2) %>
             <div class="mb-8 bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
               <div class="bg-yellow-50 px-6 py-4 border-b border-gray-200">
                 <h2 class="text-xl font-bold text-gray-900">メモ</h2>
@@ -134,7 +136,7 @@
           <%= render "histories/tech_checklist", tech_checklist: @presenter.tech_checklist(3), stage: 3 if @presenter.has_tech_checklist?(3) %>
 
           <!-- Stage 3 Memo -->
-          <% if @presenter.has_stage_memo?(3) %>
+          <% if @history.user == current_user && @presenter.has_stage_memo?(3) %>
             <div class="mb-8 bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
               <div class="bg-yellow-50 px-6 py-4 border-b border-gray-200">
                 <h2 class="text-xl font-bold text-gray-900">メモ</h2>
@@ -183,16 +185,18 @@
   <% end %>
 
   <!-- Memo Section -->
-  <div class="mb-8 bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-    <div class="bg-yellow-50 px-6 py-4 border-b border-gray-200">
-      <h2 class="text-xl font-bold text-gray-900">メモ</h2>
+  <% if @history.user == current_user %>
+    <div class="mb-8 bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+      <div class="bg-yellow-50 px-6 py-4 border-b border-gray-200">
+        <h2 class="text-xl font-bold text-gray-900">メモ</h2>
+      </div>
+      <div class="p-6">
+        <% if @history.memo.present? %>
+          <div class="text-gray-700 whitespace-pre-wrap"><%= simple_format(@history.memo) %></div>
+        <% else %>
+          <p class="text-gray-500 italic">メモはありません</p>
+        <% end %>
+      </div>
     </div>
-    <div class="p-6">
-      <% if @history.memo.present? %>
-        <div class="text-gray-700 whitespace-pre-wrap"><%= simple_format(@history.memo) %></div>
-      <% else %>
-        <p class="text-gray-500 italic">メモはありません</p>
-      <% end %>
-    </div>
-  </div>
+  <% end %>
 </div>

@@ -18,7 +18,7 @@ class PreparationsController < ApplicationController
 
     # InterviewKitGeneratorServiceで生成
     begin
-      result = InterviewKitGeneratorService.call(job_description, company_name)
+      result = InterviewKitGeneratorService.call(job_description, company_name, current_user)
       @result = result[:result]
       render :show
     rescue InterviewKitGeneratorService::APIKeyMissingError => e
