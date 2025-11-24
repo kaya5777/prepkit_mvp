@@ -1,4 +1,38 @@
 module HistoriesHelper
+  # 現在のユーザーが履歴の所有者かどうか
+  def can_edit_history?(history)
+    history.user == current_user
+  end
+
+  # ユーザーの表示名を取得
+  def user_display_name(user)
+    user.name || user.email.split('@').first
+  end
+
+  # ユーザーのアバター初期を取得
+  def user_avatar_initial(user)
+    user.name&.first&.upcase || user.email&.first&.upcase
+  end
+
+  # ユーザーのアバターを表示
+  def user_avatar(user, size: 'w-6 h-6', text_size: 'text-xs')
+    if user.avatar_url.present?
+      image_tag user.avatar_url, alt: user_display_name(user), class: "#{size} rounded-full object-cover"
+    else
+      content_tag(:div, class: "#{size} bg-primary-100 rounded-full flex items-center justify-center") do
+        content_tag(:span, user_avatar_initial(user), class: "text-primary-600 font-semibold #{text_size}")
+      end
+    end
+  end
+
+  # ユーザーのアバターと名前を一緒に表示
+  def user_avatar_with_name(user, avatar_size: 'w-6 h-6', text_size: 'text-xs', name_class: 'text-sm text-secondary-600')
+    content_tag(:div, class: "flex items-center gap-2") do
+      concat(user_avatar(user, size: avatar_size, text_size: text_size))
+      concat(content_tag(:span, user_display_name(user), class: name_class))
+    end
+  end
+
   # SVGアイコンを生成
   def icon_svg(path, css_class: "w-5 h-5")
     content_tag(:svg, class: css_class, fill: "none", stroke: "currentColor", viewBox: "0 0 24 24") do

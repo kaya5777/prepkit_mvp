@@ -13,6 +13,12 @@ gem "devise", "~> 4.9"
 gem "omniauth-google-oauth2", "~> 1.1"
 gem "omniauth-rails_csrf_protection", "~> 1.0"
 
+# 職務経歴書機能用
+gem "pdf-reader", "~> 2.12"  # PDF読み取り
+gem "docx", "~> 0.8"         # Word読み取り
+gem "prawn", "~> 2.4"        # PDF生成
+gem "rubyzip", "~> 2.3"      # docx生成用
+
 group :development, :test do
   gem "rspec-rails", "~> 6.1"
   gem "factory_bot_rails", "~> 6.4"

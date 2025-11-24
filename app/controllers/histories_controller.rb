@@ -1,5 +1,5 @@
 class HistoriesController < ApplicationController
-  before_action :set_history, only: %i[show edit update destroy]
+  before_action :set_history, only: %i[show edit update destroy analyze_match]
 
   def index
     @histories = History.order(asked_at: :desc)
@@ -17,7 +17,7 @@ class HistoriesController < ApplicationController
       @past_answers = @history.question_answers.includes(:user).scored.order(created_at: :desc).limit(5)
     else
       # 過去の練習回答（自分のみ）
-      @past_answers = @history.question_answers.scored.where(user: current_user).order(created_at: :desc).limit(5)
+      @past_answers = @history.question_answers.scored.by_user(current_user).recent_first.limit(5)
     end
 
     # 質問リストで使用する回答を事前読み込み（question_indexごとにグルーピング）
@@ -68,6 +68,22 @@ class HistoriesController < ApplicationController
       .includes(:user)
       .where("user_id IS NULL OR user_id != ?", current_user.id)
       .order(asked_at: :desc)
+  end
+
+  def analyze_match
+    resume = current_user.latest_analyzed_resume
+
+    unless resume
+      redirect_to @history, alert: "職務経歴書がアップロードされていないか、分析が完了していません。先に職務経歴書をアップロードしてください。"
+      return
+    end
+
+    begin
+      JobMatchAnalysisService.call(@history, resume)
+      redirect_to @history, notice: "相性診断が完了しました"
+    rescue JobMatchAnalysisService::AnalysisError => e
+      redirect_to @history, alert: e.message
+    end
   end
 
   private

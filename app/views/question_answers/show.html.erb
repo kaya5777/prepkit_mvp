@@ -7,7 +7,7 @@
         <% if @question_answer.user == current_user %>
           AIがあなたの回答を分析しました
         <% elsif @question_answer.user.present? %>
-          AIが<%= @question_answer.user.name || @question_answer.user.email.split('@').first %>さんの回答を分析しました
+          AIが<%= user_display_name(@question_answer.user) %>さんの回答を分析しました
         <% else %>
           AIが？？？さんの回答を分析しました
         <% end %>
@@ -35,7 +35,7 @@
       <% if @question_answer.user == current_user %>
         あなたの回答
       <% elsif @question_answer.user.present? %>
-        <%= @question_answer.user.name || @question_answer.user.email.split('@').first %>さんの回答
+        <%= user_display_name(@question_answer.user) %>さんの回答
       <% else %>
         ？？？さんの回答
       <% end %>
@@ -140,7 +140,7 @@
 
 <script>
   document.addEventListener('DOMContentLoaded', function() {
-    const targetScore = <%= @question_answer.score || 0 %>;
+    const targetScore = <%= @question_answer.display_score %>;
     const scoreDisplay = document.getElementById('scoreDisplay');
     const scoreBar = document.getElementById('scoreBar');
 

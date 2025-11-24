@@ -11,29 +11,18 @@
       <div class="bg-white rounded-lg shadow-sm border border-secondary-200 overflow-hidden hover:shadow-md transition-shadow">
         <%= link_to history_path(history), class: "block p-6" do %>
           <!-- ユーザー情報 -->
-          <% if history.user.present? %>
-            <div class="flex items-center gap-2 mb-3">
-              <% if history.user.avatar_url.present? %>
-                <%= image_tag history.user.avatar_url, alt: history.user.name, class: "w-6 h-6 rounded-full object-cover" %>
-              <% else %>
-                <div class="w-6 h-6 rounded-full bg-primary-100 flex items-center justify-center">
-                  <span class="text-primary-600 font-semibold text-xs">
-                    <%= history.user.name&.first&.upcase || history.user.email&.first&.upcase %>
-                  </span>
+          <div class="mb-3">
+            <% if history.user.present? %>
+              <%= user_avatar_with_name(history.user, avatar_size: 'w-6 h-6', text_size: 'text-xs', name_class: 'text-sm text-secondary-600') %>
+            <% else %>
+              <div class="flex items-center gap-2">
+                <div class="w-6 h-6 rounded-full bg-secondary-100 flex items-center justify-center">
+                  <span class="text-secondary-600 font-semibold text-xs">?</span>
                 </div>
-              <% end %>
-              <span class="text-sm text-secondary-600">
-                <%= history.user.name || history.user.email.split('@').first %>
-              </span>
-            </div>
-          <% else %>
-            <div class="flex items-center gap-2 mb-3">
-              <div class="w-6 h-6 rounded-full bg-secondary-100 flex items-center justify-center">
-                <span class="text-secondary-600 font-semibold text-xs">?</span>
+                <span class="text-sm text-secondary-600">？？？</span>
               </div>
-              <span class="text-sm text-secondary-600">？？？</span>
-            </div>
-          <% end %>
+            <% end %>
+          </div>
 
           <div class="mb-4">
             <h3 class="text-xl font-bold text-secondary-900 mb-2">

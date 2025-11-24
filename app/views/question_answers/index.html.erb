@@ -89,8 +89,8 @@
             <div class="flex items-start gap-4">
               <!-- スコアバッジ -->
               <div class="flex-shrink-0">
-                <div class="w-20 h-20 rounded-full <%= answer.score >= 80 ? 'bg-gradient-to-br from-green-400 to-green-600' : answer.score >= 60 ? 'bg-gradient-to-br from-blue-400 to-blue-600' : 'bg-gradient-to-br from-amber-400 to-amber-600' %> flex flex-col items-center justify-center text-white shadow-lg">
-                  <div class="text-2xl font-bold"><%= answer.score %></div>
+                <div class="w-20 h-20 rounded-full <%= answer.score_gradient_class %> flex flex-col items-center justify-center text-white shadow-lg">
+                  <div class="text-2xl font-bold"><%= answer.display_score %></div>
                   <div class="text-xs">点</div>
                 </div>
               </div>
@@ -99,19 +99,8 @@
               <div class="flex-1 min-w-0">
                 <!-- ユーザー情報（みんなの練習回答タブの場合） -->
                 <% if @tab == "all_answers" && answer.user.present? %>
-                  <div class="flex items-center gap-2 mb-2">
-                    <% if answer.user.avatar_url.present? %>
-                      <%= image_tag answer.user.avatar_url, alt: answer.user.name, class: "w-5 h-5 rounded-full object-cover" %>
-                    <% else %>
-                      <div class="w-5 h-5 rounded-full bg-primary-100 flex items-center justify-center">
-                        <span class="text-primary-600 font-semibold text-xs">
-                          <%= answer.user.name&.first&.upcase || answer.user.email&.first&.upcase %>
-                        </span>
-                      </div>
-                    <% end %>
-                    <span class="text-xs text-secondary-600">
-                      <%= answer.user.name || answer.user.email.split('@').first %>
-                    </span>
+                  <div class="mb-2">
+                    <%= user_avatar_with_name(answer.user, avatar_size: 'w-5 h-5', text_size: 'text-xs', name_class: 'text-xs text-secondary-600') %>
                   </div>
                 <% end %>
 

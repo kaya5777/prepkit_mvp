@@ -10,7 +10,7 @@
           登録日: <%= @presenter.formatted_asked_at %>
         </p>
       </div>
-      <% if @history.user == current_user %>
+      <% if can_edit_history?(@history) %>
         <div class="flex gap-3">
           <%= link_to edit_history_path(@history), class: "inline-flex items-center px-4 py-2 bg-white border-2 border-secondary-300 rounded-xl font-medium text-secondary-700 hover:bg-secondary-50 transition-all elevation-1 hover:elevation-2" do %>
             <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -98,7 +98,7 @@
           <%= render "histories/tech_checklist", tech_checklist: @presenter.tech_checklist(1), stage: 1 if @presenter.has_tech_checklist?(1) %>
 
           <!-- Stage 1 Memo -->
-          <% if @history.user == current_user && @presenter.has_stage_memo?(1) %>
+          <% if can_edit_history?(@history) && @presenter.has_stage_memo?(1) %>
             <div class="mb-8 bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
               <div class="bg-yellow-50 px-6 py-4 border-b border-gray-200">
                 <h2 class="text-xl font-bold text-gray-900">メモ</h2>
@@ -117,7 +117,7 @@
           <%= render "histories/tech_checklist", tech_checklist: @presenter.tech_checklist(2), stage: 2 if @presenter.has_tech_checklist?(2) %>
 
           <!-- Stage 2 Memo -->
-          <% if @history.user == current_user && @presenter.has_stage_memo?(2) %>
+          <% if can_edit_history?(@history) && @presenter.has_stage_memo?(2) %>
             <div class="mb-8 bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
               <div class="bg-yellow-50 px-6 py-4 border-b border-gray-200">
                 <h2 class="text-xl font-bold text-gray-900">メモ</h2>
@@ -136,7 +136,7 @@
           <%= render "histories/tech_checklist", tech_checklist: @presenter.tech_checklist(3), stage: 3 if @presenter.has_tech_checklist?(3) %>
 
           <!-- Stage 3 Memo -->
-          <% if @history.user == current_user && @presenter.has_stage_memo?(3) %>
+          <% if can_edit_history?(@history) && @presenter.has_stage_memo?(3) %>
             <div class="mb-8 bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
               <div class="bg-yellow-50 px-6 py-4 border-b border-gray-200">
                 <h2 class="text-xl font-bold text-gray-900">メモ</h2>
@@ -184,8 +184,13 @@
     </div>
   <% end %>
 
+  <!-- 相性診断セクション -->
+  <% if can_edit_history?(@history) %>
+    <%= render "histories/match_analysis", history: @history %>
+  <% end %>
+
   <!-- Memo Section -->
-  <% if @history.user == current_user %>
+  <% if can_edit_history?(@history) %>
     <div class="mb-8 bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
       <div class="bg-yellow-50 px-6 py-4 border-b border-gray-200">
         <h2 class="text-xl font-bold text-gray-900">メモ</h2>

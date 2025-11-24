@@ -1,0 +1,314 @@
+<div class="max-w-5xl mx-auto">
+  <!-- Header -->
+  <div class="mb-8">
+    <div class="flex items-center gap-4 mb-4">
+      <%= link_to resumes_path, class: "p-2 hover:bg-secondary-100 rounded-lg transition-colors" do %>
+        <svg class="w-5 h-5 text-secondary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+        </svg>
+      <% end %>
+      <div>
+        <h1 class="text-3xl font-bold text-secondary-900">分析レポート</h1>
+        <p class="text-secondary-500 text-sm mt-1">
+          <%= @resume.original_file.filename %> - <%= @resume.analyzed_at&.strftime('%Y年%m月%d日 %H:%M') %>
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- AI予測に関する注意書き -->
+  <div class="mb-6 bg-blue-50 border border-blue-200 rounded-xl p-4">
+    <div class="flex items-start gap-3">
+      <svg class="w-5 h-5 text-blue-600 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+      </svg>
+      <div>
+        <div class="font-medium text-blue-800 mb-1">AIによる分析結果です</div>
+        <p class="text-sm text-blue-700">
+          この分析はAIが行った予測であり、参考情報としてご活用ください。
+          実際の採用判断は企業や状況によって異なります。
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 概要 -->
+  <% if @resume.summary.present? %>
+    <div class="mb-8 bg-white rounded-xl shadow-sm border border-secondary-200 p-6">
+      <h3 class="text-lg font-bold text-secondary-900 mb-3 flex items-center gap-2">
+        <svg class="w-5 h-5 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+        </svg>
+        概要
+      </h3>
+      <p class="text-secondary-700"><%= @resume.summary %></p>
+    </div>
+  <% end %>
+
+  <!-- 総合スコア -->
+  <div class="mb-8 bg-gradient-to-br from-primary-500 via-primary-600 to-primary-700 rounded-3xl elevation-4 p-10 text-white">
+    <div class="text-center">
+      <h2 class="text-2xl font-bold mb-6">総合スコア</h2>
+      <div class="flex items-baseline justify-center gap-1">
+        <span class="text-3xl font-bold" id="scoreDisplay">0</span>
+        <span class="text-2xl font-medium opacity-80">/ 100点</span>
+      </div>
+      <div class="text-lg text-primary-100 mt-4">
+        <% case @resume.overall_score %>
+        <% when 90..100 %>
+          素晴らしい職務経歴書です
+        <% when 80..89 %>
+          良い職務経歴書です
+        <% when 70..79 %>
+          改善の余地があります
+        <% when 60..69 %>
+          いくつかの改善が必要です
+        <% else %>
+          大幅な改善をお勧めします
+        <% end %>
+      </div>
+    </div>
+  </div>
+
+  <!-- カテゴリ別スコア（アコーディオン） -->
+  <div class="mb-8">
+    <h3 class="text-xl font-bold text-secondary-900 mb-4">カテゴリ別スコア</h3>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <% @analyses.each do |analysis| %>
+        <div class="bg-white rounded-xl shadow-sm border border-secondary-200 overflow-hidden">
+          <button type="button" class="w-full p-4 text-center hover:bg-secondary-50 transition-colors" onclick="toggleCategory('<%= analysis.category %>')">
+            <div class="text-sm text-secondary-500 mb-1"><%= analysis.category_name %></div>
+            <div class="text-3xl font-bold <%= analysis.score >= 80 ? 'text-green-600' : analysis.score >= 60 ? 'text-blue-600' : 'text-amber-600' %>">
+              <%= analysis.score %>
+            </div>
+            <div class="text-xs text-secondary-400 mt-1">/ 100点</div>
+            <svg class="w-4 h-4 mx-auto mt-2 text-secondary-400 transform transition-transform" id="icon-<%= analysis.category %>" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+            </svg>
+          </button>
+          <div class="hidden border-t border-secondary-200 p-4 bg-secondary-50" id="detail-<%= analysis.category %>">
+            <% if analysis.good_points.any? %>
+              <div class="mb-3">
+                <div class="text-xs font-medium text-green-700 mb-1">良い点</div>
+                <ul class="space-y-1">
+                  <% analysis.good_points.each do |point| %>
+                    <li class="text-xs text-secondary-600 flex items-start gap-1">
+                      <span class="text-green-500">+</span>
+                      <%= point %>
+                    </li>
+                  <% end %>
+                </ul>
+              </div>
+            <% end %>
+
+            <% if analysis.issues.any? || analysis.suggestions.any? %>
+              <div>
+                <div class="text-xs font-medium text-amber-700 mb-1">改善点・提案</div>
+                <ul class="space-y-1">
+                  <% analysis.issues.each do |issue| %>
+                    <li class="text-xs text-secondary-600 flex items-start gap-1">
+                      <span class="text-amber-500">-</span>
+                      <%= issue %>
+                    </li>
+                  <% end %>
+                  <% analysis.suggestions.each do |suggestion| %>
+                    <li class="text-xs text-secondary-600 flex items-start gap-1">
+                      <span class="text-blue-500">*</span>
+                      <%= suggestion %>
+                    </li>
+                  <% end %>
+                </ul>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+  <!-- 良い点 -->
+  <% good_points = @resume.all_good_points %>
+  <% if good_points.any? %>
+    <div class="mb-8 bg-white rounded-xl shadow-sm border border-secondary-200 overflow-hidden">
+      <div class="bg-green-50 px-6 py-4 border-b border-green-100">
+        <h3 class="text-lg font-bold text-green-800 flex items-center gap-2">
+          <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+          </svg>
+          良い点
+        </h3>
+      </div>
+      <div class="p-6">
+        <ul class="space-y-3">
+          <% good_points.each do |point| %>
+            <li class="flex items-start gap-3">
+              <svg class="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+              </svg>
+              <span class="text-secondary-700"><%= point %></span>
+            </li>
+          <% end %>
+        </ul>
+      </div>
+    </div>
+  <% end %>
+
+  <!-- 改善ポイント・提案（カテゴリごとにissueとsuggestionをペアで表示） -->
+  <% has_improvements = @analyses.any? { |a| a.issues.any? || a.suggestions.any? } %>
+  <% if has_improvements %>
+    <div class="mb-8 bg-white rounded-xl shadow-sm border border-secondary-200 overflow-hidden">
+      <div class="bg-amber-50 px-6 py-4 border-b border-amber-100">
+        <h3 class="text-lg font-bold text-amber-800 flex items-center gap-2">
+          <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+          </svg>
+          改善ポイント・提案
+        </h3>
+      </div>
+      <div class="p-6 space-y-6">
+        <% @analyses.each do |analysis| %>
+          <% if analysis.issues.any? || analysis.suggestions.any? %>
+            <div>
+              <div class="text-sm font-medium text-secondary-500 mb-3"><%= analysis.category_name %></div>
+              <ul class="space-y-4">
+                <% max_count = [analysis.issues.size, analysis.suggestions.size].max %>
+                <% max_count.times do |i| %>
+                  <li>
+                    <% if analysis.issues[i] %>
+                      <div class="flex items-start gap-3">
+                        <svg class="w-5 h-5 text-amber-500 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                          <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                        </svg>
+                        <span class="text-secondary-700"><%= analysis.issues[i] %></span>
+                      </div>
+                    <% end %>
+                    <% if analysis.suggestions[i] %>
+                      <div class="flex items-start gap-3 mt-1 ml-8">
+                        <svg class="w-4 h-4 text-blue-500 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                          <path d="M11 3a1 1 0 10-2 0v1a1 1 0 102 0V3zM15.657 5.757a1 1 0 00-1.414-1.414l-.707.707a1 1 0 001.414 1.414l.707-.707zM18 10a1 1 0 01-1 1h-1a1 1 0 110-2h1a1 1 0 011 1zM5.05 6.464A1 1 0 106.464 5.05l-.707-.707a1 1 0 00-1.414 1.414l.707.707zM5 10a1 1 0 01-1 1H3a1 1 0 110-2h1a1 1 0 011 1zM8 16v-1h4v1a2 2 0 11-4 0zM12 14c.015-.34.208-.646.477-.859a4 4 0 10-4.954 0c.27.213.462.519.476.859h4.002z" />
+                        </svg>
+                        <span class="text-sm text-blue-700"><%= analysis.suggestions[i] %></span>
+                      </div>
+                    <% end %>
+                  </li>
+                <% end %>
+              </ul>
+            </div>
+          <% end %>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+
+  <!-- 変更例（Before/After） -->
+  <% has_examples = @analyses.any? { |a| a.examples.any? } %>
+  <% if has_examples %>
+    <div class="mb-8 bg-white rounded-xl shadow-sm border border-secondary-200 overflow-hidden">
+      <div class="px-6 py-4 border-b border-secondary-200" style="background: linear-gradient(to right, #dbeafe, #e0e7ff);">
+        <h3 class="text-lg font-bold text-indigo-800 flex items-center gap-2">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+          </svg>
+          提案を踏まえた変更例
+        </h3>
+      </div>
+      <div class="p-6 space-y-6">
+        <% @analyses.each do |analysis| %>
+          <% if analysis.examples.any? %>
+            <div>
+              <div class="text-sm font-medium text-secondary-500 mb-3"><%= analysis.category_name %></div>
+              <div class="space-y-4">
+                <% analysis.examples.each do |example| %>
+                  <div class="rounded-lg border border-secondary-200 overflow-hidden">
+                    <div class="grid md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-secondary-200">
+                      <!-- Before -->
+                      <div class="p-4 bg-red-50">
+                        <div class="flex items-center gap-2 mb-2">
+                          <span class="px-2 py-0.5 bg-red-100 text-red-700 text-xs font-bold rounded">Before</span>
+                        </div>
+                        <p class="text-secondary-700 text-sm"><%= example["before"] || example[:before] %></p>
+                      </div>
+                      <!-- After -->
+                      <div class="p-4 bg-green-50">
+                        <div class="flex items-center gap-2 mb-2">
+                          <span class="px-2 py-0.5 bg-green-100 text-green-700 text-xs font-bold rounded">After</span>
+                        </div>
+                        <p class="text-secondary-700 text-sm"><%= example["after"] || example[:after] %></p>
+                      </div>
+                    </div>
+                  </div>
+                <% end %>
+              </div>
+            </div>
+          <% end %>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+
+  <!-- アクションボタン -->
+  <div class="flex items-center justify-between pt-6 border-t border-secondary-200">
+    <%= link_to resumes_path, class: "inline-flex items-center px-4 py-2 text-secondary-600 hover:text-secondary-900 font-medium transition-colors" do %>
+      <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+      </svg>
+      一覧に戻る
+    <% end %>
+
+    <div class="flex items-center gap-3">
+      <%= link_to download_resume_path(@resume, format: "docx"), class: "inline-flex items-center px-5 py-2.5 bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 rounded-xl font-bold text-white transition-all elevation-2 hover:elevation-3" do %>
+        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+        </svg>
+        改善版をダウンロード（Word）
+      <% end %>
+
+      <%= button_to resume_path(@resume), method: :delete, data: { turbo_confirm: "この職務経歴書を削除しますか？" }, class: "inline-flex items-center px-4 py-2 text-secondary-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors" do %>
+        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+        </svg>
+        削除
+      <% end %>
+    </div>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // スコアアニメーション
+  const targetScore = <%= @resume.overall_score || 0 %>;
+  const scoreDisplay = document.getElementById('scoreDisplay');
+
+  let currentScore = 0;
+  const duration = 1500;
+  const startTime = performance.now();
+
+  function animateScore(currentTime) {
+    const elapsed = currentTime - startTime;
+    const progress = Math.min(elapsed / duration, 1);
+
+    const easeOutQuart = 1 - Math.pow(1 - progress, 4);
+    currentScore = Math.round(targetScore * easeOutQuart);
+    scoreDisplay.textContent = currentScore;
+
+    if (progress < 1) {
+      requestAnimationFrame(animateScore);
+    }
+  }
+
+  requestAnimationFrame(animateScore);
+});
+
+function toggleCategory(category) {
+  const detail = document.getElementById('detail-' + category);
+  const icon = document.getElementById('icon-' + category);
+
+  if (detail.classList.contains('hidden')) {
+    detail.classList.remove('hidden');
+    icon.classList.add('rotate-180');
+  } else {
+    detail.classList.add('hidden');
+    icon.classList.remove('rotate-180');
+  }
+}
+</script>

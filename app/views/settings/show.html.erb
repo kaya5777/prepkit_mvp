@@ -1,0 +1,167 @@
+<div class="max-w-2xl mx-auto">
+  <h1 class="text-2xl font-bold text-secondary-900 mb-8">設定</h1>
+
+  <!-- プロフィール設定 -->
+  <div class="bg-white rounded-xl shadow-sm border border-secondary-200 mb-6 overflow-hidden">
+    <div class="px-6 py-4 border-b border-secondary-200 bg-secondary-50">
+      <h2 class="text-lg font-bold text-secondary-900 flex items-center gap-2">
+        <svg class="w-5 h-5 text-secondary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+        </svg>
+        プロフィール
+      </h2>
+    </div>
+    <div class="p-6">
+      <%= form_with model: @user, url: settings_path, method: :patch, class: "space-y-4" do |f| %>
+        <div>
+          <label class="block text-sm font-medium text-secondary-700 mb-1">メールアドレス</label>
+          <div class="px-4 py-3 bg-secondary-100 rounded-lg text-secondary-600">
+            <%= @user.email %>
+          </div>
+          <p class="mt-1 text-xs text-secondary-500">メールアドレスは変更できません</p>
+        </div>
+        <div>
+          <label for="user_name" class="block text-sm font-medium text-secondary-700 mb-1">ユーザー名</label>
+          <%= f.text_field :name, class: "w-full px-4 py-3 border border-secondary-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors", placeholder: "ユーザー名を入力" %>
+        </div>
+        <div class="pt-2">
+          <%= f.submit "保存", class: "px-6 py-2 bg-primary-600 hover:bg-primary-700 text-white font-medium rounded-lg transition-colors cursor-pointer" %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+  <!-- 職務経歴書 -->
+  <div class="bg-white rounded-xl shadow-sm border border-secondary-200 mb-6 overflow-hidden">
+    <div class="px-6 py-4 border-b border-secondary-200 bg-secondary-50">
+      <h2 class="text-lg font-bold text-secondary-900 flex items-center gap-2">
+        <svg class="w-5 h-5 text-secondary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+        </svg>
+        職務経歴書
+      </h2>
+    </div>
+    <div class="p-6">
+      <% if @resume %>
+        <div class="flex items-center justify-between p-4 bg-green-50 border border-green-200 rounded-lg mb-4">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
+              <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+              </svg>
+            </div>
+            <div>
+              <div class="font-medium text-secondary-900">登録済み</div>
+              <div class="text-sm text-secondary-500">
+                <%= @resume.created_at.in_time_zone('Asia/Tokyo').strftime('%Y年%m月%d日') %> に登録
+              </div>
+            </div>
+          </div>
+          <div class="flex items-center gap-2">
+            <%= link_to resume_path(@resume), class: "px-4 py-2 text-sm font-medium text-primary-600 hover:text-primary-700 hover:bg-primary-50 rounded-lg transition-colors" do %>
+              分析結果を見る
+            <% end %>
+          </div>
+        </div>
+        <div class="flex gap-3">
+          <%= link_to new_resume_path, class: "inline-flex items-center px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white font-medium rounded-lg transition-colors" do %>
+            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+            </svg>
+            新しい職務経歴書をアップロード
+          <% end %>
+        </div>
+      <% else %>
+        <div class="text-center py-6">
+          <div class="w-16 h-16 bg-secondary-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg class="w-8 h-8 text-secondary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+          </div>
+          <p class="text-secondary-600 mb-4">職務経歴書が登録されていません</p>
+          <%= link_to new_resume_path, class: "inline-flex items-center px-6 py-3 bg-primary-600 hover:bg-primary-700 text-white font-medium rounded-lg transition-colors" do %>
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+            </svg>
+            職務経歴書をアップロード
+          <% end %>
+          <p class="mt-4 text-sm text-secondary-500">
+            職務経歴書を登録すると、求人との相性診断ができます
+          </p>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+  <!-- アカウント操作 -->
+  <div class="bg-white rounded-xl shadow-sm border border-secondary-200 overflow-hidden">
+    <div class="px-6 py-4 border-b border-secondary-200 bg-secondary-50">
+      <h2 class="text-lg font-bold text-secondary-900 flex items-center gap-2">
+        <svg class="w-5 h-5 text-secondary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+        </svg>
+        アカウント
+      </h2>
+    </div>
+    <div class="p-6 space-y-4">
+      <!-- ログアウト -->
+      <%= button_to destroy_user_session_path, method: :delete, data: { turbo: false }, class: "w-full flex items-center justify-between p-4 bg-secondary-50 hover:bg-secondary-100 rounded-lg transition-colors group" do %>
+        <div class="flex items-center gap-3">
+          <svg class="w-5 h-5 text-secondary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+          </svg>
+          <span class="font-medium text-secondary-700">ログアウト</span>
+        </div>
+        <svg class="w-5 h-5 text-secondary-400 group-hover:text-secondary-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+        </svg>
+      <% end %>
+
+      <!-- アカウント削除 -->
+      <button type="button" onclick="document.getElementById('deleteAccountModalAlt').classList.remove('hidden')" class="w-full flex items-center justify-between p-4 bg-red-50 hover:bg-red-100 rounded-lg transition-colors group">
+        <div class="flex items-center gap-3">
+          <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+          </svg>
+          <span class="font-medium text-red-700">アカウントを削除</span>
+        </div>
+        <svg class="w-5 h-5 text-red-400 group-hover:text-red-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+        </svg>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- アカウント削除確認モーダル -->
+<div id="deleteAccountModalAlt" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4" style="background: rgba(0,0,0,0.5);">
+  <div class="bg-white rounded-2xl shadow-xl max-w-md w-full p-8">
+    <div class="flex items-center gap-4 mb-6">
+      <div class="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center flex-shrink-0">
+        <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+        </svg>
+      </div>
+      <div>
+        <h3 class="text-xl font-bold text-secondary-900">アカウント削除</h3>
+        <p class="text-sm text-secondary-600 mt-1">この操作は取り消せません</p>
+      </div>
+    </div>
+    <p class="text-secondary-700 mb-6">
+      アカウントを削除すると、すべてのデータ（対策ノート、職務経歴書など）が完全に削除されます。本当に削除しますか？
+    </p>
+    <div class="flex gap-3 justify-end">
+      <button type="button" onclick="document.getElementById('deleteAccountModalAlt').classList.add('hidden')" class="px-6 py-3 bg-secondary-100 hover:bg-secondary-200 rounded-xl font-medium text-secondary-800 transition-colors">
+        キャンセル
+      </button>
+      <button type="button" onclick="document.getElementById('deleteAccountForm').submit();" class="px-6 py-3 bg-red-600 hover:bg-red-700 rounded-xl font-medium text-white transition-colors cursor-pointer" style="background-color: #dc2626; color: white;">
+        削除する
+      </button>
+      <form id="deleteAccountForm" action="<%= destroy_account_settings_path %>" method="post" style="display: none;">
+        <input type="hidden" name="_method" value="delete">
+        <input type="hidden" name="authenticity_token" value="<%= form_authenticity_token %>">
+      </form>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,348 @@
+<div class="max-w-2xl mx-auto">
+  <!-- Header -->
+  <div class="mb-8">
+    <div class="flex items-center gap-4 mb-4">
+      <%= link_to resumes_path, class: "p-2 hover:bg-secondary-100 rounded-lg transition-colors" do %>
+        <svg class="w-5 h-5 text-secondary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+        </svg>
+      <% end %>
+      <h1 class="text-3xl font-bold text-secondary-900">職務経歴書をアップロード</h1>
+    </div>
+    <p class="text-secondary-600">PDF または Word形式（.docx）のファイルをアップロードしてください</p>
+  </div>
+
+  <%= form_with model: @resume, class: "space-y-6", id: "resume-form", data: { turbo: false } do |f| %>
+    <% if @resume.errors.any? %>
+      <div class="p-4 bg-red-50 border border-red-200 rounded-xl">
+        <div class="flex items-center gap-2 text-red-800 mb-2">
+          <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+          </svg>
+          <span class="font-medium">エラーが発生しました</span>
+        </div>
+        <ul class="list-disc list-inside text-sm text-red-700">
+          <% @resume.errors.full_messages.each do |message| %>
+            <li><%= message %></li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
+
+    <!-- ファイルアップロードエリア -->
+    <div id="drop-zone" class="bg-white rounded-xl shadow-sm border-2 border-dashed border-secondary-300 hover:border-primary-400 transition-colors">
+      <label for="resume_original_file" class="block cursor-pointer p-12" id="upload-label">
+        <div class="text-center">
+          <div class="w-16 h-16 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg class="w-8 h-8 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+            </svg>
+          </div>
+          <div class="text-lg font-medium text-secondary-900 mb-2">
+            ファイルをドラッグ&ドロップ
+          </div>
+          <div class="text-secondary-500 mb-4">または</div>
+          <span class="inline-flex items-center px-4 py-2 bg-primary-50 hover:bg-primary-100 rounded-lg text-primary-700 font-medium transition-colors">
+            ファイルを選択
+          </span>
+          <div class="mt-4 text-xs text-secondary-400">
+            対応形式: PDF, Word (.docx) / 最大5MB
+          </div>
+        </div>
+        <%= f.file_field :original_file,
+            accept: ".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            class: "sr-only",
+            id: "resume_original_file",
+            data: { action: "change->file-upload#preview" } %>
+      </label>
+
+      <!-- 選択されたファイル表示 -->
+      <div id="file-preview" class="hidden border-t border-secondary-200 p-4">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 bg-secondary-100 rounded-lg flex items-center justify-center">
+              <svg class="w-5 h-5 text-secondary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+            </div>
+            <div>
+              <div id="file-name" class="font-medium text-secondary-900"></div>
+              <div id="file-size" class="text-sm text-secondary-500"></div>
+            </div>
+          </div>
+          <button type="button" id="clear-file" class="p-2 hover:bg-secondary-100 rounded-lg transition-colors">
+            <svg class="w-5 h-5 text-secondary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 注意事項 -->
+    <div class="bg-amber-50 border border-amber-200 rounded-xl p-4">
+      <div class="flex items-start gap-3">
+        <svg class="w-5 h-5 text-amber-600 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+          <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+        </svg>
+        <div>
+          <div class="font-medium text-amber-800 mb-1">ご注意</div>
+          <ul class="text-sm text-amber-700 space-y-1">
+            <li>・ 画像のみのPDF（スキャンした書類）は読み取れない場合があります</li>
+            <li>・ アップロードされたファイルは分析のみに使用され、安全に管理されます</li>
+            <li>・ 分析には数十秒〜1分程度かかる場合があります</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- 送信ボタン -->
+    <div class="flex items-center justify-end gap-4">
+      <%= link_to "キャンセル", resumes_path, class: "px-6 py-3 text-secondary-600 hover:text-secondary-900 font-medium transition-colors" %>
+      <%= f.submit "分析を開始", class: "px-8 py-3 bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 rounded-xl font-bold text-white transition-all elevation-2 hover:elevation-3 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed", id: "submit-btn" %>
+    </div>
+  <% end %>
+</div>
+
+<!-- Loading Modal -->
+<div id="loadingModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+  <div class="bg-white rounded-3xl p-8 max-w-md mx-4 elevation-4">
+    <div class="text-center">
+      <!-- Spinner -->
+      <div class="mb-6 flex justify-center">
+        <div class="animate-spin rounded-full h-16 w-16 border-4 border-primary-200 border-t-primary-600"></div>
+      </div>
+
+      <!-- Title -->
+      <h3 class="text-2xl font-bold text-secondary-900 mb-3">AIが職務経歴書を分析中です</h3>
+
+      <!-- Progress Bar -->
+      <div class="mb-4">
+        <div class="w-full bg-secondary-200 rounded-full h-2 overflow-hidden">
+          <div id="progressBar" class="bg-gradient-to-r from-primary-500 to-primary-600 h-2 rounded-full transition-all duration-1000 ease-out" style="width: 0%"></div>
+        </div>
+        <p class="text-sm text-secondary-600 mt-2">
+          <span id="progressText">準備中...</span>
+          <span id="progressPercent" class="font-semibold text-primary-600">0%</span>
+        </p>
+      </div>
+
+      <!-- Progress indicators -->
+      <div class="space-y-3 text-sm">
+        <div class="flex items-center gap-3 p-2 rounded-lg transition-all duration-300" id="step1">
+          <div class="w-6 h-6 rounded-full flex items-center justify-center bg-secondary-200" id="step1-icon">
+            <div class="w-2 h-2 bg-secondary-400 rounded-full"></div>
+          </div>
+          <span class="text-secondary-500" id="step1-text">ファイルを解析中</span>
+        </div>
+        <div class="flex items-center gap-3 p-2 rounded-lg transition-all duration-300" id="step2">
+          <div class="w-6 h-6 rounded-full flex items-center justify-center bg-secondary-200" id="step2-icon">
+            <div class="w-2 h-2 bg-secondary-400 rounded-full"></div>
+          </div>
+          <span class="text-secondary-500" id="step2-text">職務経歴の内容を読み取り中</span>
+        </div>
+        <div class="flex items-center gap-3 p-2 rounded-lg transition-all duration-300" id="step3">
+          <div class="w-6 h-6 rounded-full flex items-center justify-center bg-secondary-200" id="step3-icon">
+            <div class="w-2 h-2 bg-secondary-400 rounded-full"></div>
+          </div>
+          <span class="text-secondary-500" id="step3-text">構成・表現を分析中</span>
+        </div>
+        <div class="flex items-center gap-3 p-2 rounded-lg transition-all duration-300" id="step4">
+          <div class="w-6 h-6 rounded-full flex items-center justify-center bg-secondary-200" id="step4-icon">
+            <div class="w-2 h-2 bg-secondary-400 rounded-full"></div>
+          </div>
+          <span class="text-secondary-500" id="step4-text">改善ポイントを検討中</span>
+        </div>
+        <div class="flex items-center gap-3 p-2 rounded-lg transition-all duration-300" id="step5">
+          <div class="w-6 h-6 rounded-full flex items-center justify-center bg-secondary-200" id="step5-icon">
+            <div class="w-2 h-2 bg-secondary-400 rounded-full"></div>
+          </div>
+          <span class="text-secondary-500" id="step5-text">レポートを作成中</span>
+        </div>
+      </div>
+
+      <!-- Warning -->
+      <div class="mt-6 p-3 bg-primary-50 rounded-xl border border-primary-100">
+        <p class="text-xs text-primary-800">※ 処理には30秒〜1分程度かかる場合があります</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const fileInput = document.getElementById('resume_original_file');
+  const filePreview = document.getElementById('file-preview');
+  const fileName = document.getElementById('file-name');
+  const fileSize = document.getElementById('file-size');
+  const clearFile = document.getElementById('clear-file');
+  const submitBtn = document.getElementById('submit-btn');
+  const dropZone = document.getElementById('drop-zone');
+
+  // ファイル選択時の処理
+  function handleFile(file) {
+    // ファイル形式チェック
+    const validTypes = ['application/pdf', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+    if (!validTypes.includes(file.type)) {
+      alert('PDFまたはWord（.docx）形式のファイルを選択してください');
+      return;
+    }
+
+    // ファイルサイズチェック（5MB）
+    if (file.size > 5 * 1024 * 1024) {
+      alert('ファイルサイズは5MB以下にしてください');
+      return;
+    }
+
+    // DataTransferを使ってファイルをinputに設定
+    const dataTransfer = new DataTransfer();
+    dataTransfer.items.add(file);
+    fileInput.files = dataTransfer.files;
+
+    // プレビュー表示
+    fileName.textContent = file.name;
+    fileSize.textContent = formatFileSize(file.size);
+    filePreview.classList.remove('hidden');
+    submitBtn.disabled = false;
+  }
+
+  // 通常のファイル選択
+  fileInput.addEventListener('change', function() {
+    if (this.files && this.files[0]) {
+      handleFile(this.files[0]);
+    }
+  });
+
+  // ドラッグ＆ドロップ処理
+  ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+    dropZone.addEventListener(eventName, preventDefaults, false);
+    document.body.addEventListener(eventName, preventDefaults, false);
+  });
+
+  function preventDefaults(e) {
+    e.preventDefault();
+    e.stopPropagation();
+  }
+
+  // ドラッグ中のハイライト
+  ['dragenter', 'dragover'].forEach(eventName => {
+    dropZone.addEventListener(eventName, highlight, false);
+  });
+
+  ['dragleave', 'drop'].forEach(eventName => {
+    dropZone.addEventListener(eventName, unhighlight, false);
+  });
+
+  function highlight(e) {
+    dropZone.classList.add('border-primary-500', 'bg-primary-50');
+  }
+
+  function unhighlight(e) {
+    dropZone.classList.remove('border-primary-500', 'bg-primary-50');
+  }
+
+  // ドロップ処理
+  dropZone.addEventListener('drop', function(e) {
+    const dt = e.dataTransfer;
+    const files = dt.files;
+
+    if (files.length > 0) {
+      handleFile(files[0]);
+    }
+  }, false);
+
+  // ファイルクリア
+  clearFile.addEventListener('click', function() {
+    fileInput.value = '';
+    filePreview.classList.add('hidden');
+    submitBtn.disabled = true;
+  });
+
+  function formatFileSize(bytes) {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+  }
+
+  // フォーム送信時のローディング表示
+  const form = document.getElementById('resume-form');
+  const modal = document.getElementById('loadingModal');
+  const progressBar = document.getElementById('progressBar');
+  const progressPercent = document.getElementById('progressPercent');
+  const progressText = document.getElementById('progressText');
+
+  const steps = [
+    { id: 1, text: 'ファイルを解析中...', duration: 3000, progress: 20 },
+    { id: 2, text: '職務経歴の内容を読み取り中...', duration: 5000, progress: 40 },
+    { id: 3, text: '構成・表現を分析中...', duration: 8000, progress: 60 },
+    { id: 4, text: '改善ポイントを検討中...', duration: 6000, progress: 80 },
+    { id: 5, text: 'レポートを作成中...', duration: 5000, progress: 99 }
+  ];
+
+  function activateStep(stepId) {
+    const step = document.getElementById(`step${stepId}`);
+    const icon = document.getElementById(`step${stepId}-icon`);
+    const text = document.getElementById(`step${stepId}-text`);
+
+    step.classList.add('bg-primary-50');
+    icon.innerHTML = '<div class="w-3 h-3 bg-primary-600 rounded-full animate-pulse"></div>';
+    text.classList.remove('text-secondary-500');
+    text.classList.add('text-secondary-900', 'font-semibold');
+  }
+
+  function completeStep(stepId) {
+    const step = document.getElementById(`step${stepId}`);
+    const icon = document.getElementById(`step${stepId}-icon`);
+    const text = document.getElementById(`step${stepId}-text`);
+
+    step.classList.remove('bg-primary-50');
+    icon.classList.add('bg-primary-500');
+    icon.innerHTML = `
+      <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path>
+      </svg>
+    `;
+    text.classList.remove('font-semibold');
+    text.classList.add('line-through', 'text-secondary-400');
+  }
+
+  function updateProgress(percent, text) {
+    progressBar.style.width = percent + '%';
+    progressPercent.textContent = percent + '%';
+    progressText.textContent = text;
+  }
+
+  form.addEventListener('submit', function(e) {
+    // ファイルが選択されていない場合はモーダルを表示しない
+    if (!fileInput.files || fileInput.files.length === 0) {
+      return;
+    }
+
+    modal.classList.remove('hidden');
+    submitBtn.disabled = true;
+
+    let currentStep = 0;
+
+    function processNextStep() {
+      if (currentStep > 0) {
+        completeStep(currentStep);
+      }
+
+      currentStep++;
+
+      if (currentStep <= steps.length) {
+        const step = steps[currentStep - 1];
+        activateStep(step.id);
+        updateProgress(step.progress, step.text);
+
+        setTimeout(processNextStep, step.duration);
+      }
+    }
+
+    // 最初のステップを開始
+    setTimeout(processNextStep, 500);
+  });
+});
+</script>

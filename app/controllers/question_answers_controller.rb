@@ -11,7 +11,7 @@ class QuestionAnswersController < ApplicationController
       @question_answers = @history.question_answers.includes(:user).scored.recent_first
     else
       # 過去の練習回答（自分のみ）
-      @question_answers = @history.question_answers.scored.where(user: current_user).recent_first
+      @question_answers = @history.question_answers.scored.by_user(current_user).recent_first
     end
 
     # 質問番号でフィルタリング
