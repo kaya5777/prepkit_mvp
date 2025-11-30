@@ -1,8 +1,10 @@
 require 'rails_helper'
 
 RSpec.describe "histories/show.html.erb", type: :view do
+  let(:user) { create(:user) }
   let(:history_with_json) do
-    History.create!(
+    create(:history,
+      user: user,
       company_name: 'テスト株式会社',
       content: '```json
 {
@@ -25,9 +27,16 @@ RSpec.describe "histories/show.html.erb", type: :view do
     )
   end
 
+  before do
+    allow(view).to receive(:current_user).and_return(user)
+  end
+
   it "renders JSON content correctly" do
     assign(:history, history_with_json)
     assign(:presenter, HistoryPresenter.new(history_with_json))
+    assign(:answers_tab, "my_answers")
+    assign(:past_answers, [])
+    assign(:grouped_answers, {})
     render
     expect(rendered).to include('想定質問リスト')
     expect(rendered).to include('質問1')

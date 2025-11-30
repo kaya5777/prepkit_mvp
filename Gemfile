@@ -34,6 +34,9 @@ group :test do
   gem "simplecov", "~> 0.22", require: false
   gem "webmock", "~> 3.23"
   gem "vcr", "~> 6.3"
+  gem "capybara", "~> 3.40"
+  gem "selenium-webdriver", "~> 4.25"
+  gem "rails-controller-testing", "~> 1.0"
 end
 
 gem "tailwindcss-rails", "~> 4.3"

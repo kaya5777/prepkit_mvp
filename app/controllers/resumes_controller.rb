@@ -3,7 +3,7 @@ class ResumesController < ApplicationController
   before_action :set_resume, only: [:show, :destroy, :download]
 
   def index
-    @resumes = current_user.resumes.latest_first.includes(:resume_analyses)
+    @resumes = current_user.resumes.latest_first.includes(:resume_analyses, original_file_attachment: :blob)
   end
 
   def show

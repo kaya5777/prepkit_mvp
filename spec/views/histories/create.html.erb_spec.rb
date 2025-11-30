@@ -1,5 +1,8 @@
 require 'rails_helper'
 
 RSpec.describe "histories/create.html.erb", type: :view do
-  pending "add some examples to (or delete) #{__FILE__}"
+  it "renders placeholder content" do
+    render
+    expect(rendered).to include("Histories#create")
+  end
 end
