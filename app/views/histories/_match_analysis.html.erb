@@ -9,7 +9,7 @@
         相性診断
       </h2>
       <% if history.match_analyzed? %>
-        <%= button_to analyze_match_history_path(history), method: :post, class: "text-sm text-purple-600 hover:text-purple-700 font-medium", data: { turbo_confirm: "相性診断を再実行しますか？" } do %>
+        <%= button_to analyze_match_history_path(history), method: :post, class: "text-sm text-purple-600 hover:text-purple-700 font-medium", data: { turbo: false }, form: { onsubmit: "showMatchAnalysisModal(); return true;" } do %>
           再診断
         <% end %>
       <% end %>
