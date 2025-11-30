@@ -12,9 +12,9 @@ FactoryBot.define do
       match_rank { "A" }
       match_analysis do
         {
-          "strengths" => ["技術スタックが一致", "経験年数が十分"],
-          "weaknesses" => ["特定の技術経験が不足"],
-          "recommendations" => ["不足している技術を学習することを推奨"]
+          "strengths" => [ "技術スタックが一致", "経験年数が十分" ],
+          "weaknesses" => [ "特定の技術経験が不足" ],
+          "recommendations" => [ "不足している技術を学習することを推奨" ]
         }
       end
     end

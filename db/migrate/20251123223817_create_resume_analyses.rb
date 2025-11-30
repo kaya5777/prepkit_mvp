@@ -11,6 +11,6 @@ class CreateResumeAnalyses < ActiveRecord::Migration[7.2]
     end
 
     add_index :resume_analyses, :category
-    add_index :resume_analyses, [:resume_id, :category], unique: true
+    add_index :resume_analyses, [ :resume_id, :category ], unique: true
   end
 end

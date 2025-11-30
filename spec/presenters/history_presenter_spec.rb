@@ -2,7 +2,7 @@ require 'rails_helper'
 
 RSpec.describe HistoryPresenter do
   let(:user) { create(:user) }
-  
+
   describe "with single-stage JSON content" do
     let(:history) do
       create(:history,
@@ -112,7 +112,7 @@ RSpec.describe HistoryPresenter do
     describe "#tech_checklist" do
       it "returns tech_checklist array" do
         checklist = presenter.tech_checklist
-        expect(checklist).to eq(["チェック項目1", "チェック項目2"])
+        expect(checklist).to eq([ "チェック項目1", "チェック項目2" ])
       end
     end
 
@@ -249,7 +249,7 @@ RSpec.describe HistoryPresenter do
 
     describe "#tech_checklist with stage parameter" do
       it "returns stage_1 tech_checklist" do
-        expect(presenter.tech_checklist(1)).to eq(["1次チェック"])
+        expect(presenter.tech_checklist(1)).to eq([ "1次チェック" ])
       end
 
       it "returns empty array when stage has no checklist" do

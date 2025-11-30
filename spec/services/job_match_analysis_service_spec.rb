@@ -59,7 +59,7 @@ RSpec.describe JobMatchAnalysisService, type: :service do
       it "saves match_analysis with all required fields" do
         service.call
         analysis = history.reload.match_analysis
-        
+
         expect(analysis).to be_a(Hash)
         expect(analysis).to have_key("matching_points")
         expect(analysis).to have_key("gap_points")
@@ -73,7 +73,7 @@ RSpec.describe JobMatchAnalysisService, type: :service do
       it "saves matching_points as array" do
         service.call
         matching_points = history.reload.match_analysis["matching_points"]
-        
+
         expect(matching_points).to be_an(Array)
         expect(matching_points).not_to be_empty
         expect(matching_points.first).to have_key("requirement")
@@ -84,14 +84,14 @@ RSpec.describe JobMatchAnalysisService, type: :service do
       it "saves gap_points as array" do
         service.call
         gap_points = history.reload.match_analysis["gap_points"]
-        
+
         expect(gap_points).to be_an(Array)
       end
 
       it "saves appeal_suggestions as array" do
         service.call
         suggestions = history.reload.match_analysis["appeal_suggestions"]
-        
+
         expect(suggestions).to be_an(Array)
         expect(suggestions).not_to be_empty
       end
@@ -99,7 +99,7 @@ RSpec.describe JobMatchAnalysisService, type: :service do
       it "saves interview_tips as array" do
         service.call
         tips = history.reload.match_analysis["interview_tips"]
-        
+
         expect(tips).to be_an(Array)
         expect(tips).not_to be_empty
       end
@@ -119,7 +119,7 @@ RSpec.describe JobMatchAnalysisService, type: :service do
           .to_return(
             status: 200,
             body: {
-              choices: [{
+              choices: [ {
                 message: {
                   content: {
                     match_score: 150,
@@ -131,7 +131,7 @@ RSpec.describe JobMatchAnalysisService, type: :service do
                     summary: "Test"
                   }.to_json
                 }
-              }]
+              } ]
             }.to_json,
             headers: { "Content-Type" => "application/json" }
           )
@@ -177,7 +177,7 @@ RSpec.describe JobMatchAnalysisService, type: :service do
           .to_return(
             status: 200,
             body: {
-              choices: [{ message: { content: "Invalid JSON" } }]
+              choices: [ { message: { content: "Invalid JSON" } } ]
             }.to_json,
             headers: { "Content-Type" => "application/json" }
           )
@@ -196,11 +196,11 @@ RSpec.describe JobMatchAnalysisService, type: :service do
           .to_return(
             status: 200,
             body: {
-              choices: [{
+              choices: [ {
                 message: {
                   content: { match_score: 75 }.to_json
                 }
-              }]
+              } ]
             }.to_json,
             headers: { "Content-Type" => "application/json" }
           )
@@ -219,7 +219,7 @@ RSpec.describe JobMatchAnalysisService, type: :service do
           .to_return(
             status: 200,
             body: {
-              choices: [{ message: { content: nil } }]
+              choices: [ { message: { content: nil } } ]
             }.to_json,
             headers: { "Content-Type" => "application/json" }
           )
@@ -251,7 +251,7 @@ RSpec.describe JobMatchAnalysisService, type: :service do
       it "truncates job info to 3000 characters" do
         long_description = "a" * 4000
         history.update!(job_description: long_description)
-        
+
         job_info = service.send(:build_job_info)
         expect(job_info.length).to be <= 3000
       end
@@ -275,11 +275,11 @@ RSpec.describe JobMatchAnalysisService, type: :service do
     it "ranges cover 0-100" do
       all_scores = (0..100).to_a
       covered_scores = []
-      
+
       JobMatchAnalysisService::RANK_DEFINITIONS.each do |_key, value|
         covered_scores += value[:range].to_a
       end
-      
+
       expect(covered_scores.uniq.sort).to eq(all_scores)
     end
   end
@@ -349,20 +349,20 @@ RSpec.describe JobMatchAnalysisService, type: :service do
 
   describe "JSON parsing" do
     it "handles JSON wrapped in code blocks" do
-      response = double(choices: [double(message: double(content: "```json\n{\"match_score\":75,\"match_rank\":\"B\"}\n```"))])
-      
+      response = double(choices: [ double(message: double(content: "```json\n{\"match_score\":75,\"match_rank\":\"B\"}\n```")) ])
+
       result = service.send(:parse_analysis_response, response)
-      
+
       expect(result).to be_a(Hash)
       expect(result[:match_score]).to eq(75)
       expect(result[:match_rank]).to eq("B")
     end
 
     it "handles JSON without code blocks" do
-      response = double(choices: [double(message: double(content: "{\"match_score\":85,\"match_rank\":\"A\"}"))])
-      
+      response = double(choices: [ double(message: double(content: "{\"match_score\":85,\"match_rank\":\"A\"}")) ])
+
       result = service.send(:parse_analysis_response, response)
-      
+
       expect(result).to be_a(Hash)
       expect(result[:match_score]).to eq(85)
     end

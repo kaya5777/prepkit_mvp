@@ -5,7 +5,7 @@ RSpec.describe QuestionAnswerScoringService do
     {
       question: "Ruby on Railsでの開発経験を教えてください",
       intent: "実務経験の深さを確認したい",
-      answer_points: ["具体的なプロジェクト", "使用した技術", "チーム規模"],
+      answer_points: [ "具体的なプロジェクト", "使用した技術", "チーム規模" ],
       level: "Mid-level Engineer"
     }
   end
@@ -16,8 +16,8 @@ RSpec.describe QuestionAnswerScoringService do
       let(:mock_response_content) do
         {
           "score" => 85,
-          "good_points" => ["具体的な経験年数を記載", "プロジェクト内容に言及"],
-          "improvements" => ["技術スタックの詳細が不足"],
+          "good_points" => [ "具体的な経験年数を記載", "プロジェクト内容に言及" ],
+          "improvements" => [ "技術スタックの詳細が不足" ],
           "improvement_example" => "Ruby 3.0、Rails 7.0を使用し、決済機能を実装しました。"
         }.to_json
       end
@@ -28,7 +28,7 @@ RSpec.describe QuestionAnswerScoringService do
 
         message = double("message", content: mock_response_content)
         choice = double("choice", message: message)
-        response = double("response", choices: [choice])
+        response = double("response", choices: [ choice ])
         allow(fake_client).to receive_message_chain(:chat, :completions, :create).and_return(response)
       end
 
@@ -85,15 +85,15 @@ RSpec.describe QuestionAnswerScoringService do
       it "normalizes result with all fields" do
         parsed = {
           score: 75,
-          good_points: ["良い点1"],
-          improvements: ["改善点1"],
+          good_points: [ "良い点1" ],
+          improvements: [ "改善点1" ],
           improvement_example: "改善例"
         }
         result = service.send(:normalize_result, parsed)
 
         expect(result[:score]).to eq(75)
-        expect(result[:good_points]).to eq(["良い点1"])
-        expect(result[:improvements]).to eq(["改善点1"])
+        expect(result[:good_points]).to eq([ "良い点1" ])
+        expect(result[:improvements]).to eq([ "改善点1" ])
         expect(result[:improvement_example]).to eq("改善例")
       end
 

@@ -11,6 +11,6 @@ class CreateResumes < ActiveRecord::Migration[7.2]
     end
 
     add_index :resumes, :status
-    add_index :resumes, [:user_id, :created_at]
+    add_index :resumes, [ :user_id, :created_at ]
   end
 end

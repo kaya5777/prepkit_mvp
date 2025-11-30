@@ -76,8 +76,8 @@ RSpec.describe "QuestionAnswers", type: :request do
     before do
       allow(QuestionAnswerScoringService).to receive(:call).and_return({
         score: 75,
-        good_points: ["良い点"],
-        improvements: ["改善点"],
+        good_points: [ "良い点" ],
+        improvements: [ "改善点" ],
         improvement_example: "改善例"
       })
     end

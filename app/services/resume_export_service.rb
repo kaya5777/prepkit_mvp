@@ -8,7 +8,7 @@ class ResumeExportService
   def export_as_pdf
     require "prawn"
 
-    pdf = Prawn::Document.new(page_size: "A4", margin: [40, 40, 40, 40])
+    pdf = Prawn::Document.new(page_size: "A4", margin: [ 40, 40, 40, 40 ])
 
     # 日本語フォントの設定（IPAexゴシック）
     ipa_font_path = Rails.root.join("app", "assets", "fonts", "ipaexg.ttf")

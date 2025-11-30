@@ -48,36 +48,36 @@ def mock_resume_analysis_response
     categories: {
       structure: {
         score: 75,
-        good_points: ["セクション分けが適切", "時系列順に整理されている"],
-        issues: ["職務要約が簡潔すぎる"],
-        suggestions: ["職務要約で主要な実績を具体的に記載する"],
+        good_points: [ "セクション分けが適切", "時系列順に整理されている" ],
+        issues: [ "職務要約が簡潔すぎる" ],
+        suggestions: [ "職務要約で主要な実績を具体的に記載する" ],
         examples: [
           { before: "Web開発エンジニアとして5年の経験があります。", after: "Web開発エンジニアとして5年の経験。Ruby on Railsで月間100万PVのサービスを3件開発し、チームリーダーとして5名のエンジニアをマネジメント。" }
         ]
       },
       content: {
         score: 70,
-        good_points: ["使用技術が明確"],
-        issues: ["具体的な成果が数値化されていない"],
-        suggestions: ["プロジェクトの規模や成果を数値で示す"],
+        good_points: [ "使用技術が明確" ],
+        issues: [ "具体的な成果が数値化されていない" ],
+        suggestions: [ "プロジェクトの規模や成果を数値で示す" ],
         examples: [
           { before: "Webアプリケーション開発を担当", after: "月間10万PVのECサイト開発を担当し、レスポンス時間を30%改善" }
         ]
       },
       expression: {
         score: 80,
-        good_points: ["文章が簡潔で読みやすい"],
-        issues: ["専門用語の説明が不足"],
-        suggestions: ["技術スタックごとに習熟度を明示する"],
+        good_points: [ "文章が簡潔で読みやすい" ],
+        issues: [ "専門用語の説明が不足" ],
+        suggestions: [ "技術スタックごとに習熟度を明示する" ],
         examples: [
           { before: "Ruby on Rails: 5年", after: "Ruby on Rails: 5年（実務経験、フルスタック開発可能、チームリーダー経験あり）" }
         ]
       },
       layout: {
         score: 65,
-        good_points: ["シンプルで見やすい"],
-        issues: ["視覚的な工夫が少ない"],
-        suggestions: ["重要な実績を強調表示する"],
+        good_points: [ "シンプルで見やすい" ],
+        issues: [ "視覚的な工夫が少ない" ],
+        suggestions: [ "重要な実績を強調表示する" ],
         examples: [
           { before: "・Ruby on Railsを使用したバックエンド開発", after: "【主要実績】Ruby on Railsを使用したバックエンド開発（月間100万PV）" }
         ]

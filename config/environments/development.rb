@@ -74,7 +74,7 @@ Rails.application.configure do
   config.hosts << "prepkit-mvp.onrender.com"
 
   # Force SSL when deployed on HTTPS (e.g., Render.com)
-  config.force_ssl = ENV['FORCE_SSL'] == 'true'
+  config.force_ssl = ENV["FORCE_SSL"] == "true"
 
   # Bullet configuration for N+1 query detection
   config.after_initialize do

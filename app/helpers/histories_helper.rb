@@ -6,7 +6,7 @@ module HistoriesHelper
 
   # ユーザーの表示名を取得
   def user_display_name(user)
-    user.name || user.email.split('@').first
+    user.name || user.email.split("@").first
   end
 
   # ユーザーのアバター初期を取得
@@ -15,7 +15,7 @@ module HistoriesHelper
   end
 
   # ユーザーのアバターを表示
-  def user_avatar(user, size: 'w-6 h-6', text_size: 'text-xs')
+  def user_avatar(user, size: "w-6 h-6", text_size: "text-xs")
     if user.avatar_url.present?
       image_tag user.avatar_url, alt: user_display_name(user), class: "#{size} rounded-full object-cover"
     else
@@ -26,7 +26,7 @@ module HistoriesHelper
   end
 
   # ユーザーのアバターと名前を一緒に表示
-  def user_avatar_with_name(user, avatar_size: 'w-6 h-6', text_size: 'text-xs', name_class: 'text-sm text-secondary-600')
+  def user_avatar_with_name(user, avatar_size: "w-6 h-6", text_size: "text-xs", name_class: "text-sm text-secondary-600")
     content_tag(:div, class: "flex items-center gap-2") do
       concat(user_avatar(user, size: avatar_size, text_size: text_size))
       concat(content_tag(:span, user_display_name(user), class: name_class))

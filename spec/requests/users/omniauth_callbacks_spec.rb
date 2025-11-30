@@ -105,7 +105,7 @@ RSpec.describe "Users::OmniauthCallbacks", type: :request do
       # When OAuth fails, it triggers the failure action
       # The failure action is at /users/auth/failure
       # Due to routing complexity, we'll just ensure no error is raised
-      expect(response.status).to be_in([302, 401, 422])
+      expect(response.status).to be_in([ 302, 401, 422 ])
     end
   end
 

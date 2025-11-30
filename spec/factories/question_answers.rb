@@ -14,8 +14,8 @@ FactoryBot.define do
       score { 75 }
       feedback do
         {
-          "good_points" => ["具体的な説明ができている"],
-          "improvements" => ["数値で示すとより良い"],
+          "good_points" => [ "具体的な説明ができている" ],
+          "improvements" => [ "数値で示すとより良い" ],
           "improvement_example" => "「5人のチームで開発し、月間の進捗を30%改善しました」のように具体化すると効果的です"
         }
       end

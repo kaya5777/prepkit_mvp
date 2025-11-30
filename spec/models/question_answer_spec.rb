@@ -89,7 +89,7 @@ RSpec.describe QuestionAnswer, type: :model do
     describe "#good_points" do
       it "returns good_points from feedback" do
         answer = build(:question_answer, :scored)
-        expect(answer.good_points).to eq(["具体的な説明ができている"])
+        expect(answer.good_points).to eq([ "具体的な説明ができている" ])
       end
 
       it "returns empty array when feedback is nil" do
@@ -106,7 +106,7 @@ RSpec.describe QuestionAnswer, type: :model do
     describe "#improvements" do
       it "returns improvements from feedback" do
         answer = build(:question_answer, :scored)
-        expect(answer.improvements).to eq(["数値で示すとより良い"])
+        expect(answer.improvements).to eq([ "数値で示すとより良い" ])
       end
 
       it "returns empty array when feedback is nil" do

@@ -73,7 +73,7 @@ RSpec.describe InterviewKitGeneratorService do
 
         message = double("message", content: valid_json_response)
         choice = double("choice", message: message)
-        chat_completion = double("chat_completion", choices: [choice])
+        chat_completion = double("chat_completion", choices: [ choice ])
         allow(fake_client).to receive_message_chain(:chat, :completions, :create).and_return(chat_completion)
       end
 
@@ -120,7 +120,7 @@ RSpec.describe InterviewKitGeneratorService do
 
         message = double("message", content: "")
         choice = double("choice", message: message)
-        chat_completion = double("chat_completion", choices: [choice])
+        chat_completion = double("chat_completion", choices: [ choice ])
         allow(fake_client).to receive_message_chain(:chat, :completions, :create).and_return(chat_completion)
       end
 
@@ -141,7 +141,7 @@ RSpec.describe InterviewKitGeneratorService do
 
         message = double("message", content: "invalid json {{{")
         choice = double("choice", message: message)
-        chat_completion = double("chat_completion", choices: [choice])
+        chat_completion = double("chat_completion", choices: [ choice ])
         allow(fake_client).to receive_message_chain(:chat, :completions, :create).and_return(chat_completion)
       end
 
@@ -178,18 +178,18 @@ RSpec.describe InterviewKitGeneratorService do
     describe "#normalize_questions" do
       it "normalizes array of question hashes" do
         questions = [
-          { question: "質問1", intent: "意図1", answer_points: ["ポイント1"], level: "Junior" }
+          { question: "質問1", intent: "意図1", answer_points: [ "ポイント1" ], level: "Junior" }
         ]
         result = service.send(:normalize_questions, questions)
 
         expect(result.first[:question]).to eq("質問1")
         expect(result.first[:intent]).to eq("意図1")
-        expect(result.first[:answer_points]).to eq(["ポイント1"])
+        expect(result.first[:answer_points]).to eq([ "ポイント1" ])
         expect(result.first[:level]).to eq("Junior")
       end
 
       it "converts string questions to hash format" do
-        questions = ["質問文字列"]
+        questions = [ "質問文字列" ]
         result = service.send(:normalize_questions, questions)
 
         expect(result.first[:question]).to eq("質問文字列")
@@ -206,12 +206,12 @@ RSpec.describe InterviewKitGeneratorService do
       end
 
       it "joins array of strings" do
-        result = service.send(:normalize_reverse_questions, ["質問1", "質問2"])
+        result = service.send(:normalize_reverse_questions, [ "質問1", "質問2" ])
         expect(result).to eq("質問1\n質問2")
       end
 
       it "extracts question from array of hashes" do
-        result = service.send(:normalize_reverse_questions, [{ question: "質問1" }, { question: "質問2" }])
+        result = service.send(:normalize_reverse_questions, [ { question: "質問1" }, { question: "質問2" } ])
         expect(result).to eq("質問1\n質問2")
       end
 
@@ -223,15 +223,15 @@ RSpec.describe InterviewKitGeneratorService do
 
     describe "#normalize_tech_checklist" do
       it "returns array as is when items are strings" do
-        checklist = ["項目1", "項目2"]
+        checklist = [ "項目1", "項目2" ]
         result = service.send(:normalize_tech_checklist, checklist)
-        expect(result).to eq(["項目1", "項目2"])
+        expect(result).to eq([ "項目1", "項目2" ])
       end
 
       it "extracts item from array of hashes" do
-        checklist = [{ item: "項目1" }, { item: "項目2" }]
+        checklist = [ { item: "項目1" }, { item: "項目2" } ]
         result = service.send(:normalize_tech_checklist, checklist)
-        expect(result).to eq(["項目1", "項目2"])
+        expect(result).to eq([ "項目1", "項目2" ])
       end
     end
 
@@ -242,9 +242,9 @@ RSpec.describe InterviewKitGeneratorService do
       end
 
       it "accesses object attributes" do
-        obj = double("object", choices: [1, 2, 3])
+        obj = double("object", choices: [ 1, 2, 3 ])
         result = service.send(:safe_access, obj, :choices)
-        expect(result).to eq([1, 2, 3])
+        expect(result).to eq([ 1, 2, 3 ])
       end
     end
 

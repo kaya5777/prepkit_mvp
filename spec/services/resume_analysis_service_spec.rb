@@ -74,7 +74,7 @@ RSpec.describe ResumeAnalysisService, type: :service do
       it "saves feedback with good_points, issues, suggestions, and examples" do
         service.call
         analysis = resume.reload.resume_analyses.first
-        
+
         expect(analysis.good_points).to be_an(Array)
         expect(analysis.issues).to be_an(Array)
         expect(analysis.suggestions).to be_an(Array)
@@ -102,10 +102,10 @@ RSpec.describe ResumeAnalysisService, type: :service do
                     content: {
                       summary: "Test summary",
                       categories: {
-                        structure: { score: 150, good_points: ["良い"], issues: [], suggestions: [], examples: [] },
-                        content: { score: -10, good_points: ["良い"], issues: [], suggestions: [], examples: [] },
-                        expression: { score: 75, good_points: ["良い"], issues: [], suggestions: [], examples: [] },
-                        layout: { score: 75, good_points: ["良い"], issues: [], suggestions: [], examples: [] }
+                        structure: { score: 150, good_points: [ "良い" ], issues: [], suggestions: [], examples: [] },
+                        content: { score: -10, good_points: [ "良い" ], issues: [], suggestions: [], examples: [] },
+                        expression: { score: 75, good_points: [ "良い" ], issues: [], suggestions: [], examples: [] },
+                        layout: { score: 75, good_points: [ "良い" ], issues: [], suggestions: [], examples: [] }
                       }
                     }.to_json
                   }
@@ -163,7 +163,7 @@ RSpec.describe ResumeAnalysisService, type: :service do
         rescue ResumeAnalysisService::AnalysisError
           # エラーを無視
         end
-        
+
         expect(resume.reload.status).to eq("error")
       end
     end
@@ -174,7 +174,7 @@ RSpec.describe ResumeAnalysisService, type: :service do
           .to_return(
             status: 200,
             body: {
-              choices: [{ message: { content: "Invalid JSON response" } }]
+              choices: [ { message: { content: "Invalid JSON response" } } ]
             }.to_json,
             headers: { "Content-Type" => "application/json" }
           )
@@ -192,7 +192,7 @@ RSpec.describe ResumeAnalysisService, type: :service do
         rescue ResumeAnalysisService::AnalysisError
           # エラーを無視
         end
-        
+
         expect(resume.reload.status).to eq("error")
       end
     end
@@ -203,11 +203,11 @@ RSpec.describe ResumeAnalysisService, type: :service do
           .to_return(
             status: 200,
             body: {
-              choices: [{
+              choices: [ {
                 message: {
                   content: { summary: "Test summary" }.to_json
                 }
-              }]
+              } ]
             }.to_json,
             headers: { "Content-Type" => "application/json" }
           )
@@ -226,7 +226,7 @@ RSpec.describe ResumeAnalysisService, type: :service do
           .to_return(
             status: 200,
             body: {
-              choices: [{ message: { content: nil } }]
+              choices: [ { message: { content: nil } } ]
             }.to_json,
             headers: { "Content-Type" => "application/json" }
           )
@@ -246,9 +246,9 @@ RSpec.describe ResumeAnalysisService, type: :service do
 
       it "replaces old analyses with new ones" do
         old_ids = resume.resume_analyses.pluck(:id)
-        
+
         service.call
-        
+
         new_ids = resume.reload.resume_analyses.pluck(:id)
         expect(new_ids & old_ids).to be_empty # no overlap
         expect(new_ids.count).to eq(4)
@@ -273,7 +273,7 @@ RSpec.describe ResumeAnalysisService, type: :service do
   describe "prompt generation" do
     it "includes all categories in prompt" do
       prompt = service.send(:build_analysis_prompt, "test text")
-      
+
       ResumeAnalysisService::CATEGORIES.each do |_key, value|
         expect(prompt).to include(value[:name])
         expect(prompt).to include(value[:description])
@@ -283,14 +283,14 @@ RSpec.describe ResumeAnalysisService, type: :service do
     it "truncates text to 8000 characters" do
       long_text = "a" * 10000
       prompt = service.send(:build_analysis_prompt, long_text)
-      
+
       # プロンプト全体ではなく、埋め込まれたテキスト部分のみをチェック
       expect(prompt).to include("a" * 7997 + "...") # truncateは"..."を追加
     end
 
     it "includes examples in expected format" do
       prompt = service.send(:build_analysis_prompt, "test text")
-      
+
       expect(prompt).to include('"examples"')
       expect(prompt).to include('"before"')
       expect(prompt).to include('"after"')
@@ -299,19 +299,19 @@ RSpec.describe ResumeAnalysisService, type: :service do
 
   describe "JSON parsing" do
     it "handles JSON wrapped in code blocks" do
-      response = double(choices: [double(message: double(content: "```json\n{\"summary\":\"test\",\"categories\":{\"structure\":{},\"content\":{},\"expression\":{},\"layout\":{}}}\n```"))])
-      
+      response = double(choices: [ double(message: double(content: "```json\n{\"summary\":\"test\",\"categories\":{\"structure\":{},\"content\":{},\"expression\":{},\"layout\":{}}}\n```")) ])
+
       result = service.send(:parse_analysis_response, response)
-      
+
       expect(result).to be_a(Hash)
       expect(result[:summary]).to eq("test")
     end
 
     it "handles JSON without code blocks" do
-      response = double(choices: [double(message: double(content: "{\"summary\":\"test\",\"categories\":{\"structure\":{},\"content\":{},\"expression\":{},\"layout\":{}}}"))])
-      
+      response = double(choices: [ double(message: double(content: "{\"summary\":\"test\",\"categories\":{\"structure\":{},\"content\":{},\"expression\":{},\"layout\":{}}}")) ])
+
       result = service.send(:parse_analysis_response, response)
-      
+
       expect(result).to be_a(Hash)
       expect(result[:summary]).to eq("test")
     end

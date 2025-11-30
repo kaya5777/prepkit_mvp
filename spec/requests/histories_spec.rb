@@ -81,7 +81,7 @@ RSpec.describe "Histories", type: :request do
     context "with edge case parameters" do
       it "handles nil company_name gracefully" do
         post histories_path, params: { history: { content: "test content", company_name: nil } }
-        expect(response.status).to be_in([200, 302])
+        expect(response.status).to be_in([ 200, 302 ])
       end
 
       it "sanitizes special characters in company_name" do
@@ -165,7 +165,7 @@ RSpec.describe "Histories", type: :request do
       it "handles large content appropriately" do
         large_content = '{"data": "' + ("a" * 10000) + '"}'
         patch history_path(history), params: { history: { content: large_content } }
-        expect(response.status).to be_in([200, 302, 422])
+        expect(response.status).to be_in([ 200, 302, 422 ])
       end
     end
   end
@@ -242,11 +242,11 @@ RSpec.describe "Histories", type: :request do
         .to_return(
           status: 200,
           body: {
-            choices: [{
+            choices: [ {
               message: {
                 content: mock_job_match_analysis_response.to_json
               }
-            }]
+            } ]
           }.to_json,
           headers: { "Content-Type" => "application/json" }
         )

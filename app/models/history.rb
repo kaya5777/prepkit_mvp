@@ -6,7 +6,7 @@ class History < ApplicationRecord
 
   # 一覧表示用: 大きなテキストフィールドを除外
   scope :for_listing, -> {
-    select(column_names - ['job_description', 'memo', 'stage_1_memo', 'stage_2_memo', 'stage_3_memo'])
+    select(column_names - [ "job_description", "memo", "stage_1_memo", "stage_2_memo", "stage_3_memo" ])
   }
 
   # マークダウンコードブロック記法を除去

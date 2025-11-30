@@ -49,11 +49,11 @@ RSpec.describe "Resumes", type: :request do
         .to_return(
           status: 200,
           body: {
-            choices: [{
+            choices: [ {
               message: {
                 content: mock_resume_analysis_response.to_json
               }
-            }]
+            } ]
           }.to_json,
           headers: { "Content-Type" => "application/json" }
         )
@@ -156,8 +156,8 @@ RSpec.describe "Resumes", type: :request do
         allow(ResumeTextExtractorService).to receive_message_chain(:new, :call).and_return("職務経歴")
         allow(ResumeAnalysisService).to receive(:call).and_return({
           summary: "要約",
-          strengths: ["強み1"],
-          improvements: ["改善点1"],
+          strengths: [ "強み1" ],
+          improvements: [ "改善点1" ],
           improved_text: "改善版テキスト"
         })
       end
