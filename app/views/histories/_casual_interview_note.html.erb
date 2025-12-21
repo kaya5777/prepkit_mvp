@@ -1,0 +1,350 @@
+<div class="bg-white rounded-b-lg shadow-sm border border-secondary-200 border-t-0 overflow-hidden">
+  <div class="px-6 py-4 border-b border-secondary-200" style="background: linear-gradient(to right, #fef3c7, #dbeafe);">
+    <div class="flex items-center justify-between">
+      <h2 class="text-xl font-bold text-secondary-900 flex items-center gap-2">
+        <svg class="w-6 h-6 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+        </svg>
+        カジュアル面談準備ノート
+      </h2>
+      <% if history.casual_note_generated? %>
+        <%= button_to generate_casual_note_history_path(history), method: :post, class: "text-sm text-amber-600 hover:text-amber-700 font-medium", data: { turbo: false }, form: { onsubmit: "showCasualNoteModal(); return true;" } do %>
+          再生成
+        <% end %>
+      <% end %>
+    </div>
+  </div>
+
+  <div class="p-6">
+    <% if history.casual_note_generated? %>
+      <!-- AI予測に関する注意書き -->
+      <div class="mb-6 bg-blue-50 border border-blue-200 rounded-xl p-4">
+        <div class="flex items-start gap-3">
+          <svg class="w-5 h-5 text-blue-600 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+          </svg>
+          <div>
+            <div class="font-medium text-blue-800 mb-1">AIによる情報収集結果です</div>
+            <p class="text-sm text-blue-700">
+              この情報はAIが公開情報から収集・整理した内容です。最新情報は企業の公式サイトなどでご確認ください。
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 概要 -->
+      <% if history.casual_note_summary.present? %>
+        <div class="mb-6 p-4 bg-amber-50 rounded-lg border border-amber-200">
+          <p class="text-secondary-700"><%= history.casual_note_summary %></p>
+        </div>
+      <% end %>
+
+      <!-- 事業内容・プロダクト -->
+      <% if history.business_overview.present? %>
+        <div class="mb-6">
+          <h3 class="text-lg font-bold text-secondary-900 mb-3 flex items-center gap-2">
+            <svg class="w-5 h-5 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+            </svg>
+            事業内容・プロダクト
+          </h3>
+          <div class="bg-secondary-50 rounded-lg p-4">
+            <% if history.business_overview["description"].present? %>
+              <p class="text-secondary-700 mb-3"><%= history.business_overview["description"] %></p>
+            <% end %>
+            <% if history.business_overview["products"].present? && history.business_overview["products"].any? %>
+              <div class="mb-2">
+                <div class="text-sm font-medium text-secondary-600 mb-1">主要プロダクト:</div>
+                <ul class="list-disc list-inside text-sm text-secondary-700 space-y-1">
+                  <% history.business_overview["products"].each do |product| %>
+                    <li><%= product %></li>
+                  <% end %>
+                </ul>
+              </div>
+            <% end %>
+            <% if history.business_overview["target_market"].present? %>
+              <p class="text-sm text-secondary-600"><strong>ターゲット市場:</strong> <%= history.business_overview["target_market"] %></p>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+
+      <div class="grid md:grid-cols-2 gap-6 mb-6">
+        <!-- 会社のフェーズ -->
+        <% if history.company_phase_info.present? %>
+          <div>
+            <h3 class="text-lg font-bold text-secondary-900 mb-3 flex items-center gap-2">
+              <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+              </svg>
+              会社のフェーズ
+            </h3>
+            <div class="bg-secondary-50 rounded-lg p-4 h-full">
+              <% if history.company_phase_info["stage"].present? %>
+                <div class="mb-2">
+                  <span class="px-3 py-1 bg-green-100 text-green-800 text-sm font-bold rounded-full">
+                    <%= history.company_phase_info["stage"] %>
+                  </span>
+                </div>
+              <% end %>
+              <% if history.company_phase_info["description"].present? %>
+                <p class="text-sm text-secondary-700 mb-2"><%= history.company_phase_info["description"] %></p>
+              <% end %>
+              <% if history.company_phase_info["funding_info"].present? %>
+                <p class="text-sm text-secondary-600"><strong>資金調達:</strong> <%= history.company_phase_info["funding_info"] %></p>
+              <% end %>
+            </div>
+          </div>
+        <% end %>
+
+        <!-- ビジネスモデル -->
+        <% if history.business_model_info.present? %>
+          <div>
+            <h3 class="text-lg font-bold text-secondary-900 mb-3 flex items-center gap-2">
+              <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              ビジネスモデル
+            </h3>
+            <div class="bg-secondary-50 rounded-lg p-4 h-full">
+              <% if history.business_model_info["revenue_model"].present? %>
+                <p class="text-sm text-secondary-700 mb-3"><%= history.business_model_info["revenue_model"] %></p>
+              <% end %>
+              <% if history.business_model_info["key_strengths"].present? && history.business_model_info["key_strengths"].any? %>
+                <div class="text-sm font-medium text-secondary-600 mb-1">強み:</div>
+                <ul class="list-disc list-inside text-sm text-secondary-700 space-y-1">
+                  <% history.business_model_info["key_strengths"].each do |strength| %>
+                    <li><%= strength %></li>
+                  <% end %>
+                </ul>
+              <% end %>
+            </div>
+          </div>
+        <% end %>
+      </div>
+
+      <!-- 組織・カルチャー -->
+      <% if history.organization_culture_info.present? %>
+        <div class="mb-6">
+          <h3 class="text-lg font-bold text-secondary-900 mb-3 flex items-center gap-2">
+            <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+            </svg>
+            組織・カルチャー
+          </h3>
+          <div class="bg-secondary-50 rounded-lg p-4">
+            <% if history.organization_culture_info["culture_description"].present? %>
+              <p class="text-sm text-secondary-700 mb-3"><%= history.organization_culture_info["culture_description"] %></p>
+            <% end %>
+            <% if history.organization_culture_info["work_style"].present? %>
+              <p class="text-sm text-secondary-600 mb-2"><strong>働き方:</strong> <%= history.organization_culture_info["work_style"] %></p>
+            <% end %>
+            <% if history.organization_culture_info["values"].present? && history.organization_culture_info["values"].any? %>
+              <div class="text-sm font-medium text-secondary-600 mb-1">企業の価値観:</div>
+              <ul class="list-disc list-inside text-sm text-secondary-700 space-y-1">
+                <% history.organization_culture_info["values"].each do |value| %>
+                  <li><%= value %></li>
+                <% end %>
+              </ul>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+
+      <!-- 最近のニュース・トピック -->
+      <% if history.recent_news_items.present? && history.recent_news_items.any? %>
+        <div class="mb-6">
+          <h3 class="text-lg font-bold text-secondary-900 mb-3 flex items-center gap-2">
+            <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
+            </svg>
+            最近のニュース・トピック
+          </h3>
+          <div class="space-y-3">
+            <% history.recent_news_items.each do |news| %>
+              <div class="bg-secondary-50 rounded-lg p-4 border-l-4 border-red-500">
+                <div class="flex items-start justify-between gap-4">
+                  <div class="flex-1">
+                    <div class="font-medium text-secondary-900 mb-1"><%= news["title"] || news[:title] %></div>
+                    <p class="text-sm text-secondary-700"><%= news["summary"] || news[:summary] %></p>
+                  </div>
+                  <% if (news["date"] || news[:date]).present? %>
+                    <span class="text-xs text-secondary-500 whitespace-nowrap"><%= news["date"] || news[:date] %></span>
+                  <% end %>
+                </div>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+
+      <!-- 同業他社と比べた強み・弱み -->
+      <% if history.competitive_analysis_info.present? %>
+        <div class="mb-6">
+          <h3 class="text-lg font-bold text-secondary-900 mb-3 flex items-center gap-2">
+            <svg class="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+            </svg>
+            同業他社比較
+          </h3>
+          <div class="bg-secondary-50 rounded-lg p-4">
+            <% if history.competitive_analysis_info["competitors"].present? && history.competitive_analysis_info["competitors"].any? %>
+              <div class="mb-3">
+                <div class="text-sm font-medium text-secondary-600 mb-1">主な競合企業:</div>
+                <div class="flex flex-wrap gap-2">
+                  <% history.competitive_analysis_info["competitors"].each do |competitor| %>
+                    <span class="px-3 py-1 bg-secondary-200 text-secondary-800 text-sm rounded-full"><%= competitor %></span>
+                  <% end %>
+                </div>
+              </div>
+            <% end %>
+            <div class="grid md:grid-cols-2 gap-4">
+              <% if history.competitive_analysis_info["strengths"].present? && history.competitive_analysis_info["strengths"].any? %>
+                <div>
+                  <div class="text-sm font-medium text-green-700 mb-2 flex items-center gap-1">
+                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                    </svg>
+                    強み
+                  </div>
+                  <ul class="text-sm text-secondary-700 space-y-1">
+                    <% history.competitive_analysis_info["strengths"].each do |strength| %>
+                      <li class="flex items-start gap-1">
+                        <span class="text-green-500 mt-1">+</span>
+                        <span><%= strength %></span>
+                      </li>
+                    <% end %>
+                  </ul>
+                </div>
+              <% end %>
+              <% if history.competitive_analysis_info["weaknesses"].present? && history.competitive_analysis_info["weaknesses"].any? %>
+                <div>
+                  <div class="text-sm font-medium text-orange-700 mb-2 flex items-center gap-1">
+                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                    </svg>
+                    弱み
+                  </div>
+                  <ul class="text-sm text-secondary-700 space-y-1">
+                    <% history.competitive_analysis_info["weaknesses"].each do |weakness| %>
+                      <li class="flex items-start gap-1">
+                        <span class="text-orange-500 mt-1">-</span>
+                        <span><%= weakness %></span>
+                      </li>
+                    <% end %>
+                  </ul>
+                </div>
+              <% end %>
+            </div>
+          </div>
+        </div>
+      <% end %>
+
+      <!-- 面接Tips -->
+      <% if history.interview_tips_info.present? %>
+        <div class="bg-gradient-to-br from-amber-50 to-orange-50 rounded-xl p-6 border border-amber-200">
+          <h3 class="text-lg font-bold text-secondary-900 mb-4 flex items-center gap-2">
+            <svg class="w-6 h-6 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+            </svg>
+            カジュアル面談のポイント
+          </h3>
+          <div class="grid md:grid-cols-2 gap-6">
+            <% if history.interview_tips_info["questions_to_ask"].present? && history.interview_tips_info["questions_to_ask"].any? %>
+              <div>
+                <div class="text-sm font-bold text-amber-800 mb-3">聞くべき質問</div>
+                <ul class="space-y-2">
+                  <% history.interview_tips_info["questions_to_ask"].each do |question| %>
+                    <li class="flex items-start gap-2 text-sm text-secondary-700">
+                      <svg class="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      <%= question %>
+                    </li>
+                  <% end %>
+                </ul>
+              </div>
+            <% end %>
+            <% if history.interview_tips_info["points_to_research"].present? && history.interview_tips_info["points_to_research"].any? %>
+              <div>
+                <div class="text-sm font-bold text-amber-800 mb-3">さらに調べておくべきポイント</div>
+                <ul class="space-y-2">
+                  <% history.interview_tips_info["points_to_research"].each do |point| %>
+                    <li class="flex items-start gap-2 text-sm text-secondary-700">
+                      <svg class="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                      </svg>
+                      <%= point %>
+                    </li>
+                  <% end %>
+                </ul>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+    <% else %>
+      <!-- 未生成の場合 -->
+      <div class="text-center py-12">
+        <svg class="w-16 h-16 text-secondary-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+        </svg>
+        <p class="text-secondary-500 mb-6">まだカジュアル面談準備ノートが生成されていません</p>
+        <%= button_to generate_casual_note_history_path(history), method: :post, class: "inline-flex items-center px-6 py-3 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 rounded-xl font-bold text-white transition-all elevation-2 hover:elevation-3", data: { turbo: false }, form: { onsubmit: "showCasualNoteModal(); return true;" } do %>
+          <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+          </svg>
+          準備ノートを生成
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<!-- ローディングモーダル -->
+<div id="casualNoteModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+  <div class="bg-white rounded-2xl elevation-4 max-w-md w-full p-8">
+    <div class="text-center">
+      <div class="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-4">
+        <svg class="w-8 h-8 text-amber-600 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+        </svg>
+      </div>
+      <h3 class="text-xl font-bold text-secondary-900 mb-2">準備ノートを生成中...</h3>
+      <p class="text-secondary-600 mb-4" id="casualNoteStep">企業情報を収集しています...</p>
+      <div class="w-full bg-secondary-200 rounded-full h-2">
+        <div id="casualNoteProgress" class="bg-amber-600 h-2 rounded-full transition-all duration-500" style="width: 0%"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function showCasualNoteModal() {
+  const modal = document.getElementById('casualNoteModal');
+  modal.classList.remove('hidden');
+
+  const steps = [
+    { text: '企業情報を収集しています...', progress: 20 },
+    { text: '事業内容を分析しています...', progress: 40 },
+    { text: 'ニュースを検索しています...', progress: 60 },
+    { text: '競合分析を行っています...', progress: 80 },
+    { text: 'ノートを整理しています...', progress: 95 }
+  ];
+
+  let currentStep = 0;
+
+  function updateStep() {
+    if (currentStep < steps.length) {
+      const step = steps[currentStep];
+      document.getElementById('casualNoteStep').textContent = step.text;
+      document.getElementById('casualNoteProgress').style.width = step.progress + '%';
+
+      currentStep++;
+      setTimeout(updateStep, 2000);
+    }
+  }
+
+  setTimeout(updateStep, 500);
+}
+</script>

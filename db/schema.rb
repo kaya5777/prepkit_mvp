@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_11_23_223819) do
+ActiveRecord::Schema[7.2].define(version: 2025_12_07_141815) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -54,6 +54,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_11_23_223819) do
     t.integer "match_score"
     t.json "match_analysis", default: {}
     t.string "match_rank"
+    t.json "casual_interview_notes", default: {}
     t.index ["asked_at"], name: "index_histories_on_asked_at"
     t.index ["match_rank"], name: "index_histories_on_match_rank"
     t.index ["match_score"], name: "index_histories_on_match_score"

@@ -1,5 +1,5 @@
 class HistoriesController < ApplicationController
-  before_action :set_history, only: %i[show edit update destroy analyze_match]
+  before_action :set_history, only: %i[show edit update destroy analyze_match generate_casual_note]
 
   def index
     @histories = History.order(asked_at: :desc)
@@ -82,6 +82,15 @@ class HistoriesController < ApplicationController
       JobMatchAnalysisService.call(@history, resume)
       redirect_to @history, notice: "相性診断が完了しました"
     rescue JobMatchAnalysisService::AnalysisError => e
+      redirect_to @history, alert: e.message
+    end
+  end
+
+  def generate_casual_note
+    begin
+      CasualInterviewNoteService.call(@history)
+      redirect_to @history, notice: "カジュアル面談準備ノートを生成しました"
+    rescue CasualInterviewNoteService::GenerationError => e
       redirect_to @history, alert: e.message
     end
   end

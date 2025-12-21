@@ -7,6 +7,7 @@ Rails.application.routes.draw do
     end
     member do
       post :analyze_match
+      post :generate_casual_note
     end
     resources :question_answers, only: [ :index, :new, :create, :show, :destroy ]
   end

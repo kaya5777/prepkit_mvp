@@ -82,4 +82,49 @@ class History < ApplicationRecord
     else "bg-gray-100 text-gray-800"
     end
   end
+
+  # カジュアル面談ノートが生成済みかどうか
+  def casual_note_generated?
+    casual_interview_notes.present? && casual_interview_notes["summary"].present?
+  end
+
+  # ビジネス概要を取得
+  def business_overview
+    casual_interview_notes&.dig("business_overview") || {}
+  end
+
+  # 企業フェーズ情報を取得
+  def company_phase_info
+    casual_interview_notes&.dig("company_phase") || {}
+  end
+
+  # ビジネスモデル情報を取得
+  def business_model_info
+    casual_interview_notes&.dig("business_model") || {}
+  end
+
+  # 組織カルチャー情報を取得
+  def organization_culture_info
+    casual_interview_notes&.dig("organization_culture") || {}
+  end
+
+  # 最近のニュースを取得
+  def recent_news_items
+    casual_interview_notes&.dig("recent_news") || []
+  end
+
+  # 競合分析情報を取得
+  def competitive_analysis_info
+    casual_interview_notes&.dig("competitive_analysis") || {}
+  end
+
+  # 面接Tips情報を取得
+  def interview_tips_info
+    casual_interview_notes&.dig("interview_tips") || {}
+  end
+
+  # カジュアル面談ノート概要を取得
+  def casual_note_summary
+    casual_interview_notes&.dig("summary")
+  end
 end

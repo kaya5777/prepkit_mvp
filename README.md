@@ -112,7 +112,7 @@ prepkit_mvp/
 
 ## テスト
 
-- テストカバレッジ: 約50%
+- テストカバレッジ: 約85%
 - RSpec + SimpleCov でテストとカバレッジを測定
 - WebMock + VCR で外部API呼び出しをモック化
 
@@ -123,6 +123,58 @@ docker-compose exec web bundle exec rspec
 # 特定のテスト実行
 docker-compose exec web bundle exec rspec spec/services/interview_kit_generator_service_spec.rb
 ```
+
+### プロンプト検証テスト
+
+プロンプトの品質を保証するために、実際のLLMを使った検証テストを用意しています。
+これにより、プロンプト変更時のデグレを即座に検出できます。
+
+**テストの種類:**
+- [job_match_analysis_service_prompt_spec.rb](spec/services/job_match_analysis_service_prompt_spec.rb) - 職務経歴書と求人のマッチング分析のスコアリングテスト
+- [resume_analysis_service_prompt_spec.rb](spec/services/resume_analysis_service_prompt_spec.rb) - 職務経歴書の品質評価テスト
+
+**実行方法:**
+
+```bash
+# 環境変数を設定してプロンプトテストを実行
+docker-compose exec web bash -c "RUN_PROMPT_TESTS=true bundle exec rspec spec/services/job_match_analysis_service_prompt_spec.rb"
+docker-compose exec web bash -c "RUN_PROMPT_TESTS=true bundle exec rspec spec/services/resume_analysis_service_prompt_spec.rb"
+
+# または全てのプロンプトテストを実行
+docker-compose exec web bash -c "RUN_PROMPT_TESTS=true bundle exec rspec spec/services/*_prompt_spec.rb"
+```
+
+**初回実行時の注意:**
+- 初回実行時は実際にOpenAI APIを呼び出し、レスポンスをVCRカセット（`spec/fixtures/vcr_cassettes/`）に記録します
+- 2回目以降は記録されたレスポンスを再生するため、API呼び出しは発生せず高速に実行されます
+- APIキーが必要ですが、一度記録すればCIでも再利用可能です
+
+**プロンプトを変更した場合:**
+
+```bash
+# VCRカセットを削除して再記録
+docker-compose exec web rm -rf spec/fixtures/vcr_cassettes/job_match_analysis_prompt_tests
+docker-compose exec web rm -rf spec/fixtures/vcr_cassettes/resume_analysis_prompt_tests
+
+# テストを再実行（新しいレスポンスが記録されます）
+docker-compose exec web bash -c "RUN_PROMPT_TESTS=true bundle exec rspec spec/services/*_prompt_spec.rb"
+```
+
+**テストケースの内容:**
+
+職務経歴書マッチングテスト:
+- 同業種・同職種・経験豊富 → S判定（90点以上）を期待
+- 同業種・同職種・経験十分 → A判定（80-89点）を期待
+- 同業種・同職種・経験やや不足 → B判定（70-79点）を期待
+- 業種同じ・職種異なる → B/C判定（75点以下）を期待
+- 異業種・異職種 → C/D判定（65点以下）を期待
+- 完全未経験 → D判定（59点以下）を期待
+
+職務経歴書品質テスト:
+- 内容充実 → 全カテゴリ75点以上を期待
+- 基本情報のみで具体性不足 → 40-60点を期待
+- 最低限の情報のみ → 20-45点を期待
+- 内容がほぼ空 → 0-25点を期待
 
 ## ライセンス
 

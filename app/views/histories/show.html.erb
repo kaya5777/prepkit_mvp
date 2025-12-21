@@ -78,7 +78,12 @@
         <!-- タブナビゲーション -->
         <div class="bg-white rounded-t-lg shadow-sm border border-secondary-200 border-b-0">
           <div class="flex border-b border-secondary-200">
-            <button type="button" onclick="switchTab(1)" id="tab-1" class="flex-1 px-6 py-4 text-center font-semibold transition-all border-b-2 border-primary-500 text-primary-600 bg-primary-50">
+            <% if can_edit_history?(@history) && @history.company_name.present? %>
+              <button type="button" onclick="switchTab(0)" id="tab-0" class="flex-1 px-6 py-4 text-center font-semibold transition-all border-b-2 border-primary-500 text-primary-600 bg-primary-50">
+                カジュアル面談
+              </button>
+            <% end %>
+            <button type="button" onclick="switchTab(1)" id="tab-1" class="flex-1 px-6 py-4 text-center font-semibold transition-all border-b-2 <%= can_edit_history?(@history) && @history.company_name.present? ? 'border-transparent' : 'border-primary-500 bg-primary-50' %> <%= can_edit_history?(@history) && @history.company_name.present? ? 'text-secondary-600' : 'text-primary-600' %> hover:bg-secondary-50">
               1次面接（現場クラス）
             </button>
             <button type="button" onclick="switchTab(2)" id="tab-2" class="flex-1 px-6 py-4 text-center font-semibold transition-all border-b-2 border-transparent text-secondary-600 hover:bg-secondary-50">
@@ -91,7 +96,13 @@
         </div>
 
         <!-- タブコンテンツ -->
-        <div id="content-1" class="tab-content">
+        <% if can_edit_history?(@history) && @history.company_name.present? %>
+          <div id="content-0" class="tab-content">
+            <%= render "histories/casual_interview_note", history: @history %>
+          </div>
+        <% end %>
+
+        <div id="content-1" class="tab-content <%= can_edit_history?(@history) && @history.company_name.present? ? 'hidden' : '' %>">
           <%= render "histories/question_list", questions: @presenter.questions(1), history: @history, stage: 1 if @presenter.has_questions?(1) %>
           <%= render "histories/star_answers", star_answers: @presenter.star_answers(1), stage: 1 if @presenter.has_star_answers?(1) %>
           <%= render "histories/reverse_questions", reverse_questions: @presenter.reverse_questions(1), stage: 1 if @presenter.has_reverse_questions?(1) %>
@@ -152,20 +163,26 @@
       <script>
         function switchTab(tabNumber) {
           // 全てのタブボタンを非アクティブに
-          for (let i = 1; i <= 3; i++) {
+          const hasCasualTab = document.getElementById('tab-0') !== null;
+          const startIndex = hasCasualTab ? 0 : 1;
+          const endIndex = 3;
+
+          for (let i = startIndex; i <= endIndex; i++) {
             const tab = document.getElementById(`tab-${i}`);
             const content = document.getElementById(`content-${i}`);
 
-            if (i === tabNumber) {
-              // アクティブなタブ
-              tab.classList.add('border-primary-500', 'text-primary-600', 'bg-primary-50');
-              tab.classList.remove('border-transparent', 'text-secondary-600');
-              content.classList.remove('hidden');
-            } else {
-              // 非アクティブなタブ
-              tab.classList.remove('border-primary-500', 'text-primary-600', 'bg-primary-50');
-              tab.classList.add('border-transparent', 'text-secondary-600');
-              content.classList.add('hidden');
+            if (tab && content) {
+              if (i === tabNumber) {
+                // アクティブなタブ
+                tab.classList.add('border-primary-500', 'text-primary-600', 'bg-primary-50');
+                tab.classList.remove('border-transparent', 'text-secondary-600');
+                content.classList.remove('hidden');
+              } else {
+                // 非アクティブなタブ
+                tab.classList.remove('border-primary-500', 'text-primary-600', 'bg-primary-50');
+                tab.classList.add('border-transparent', 'text-secondary-600');
+                content.classList.add('hidden');
+              }
             }
           }
         }

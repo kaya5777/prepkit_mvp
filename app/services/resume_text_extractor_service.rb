@@ -82,6 +82,7 @@ class ResumeTextExtractorService
     return "" if text.nil?
 
     text
+      .gsub(/\u0000/, "")            # NULLバイトを削除
       .gsub(/\r\n/, "\n")           # 改行コードの統一
       .gsub(/\t+/, " ")              # 連続タブをスペースに
       .gsub(/ +/, " ")               # 連続スペースを単一に
