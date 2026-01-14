@@ -125,32 +125,18 @@ class JobDescriptionFetcherService
     truncated_content = content[0...AI_CONTENT_LIMIT]
 
     response = call_openai_extraction(truncated_content)
-    response.dig("choices", 0, "message", "content") || content
+    response.content || content
   rescue StandardError => e
     Rails.logger.warn "AI抽出に失敗しました: #{e.message}。元のコンテンツを返します。"
     content
   end
 
   def call_openai_extraction(content)
-    client = OpenAI::Client.new
-    client.chat.completions.create(
-      model: "gpt-4o-mini",
-      messages: ai_extraction_messages(content),
-      temperature: 0.3,
-      max_tokens: 2000
+    client = LlmClient.new
+    client.chat(
+      system: "あなたは求人情報の抽出専門家です。Webページから求人情報のみを抽出してください。",
+      user: format(AI_EXTRACTION_PROMPT, content: content),
+      temperature: 0.3
     )
-  end
-
-  def ai_extraction_messages(content)
-    [
-      {
-        role: "system",
-        content: "あなたは求人情報の抽出専門家です。Webページから求人情報のみを抽出してください。"
-      },
-      {
-        role: "user",
-        content: format(AI_EXTRACTION_PROMPT, content: content)
-      }
-    ]
   end
 end

@@ -101,37 +101,23 @@ class InterviewKitGeneratorService
   end
 
   def generate_with_openai
-    client = OpenAI::Client.new
-    client.chat.completions.create(
-      model: "gpt-4o-mini",
-      messages: [
-        { role: "system", content: system_prompt },
-        { role: "user", content: build_prompt }
-      ],
+    client = LlmClient.new
+    client.chat(
+      system: system_prompt,
+      user: build_prompt,
       temperature: 0.7
     )
   end
 
   def extract_content_from_response(response)
-    content = extract_nested_content(response)
+    content = response.content
 
     if content.blank?
-      Rails.logger.error "OpenAI 応答に content がありません: #{response.inspect}"
+      Rails.logger.error "LLM 応答に content がありません: #{response.inspect}"
       raise ContentBlankError, "生成に失敗しました（code: content_blank）。しばらくしてから再度お試しください。"
     end
 
     content
-  end
-
-  def extract_nested_content(response)
-    first_choice = safe_access(response, :choices)&.first
-    message = safe_access(first_choice, :message)
-    safe_access(message, :content)
-  end
-
-  def safe_access(object, method)
-    return nil unless object
-    object.respond_to?(method) ? object.public_send(method) : object[method]
   end
 
   def parse_json_content(content)

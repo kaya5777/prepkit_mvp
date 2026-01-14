@@ -235,7 +235,7 @@ RSpec.describe ResumeAnalysisService, type: :service do
       it "raises AnalysisError" do
         expect {
           service.call
-        }.to raise_error(ResumeAnalysisService::AnalysisError, "AIからの応答が空です")
+        }.to raise_error(ResumeAnalysisService::AnalysisError, /Empty response/)
       end
     end
 
@@ -280,26 +280,30 @@ RSpec.describe ResumeAnalysisService, type: :service do
       end
     end
 
-    it "truncates text to 8000 characters" do
+    it "truncates text to 6000 characters" do
       long_text = "a" * 10000
       prompt = service.send(:build_analysis_prompt, long_text)
 
       # プロンプト全体ではなく、埋め込まれたテキスト部分のみをチェック
-      expect(prompt).to include("a" * 7997 + "...") # truncateは"..."を追加
+      expect(prompt).to include("a" * 5997 + "...") # truncateは"..."を追加
     end
 
-    it "includes examples in expected format" do
+    it "includes output format in expected JSON structure" do
       prompt = service.send(:build_analysis_prompt, "test text")
 
-      expect(prompt).to include('"examples"')
-      expect(prompt).to include('"before"')
-      expect(prompt).to include('"after"')
+      expect(prompt).to include('"summary"')
+      expect(prompt).to include('"categories"')
+      expect(prompt).to include('"structure"')
+      expect(prompt).to include('"content"')
     end
   end
 
   describe "JSON parsing" do
     it "handles JSON wrapped in code blocks" do
-      response = double(choices: [ double(message: double(content: "```json\n{\"summary\":\"test\",\"categories\":{\"structure\":{},\"content\":{},\"expression\":{},\"layout\":{}}}\n```")) ])
+      response = LlmClient::Response.new(
+        content: "```json\n{\"summary\":\"test\",\"categories\":{\"structure\":{},\"content\":{},\"expression\":{},\"layout\":{}}}\n```",
+        raw_response: {}
+      )
 
       result = service.send(:parse_analysis_response, response)
 
@@ -308,7 +312,10 @@ RSpec.describe ResumeAnalysisService, type: :service do
     end
 
     it "handles JSON without code blocks" do
-      response = double(choices: [ double(message: double(content: "{\"summary\":\"test\",\"categories\":{\"structure\":{},\"content\":{},\"expression\":{},\"layout\":{}}}")) ])
+      response = LlmClient::Response.new(
+        content: "{\"summary\":\"test\",\"categories\":{\"structure\":{},\"content\":{},\"expression\":{},\"layout\":{}}}",
+        raw_response: {}
+      )
 
       result = service.send(:parse_analysis_response, response)
 

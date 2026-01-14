@@ -225,10 +225,10 @@ RSpec.describe JobMatchAnalysisService, type: :service do
           )
       end
 
-      it "raises AnalysisError" do
+      it "raises LlmError" do
         expect {
           service.call
-        }.to raise_error(JobMatchAnalysisService::AnalysisError, "AIからの応答が空です")
+        }.to raise_error(LlmClient::LlmError, /Empty response/)
       end
     end
 
@@ -349,7 +349,10 @@ RSpec.describe JobMatchAnalysisService, type: :service do
 
   describe "JSON parsing" do
     it "handles JSON wrapped in code blocks" do
-      response = double(choices: [ double(message: double(content: "```json\n{\"match_score\":75,\"match_rank\":\"B\"}\n```")) ])
+      response = LlmClient::Response.new(
+        content: "```json\n{\"match_score\":75,\"match_rank\":\"B\"}\n```",
+        raw_response: {}
+      )
 
       result = service.send(:parse_analysis_response, response)
 
@@ -359,7 +362,10 @@ RSpec.describe JobMatchAnalysisService, type: :service do
     end
 
     it "handles JSON without code blocks" do
-      response = double(choices: [ double(message: double(content: "{\"match_score\":85,\"match_rank\":\"A\"}")) ])
+      response = LlmClient::Response.new(
+        content: "{\"match_score\":85,\"match_rank\":\"A\"}",
+        raw_response: {}
+      )
 
       result = service.send(:parse_analysis_response, response)
 

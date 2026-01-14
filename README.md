@@ -18,7 +18,7 @@
 - **Rails**: 7.2.0
 - **Database**: PostgreSQL 15
 - **Frontend**: Tailwind CSS 4.1.13
-- **AI**: OpenAI GPT-4o-mini
+- **AI**: OpenAI GPT-4o-mini / Google Gemini 2.0 Flash（切り替え可能）
 - **Container**: Docker & Docker Compose
 - **Testing**: RSpec, SimpleCov, WebMock, VCR
 - **Code Quality**: Rubocop, Brakeman
@@ -28,18 +28,37 @@
 ### 前提条件
 
 - Docker & Docker Compose がインストールされていること
-- OpenAI API キーを取得していること
+- OpenAI API キーまたは Google Gemini API キーを取得していること
 
 ### 環境変数の設定
 
 1. `.env`ファイルを作成:
 ```bash
-touch .env
+cp .env.example .env
 ```
 
-2. OpenAI API キーを設定:
+2. API キーを設定:
+
+**OpenAI を使用する場合（デフォルト）:**
 ```bash
-echo "OPENAI_API_KEY=sk-your-api-key-here" >> .env
+# .env ファイルを編集
+OPENAI_API_KEY=sk-your-api-key-here
+LLM_PROVIDER=openai
+```
+
+**Google Gemini を使用する場合:**
+```bash
+# .env ファイルを編集
+GEMINI_API_KEY=your-gemini-api-key-here
+LLM_PROVIDER=gemini
+```
+
+**両方のAPIキーを設定して切り替える:**
+```bash
+# .env ファイルを編集
+OPENAI_API_KEY=sk-your-openai-key
+GEMINI_API_KEY=your-gemini-key
+LLM_PROVIDER=openai  # または gemini
 ```
 
 ### アプリケーションの起動

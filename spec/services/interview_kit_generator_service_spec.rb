@@ -124,10 +124,10 @@ RSpec.describe InterviewKitGeneratorService do
         allow(fake_client).to receive_message_chain(:chat, :completions, :create).and_return(chat_completion)
       end
 
-      it "raises ContentBlankError" do
+      it "raises LlmError" do
         expect {
           described_class.call(job_description)
-        }.to raise_error(InterviewKitGeneratorService::ContentBlankError, /生成に失敗しました/)
+        }.to raise_error(LlmClient::LlmError, /Empty response/)
       end
     end
 
@@ -235,18 +235,6 @@ RSpec.describe InterviewKitGeneratorService do
       end
     end
 
-    describe "#safe_access" do
-      it "returns nil for nil object" do
-        result = service.send(:safe_access, nil, :choices)
-        expect(result).to be_nil
-      end
-
-      it "accesses object attributes" do
-        obj = double("object", choices: [ 1, 2, 3 ])
-        result = service.send(:safe_access, obj, :choices)
-        expect(result).to eq([ 1, 2, 3 ])
-      end
-    end
 
     describe "#parse_json_content" do
       it "parses JSON with backticks" do

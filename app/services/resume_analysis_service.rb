@@ -71,13 +71,10 @@ class ResumeAnalysisService
   end
 
   def analyze_with_ai(raw_text)
-    client = OpenAI::Client.new
-    response = client.chat.completions.create(
-      model: "gpt-4o-mini",
-      messages: [
-        { role: "system", content: system_prompt },
-        { role: "user", content: build_analysis_prompt(raw_text) }
-      ],
+    client = LlmClient.new
+    response = client.chat(
+      system: system_prompt,
+      user: build_analysis_prompt(raw_text),
       temperature: 0.5
     )
 
@@ -200,7 +197,7 @@ class ResumeAnalysisService
   end
 
   def parse_analysis_response(response)
-    content = response.choices&.first&.message&.content
+    content = response.content
     raise AnalysisError, "AIからの応答が空です" if content.blank?
 
     json_string = content.gsub(/\A```json|```|\A```|\Z```/m, "").strip
@@ -238,7 +235,7 @@ class ResumeAnalysisService
           good_points: Array(data[:good_points]),
           issues: Array(data[:issues]),
           suggestions: Array(data[:suggestions]),
-          examples: []
+          examples: Array(data[:examples])
         },
         improved_text: nil
       )

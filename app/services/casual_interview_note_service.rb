@@ -26,13 +26,10 @@ class CasualInterviewNoteService
   end
 
   def generate_with_ai
-    client = OpenAI::Client.new
-    response = client.chat.completions.create(
-      model: "gpt-4o-mini",
-      messages: [
-        { role: "system", content: system_prompt },
-        { role: "user", content: build_note_prompt }
-      ],
+    client = LlmClient.new
+    response = client.chat(
+      system: system_prompt,
+      user: build_note_prompt,
       temperature: 0.7
     )
 
@@ -126,7 +123,7 @@ class CasualInterviewNoteService
   end
 
   def parse_note_response(response)
-    content = response.choices&.first&.message&.content
+    content = response.content
     raise GenerationError, "AIからの応答が空です" if content.blank?
 
     json_string = content.gsub(/\A```json|```|\A```|\Z```/m, "").strip

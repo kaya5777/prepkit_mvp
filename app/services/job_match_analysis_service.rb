@@ -37,13 +37,10 @@ class JobMatchAnalysisService
   end
 
   def analyze_with_ai
-    client = OpenAI::Client.new
-    response = client.chat.completions.create(
-      model: "gpt-4o-mini",
-      messages: [
-        { role: "system", content: system_prompt },
-        { role: "user", content: build_analysis_prompt }
-      ],
+    client = LlmClient.new
+    response = client.chat(
+      system: system_prompt,
+      user: build_analysis_prompt,
       temperature: 0.5
     )
 
@@ -158,7 +155,7 @@ class JobMatchAnalysisService
   end
 
   def parse_analysis_response(response)
-    content = response.choices&.first&.message&.content
+    content = response.content
     raise AnalysisError, "AIからの応答が空です" if content.blank?
 
     json_string = content.gsub(/\A```json|```|\A```|\Z```/m, "").strip

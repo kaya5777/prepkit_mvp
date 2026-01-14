@@ -4,7 +4,8 @@ ruby "3.2.8"
 gem "rails", "~> 7.2.0"
 gem "puma", "~> 6.0"
 gem "sqlite3", "~> 1.4"
-gem "openai", "~> 0.23" # simple OpenAI client
+gem "openai", "~> 0.23" # OpenAI API client
+gem "gemini-ai", "~> 4.2" # Google Gemini API client
 gem "bootsnap", ">= 1.4.4", require: false
 gem "importmap-rails"
 gem "pg"

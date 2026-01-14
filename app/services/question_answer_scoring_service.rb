@@ -38,13 +38,10 @@ class QuestionAnswerScoringService
   end
 
   def generate_scoring_with_openai
-    client = OpenAI::Client.new
-    client.chat.completions.create(
-      model: "gpt-4o-mini",
-      messages: [
-        { role: "system", content: system_prompt },
-        { role: "user", content: build_scoring_prompt }
-      ],
+    client = LlmClient.new
+    client.chat(
+      system: system_prompt,
+      user: build_scoring_prompt,
       temperature: 0.5
     )
   end
@@ -99,7 +96,7 @@ class QuestionAnswerScoringService
   end
 
   def parse_scoring_response(response)
-    content = response.choices&.first&.message&.content
+    content = response.content
     raise ScoringError, "AIからの応答が空です" if content.blank?
 
     json_string = content.gsub(/\A```json|```|\A```|\Z```/m, "").strip
