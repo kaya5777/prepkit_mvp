@@ -1,8 +1,9 @@
 class ResumeExportService
   class ExportError < StandardError; end
 
-  def initialize(resume)
+  def initialize(resume, provider: "gemini")
     @resume = resume
+    @provider = provider
   end
 
   def export_as_pdf
@@ -20,8 +21,8 @@ class ResumeExportService
       raise ExportError, "日本語フォントがインストールされていません"
     end
 
-    # 改善版テキスト
-    improved_text = @resume.resume_analyses.first&.improved_text || @resume.raw_text
+    # 改善版テキスト（プロバイダー指定）
+    improved_text = get_improved_text
 
     # ヘッダー
     pdf.text "職務経歴書（改善版）", size: 24, align: :center
@@ -49,14 +50,22 @@ class ResumeExportService
   def export_as_docx
     require "zip"
 
-    # 改善版テキストを取得
-    improved_text = @resume.resume_analyses.first&.improved_text || @resume.raw_text
+    # 改善版テキストを取得（プロバイダー指定）
+    improved_text = get_improved_text
 
     # docxファイルを生成（OpenXML形式）
     build_docx(improved_text)
   end
 
   private
+
+  def get_improved_text
+    # プロバイダーを指定して改善版テキストを取得
+    analysis = @resume.resume_analyses.find_by(provider: @provider, category: "overall")
+    analysis ||= @resume.resume_analyses.where(provider: @provider).first
+
+    analysis&.improved_text || @resume.raw_text
+  end
 
   def build_docx(content)
     require "zip"
@@ -133,6 +142,8 @@ class ResumeExportService
       end
     end.join("\n")
 
+    provider_label = @provider == "openai" ? "OpenAI" : "Google Gemini"
+
     <<~XML
       <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
       <w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
@@ -148,7 +159,7 @@ class ResumeExportService
             <w:pPr><w:jc w:val="center"/></w:pPr>
             <w:r>
               <w:rPr><w:color w:val="666666"/><w:sz w:val="20"/></w:rPr>
-              <w:t>AI分析による改善提案を適用したバージョンです</w:t>
+              <w:t>#{provider_label}による改善提案を適用したバージョンです</w:t>
             </w:r>
           </w:p>
           <w:p><w:r><w:t></w:t></w:r></w:p>

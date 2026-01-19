@@ -43,3 +43,5 @@ end
 gem "tailwindcss-rails", "~> 4.3"
 
 gem "sprockets-rails", "~> 3.5"
+
+gem "dotenv-rails", "~> 3.2", :groups => [:development, :test]

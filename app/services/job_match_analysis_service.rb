@@ -22,8 +22,16 @@ class JobMatchAnalysisService
   def call
     validate_inputs!
 
-    analysis_result = analyze_with_ai
-    save_analysis_results(analysis_result)
+    # OpenAI と Gemini の両方で並列分析
+    results = DualLlmExecutor.execute_both do |provider|
+      analyze_with_ai(provider)
+    end
+
+    # 少なくとも1つは成功していることを確認
+    DualLlmExecutor.validate_results!(results)
+
+    # 両方の結果を保存
+    save_dual_analysis_results(results)
 
     @history.reload
   end
@@ -36,8 +44,8 @@ class JobMatchAnalysisService
     raise AnalysisError, "職務経歴書が分析されていません" unless @resume.analyzed?
   end
 
-  def analyze_with_ai
-    client = LlmClient.new
+  def analyze_with_ai(provider)
+    client = LlmClient.new(provider: provider)
     response = client.chat(
       system: system_prompt,
       user: build_analysis_prompt,
@@ -187,6 +195,60 @@ class JobMatchAnalysisService
         resume_id: @resume.id
       }
     )
+  end
+
+  def save_dual_analysis_results(results)
+    # 既存カラムには Gemini の結果を優先して保存（後方互換性）
+    primary_result = results[:gemini] || results[:openai]
+
+    update_attrs = {}
+
+    # 既存カラムに基本情報を保存
+    if primary_result
+      update_attrs[:match_score] = primary_result[:match_score].to_i.clamp(0, 100)
+      update_attrs[:match_rank] = primary_result[:match_rank]
+      update_attrs[:match_analysis] = {
+        matching_points: Array(primary_result[:matching_points]),
+        gap_points: Array(primary_result[:gap_points]),
+        appeal_suggestions: Array(primary_result[:appeal_suggestions]),
+        interview_tips: Array(primary_result[:interview_tips]),
+        summary: primary_result[:summary],
+        analyzed_at: Time.current.iso8601,
+        resume_id: @resume.id
+      }
+    end
+
+    # OpenAI の結果を保存
+    if results[:openai]
+      update_attrs[:match_score_openai] = results[:openai][:match_score].to_i.clamp(0, 100)
+      update_attrs[:match_rank_openai] = results[:openai][:match_rank]
+      update_attrs[:match_analysis_openai] = {
+        matching_points: Array(results[:openai][:matching_points]),
+        gap_points: Array(results[:openai][:gap_points]),
+        appeal_suggestions: Array(results[:openai][:appeal_suggestions]),
+        interview_tips: Array(results[:openai][:interview_tips]),
+        summary: results[:openai][:summary],
+        analyzed_at: Time.current.iso8601,
+        resume_id: @resume.id
+      }
+    end
+
+    # Gemini の結果を保存
+    if results[:gemini]
+      update_attrs[:match_score_gemini] = results[:gemini][:match_score].to_i.clamp(0, 100)
+      update_attrs[:match_rank_gemini] = results[:gemini][:match_rank]
+      update_attrs[:match_analysis_gemini] = {
+        matching_points: Array(results[:gemini][:matching_points]),
+        gap_points: Array(results[:gemini][:gap_points]),
+        appeal_suggestions: Array(results[:gemini][:appeal_suggestions]),
+        interview_tips: Array(results[:gemini][:interview_tips]),
+        summary: results[:gemini][:summary],
+        analyzed_at: Time.current.iso8601,
+        resume_id: @resume.id
+      }
+    end
+
+    @history.update!(update_attrs)
   end
 
   # ランク情報を取得するヘルパー

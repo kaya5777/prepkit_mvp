@@ -2,25 +2,22 @@ require "rails_helper"
 
 RSpec.describe LlmClient, type: :service do
   describe "#initialize" do
-    it "デフォルトでopenaiプロバイダーを使用" do
-      allow(ENV).to receive(:fetch).with("LLM_PROVIDER", "openai").and_return("openai")
-      client = described_class.new
+    it "openaiプロバイダーを使用" do
+      client = described_class.new(provider: "openai")
       expect(client.provider).to eq("openai")
     end
 
-    it "環境変数LLM_PROVIDERでプロバイダーを切り替え" do
-      allow(ENV).to receive(:fetch).with("LLM_PROVIDER", "openai").and_return("gemini")
-      allow(ENV).to receive(:[]).with("GEMINI_API_KEY").and_return("test-key")
-
-      client = described_class.new
-      expect(client.provider).to eq("gemini")
-    end
-
-    it "引数でプロバイダーを指定" do
+    it "geminiプロバイダーを使用" do
       allow(ENV).to receive(:[]).with("GEMINI_API_KEY").and_return("test-key")
 
       client = described_class.new(provider: "gemini")
       expect(client.provider).to eq("gemini")
+    end
+
+    it "providerが必須" do
+      expect {
+        described_class.new
+      }.to raise_error(ArgumentError, /missing keyword: :?provider/)
     end
   end
 

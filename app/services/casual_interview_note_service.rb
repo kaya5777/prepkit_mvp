@@ -26,7 +26,7 @@ class CasualInterviewNoteService
   end
 
   def generate_with_ai
-    client = LlmClient.new
+    client = LlmClient.new(provider: "gemini")
     response = client.chat(
       system: system_prompt,
       user: build_note_prompt,

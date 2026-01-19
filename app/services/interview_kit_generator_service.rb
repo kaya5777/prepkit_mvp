@@ -78,9 +78,7 @@ class InterviewKitGeneratorService
   end
 
   def call
-    validate_api_key!
-
-    response = generate_with_openai
+    response = generate_with_gemini
     content = extract_content_from_response(response)
     parsed_result = parse_json_content(content)
 
@@ -89,19 +87,13 @@ class InterviewKitGeneratorService
 
     { result: parsed_result, history: history }
   rescue StandardError => e
-    handle_openai_error(e)
+    handle_error(e)
   end
 
   private
 
-  def validate_api_key!
-    if ENV["OPENAI_API_KEY"].to_s.strip.empty?
-      raise APIKeyMissingError, "OpenAI の API キーが設定されていません（code: missing_api_key）。管理者にお問い合わせください。"
-    end
-  end
-
-  def generate_with_openai
-    client = LlmClient.new
+  def generate_with_gemini
+    client = LlmClient.new(provider: "gemini")
     client.chat(
       system: system_prompt,
       user: build_prompt,
@@ -228,9 +220,11 @@ class InterviewKitGeneratorService
     PROMPT
   end
 
-  def handle_openai_error(error)
-    if error.class.to_s.include?("AuthenticationError") || error.message.include?("status=>401")
-      raise AuthenticationError, "OpenAI への認証に失敗しました（401）。APIキーが未設定または無効です。管理者にお問い合わせください。"
+  def handle_error(error)
+    if error.is_a?(LlmClient::ConfigurationError)
+      raise APIKeyMissingError, "Gemini の API キーが設定されていません。管理者にお問い合わせください。"
+    elsif error.class.to_s.include?("AuthenticationError") || error.message.include?("status=>401")
+      raise AuthenticationError, "Gemini への認証に失敗しました（401）。APIキーが未設定または無効です。管理者にお問い合わせください。"
     else
       Rails.logger.error "想定外のエラー: #{error.class} #{error.message}"
       raise error

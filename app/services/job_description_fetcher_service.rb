@@ -132,7 +132,7 @@ class JobDescriptionFetcherService
   end
 
   def call_openai_extraction(content)
-    client = LlmClient.new
+    client = LlmClient.new(provider: "gemini")
     client.chat(
       system: "あなたは求人情報の抽出専門家です。Webページから求人情報のみを抽出してください。",
       user: format(AI_EXTRACTION_PROMPT, content: content),

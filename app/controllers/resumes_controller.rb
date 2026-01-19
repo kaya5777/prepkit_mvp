@@ -12,6 +12,11 @@ class ResumesController < ApplicationController
       return
     end
 
+    # OpenAI と Gemini の分析結果を分けて取得
+    @analyses_openai = @resume.resume_analyses.where(provider: "openai").order(:category)
+    @analyses_gemini = @resume.resume_analyses.where(provider: "gemini").order(:category)
+
+    # 後方互換性のために全体も取得
     @analyses = @resume.resume_analyses.order(:category)
   end
 
@@ -49,8 +54,11 @@ class ResumesController < ApplicationController
     end
 
     format = params[:format] || "pdf"
-    export_service = ResumeExportService.new(@resume)
-    filename_base = "職務経歴書_改善版_#{Time.current.strftime('%Y%m%d')}"
+    provider = params[:provider] || "gemini"
+    export_service = ResumeExportService.new(@resume, provider: provider)
+
+    provider_label = provider == "openai" ? "OpenAI" : "Gemini"
+    filename_base = "職務経歴書_改善版_#{provider_label}_#{Time.current.strftime('%Y%m%d')}"
 
     if format == "docx"
       send_data export_service.export_as_docx,

@@ -38,15 +38,22 @@ class ResumeAnalysisService
       raw_text = extract_text
       @resume.update!(raw_text: raw_text)
 
-      # AI分析
-      analysis_result = analyze_with_ai(raw_text)
+      # OpenAI と Gemini の両方で並列分析
+      results = DualLlmExecutor.execute_both do |provider|
+        analyze_with_ai(raw_text, provider)
+      end
 
-      # 結果を保存
-      save_analysis_results(analysis_result)
+      # 少なくとも1つは成功していることを確認
+      DualLlmExecutor.validate_results!(results)
 
-      # 要約を更新
+      # 両方の結果を保存
+      save_dual_analysis_results(results)
+
+      # 要約を更新（Geminiの結果を優先、なければOpenAI）
+      summary = results[:gemini]&.dig(:summary) || results[:openai]&.dig(:summary)
+
       @resume.update!(
-        summary: analysis_result[:summary],
+        summary: summary,
         status: "analyzed",
         analyzed_at: Time.current
       )
@@ -70,8 +77,8 @@ class ResumeAnalysisService
     raise AnalysisError, e.message
   end
 
-  def analyze_with_ai(raw_text)
-    client = LlmClient.new
+  def analyze_with_ai(raw_text, provider)
+    client = LlmClient.new(provider: provider)
     response = client.chat(
       system: system_prompt,
       user: build_analysis_prompt(raw_text),
@@ -239,6 +246,47 @@ class ResumeAnalysisService
         },
         improved_text: nil
       )
+    end
+  end
+
+  def save_dual_analysis_results(results)
+    # 既存の分析結果を削除
+    @resume.resume_analyses.destroy_all
+
+    # OpenAI の結果を保存
+    if results[:openai]
+      results[:openai][:categories].each do |category, data|
+        @resume.resume_analyses.create!(
+          category: category.to_s,
+          provider: "openai",
+          score: data[:score].to_i.clamp(0, 100),
+          feedback: {
+            good_points: Array(data[:good_points]),
+            issues: Array(data[:issues]),
+            suggestions: Array(data[:suggestions]),
+            examples: Array(data[:examples])
+          },
+          improved_text: nil
+        )
+      end
+    end
+
+    # Gemini の結果を保存
+    if results[:gemini]
+      results[:gemini][:categories].each do |category, data|
+        @resume.resume_analyses.create!(
+          category: category.to_s,
+          provider: "gemini",
+          score: data[:score].to_i.clamp(0, 100),
+          feedback: {
+            good_points: Array(data[:good_points]),
+            issues: Array(data[:issues]),
+            suggestions: Array(data[:suggestions]),
+            examples: Array(data[:examples])
+          },
+          improved_text: nil
+        )
+      end
     end
   end
 end

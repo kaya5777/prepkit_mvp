@@ -26,10 +26,24 @@ class Resume < ApplicationRecord
     status == "error"
   end
 
-  # 総合スコアを計算
+  # 総合スコアを計算（全てのプロバイダー）
   def overall_score
     return nil if resume_analyses.empty?
     resume_analyses.average(:score)&.round
+  end
+
+  # OpenAI の総合スコア
+  def overall_score_openai
+    analyses = resume_analyses.where(provider: "openai")
+    return nil if analyses.empty?
+    analyses.average(:score)&.round
+  end
+
+  # Gemini の総合スコア
+  def overall_score_gemini
+    analyses = resume_analyses.where(provider: "gemini")
+    return nil if analyses.empty?
+    analyses.average(:score)&.round
   end
 
   # カテゴリ別の分析を取得

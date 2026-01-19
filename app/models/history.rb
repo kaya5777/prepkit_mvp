@@ -31,34 +31,124 @@ class History < ApplicationRecord
     match_score.present? && match_rank.present?
   end
 
-  # マッチングポイントを取得
+  # OpenAI の分析結果があるか
+  def match_analyzed_openai?
+    match_score_openai.present? && match_rank_openai.present?
+  end
+
+  # Gemini の分析結果があるか
+  def match_analyzed_gemini?
+    match_score_gemini.present? && match_rank_gemini.present?
+  end
+
+  # マッチングポイントを取得（既存カラム）
   def matching_points
     match_analysis&.dig("matching_points") || []
   end
 
-  # ギャップポイントを取得
+  # マッチングポイントを取得（OpenAI）
+  def matching_points_openai
+    match_analysis_openai&.dig("matching_points") || []
+  end
+
+  # マッチングポイントを取得（Gemini）
+  def matching_points_gemini
+    match_analysis_gemini&.dig("matching_points") || []
+  end
+
+  # ギャップポイントを取得（既存カラム）
   def gap_points
     match_analysis&.dig("gap_points") || []
   end
 
-  # アピール提案を取得
+  # ギャップポイントを取得（OpenAI）
+  def gap_points_openai
+    match_analysis_openai&.dig("gap_points") || []
+  end
+
+  # ギャップポイントを取得（Gemini）
+  def gap_points_gemini
+    match_analysis_gemini&.dig("gap_points") || []
+  end
+
+  # 懸念事項を取得（OpenAI）
+  def concerns_openai
+    gap_points_openai.map { |gap| gap["gap"] }.compact
+  end
+
+  # 懸念事項を取得（Gemini）
+  def concerns_gemini
+    gap_points_gemini.map { |gap| gap["gap"] }.compact
+  end
+
+  # アドバイスを取得（OpenAI）
+  def advice_openai
+    gap_points_openai.map { |gap| gap["suggestion"] }.join("\n\n")
+  end
+
+  # アドバイスを取得（Gemini）
+  def advice_gemini
+    gap_points_gemini.map { |gap| gap["suggestion"] }.join("\n\n")
+  end
+
+  # アピール提案を取得（既存カラム）
   def appeal_suggestions
     match_analysis&.dig("appeal_suggestions") || []
   end
 
-  # 面接アドバイスを取得
+  # アピール提案を取得（OpenAI）
+  def appeal_suggestions_openai
+    match_analysis_openai&.dig("appeal_suggestions") || []
+  end
+
+  # アピール提案を取得（Gemini）
+  def appeal_suggestions_gemini
+    match_analysis_gemini&.dig("appeal_suggestions") || []
+  end
+
+  # 面接アドバイスを取得（既存カラム）
   def interview_tips
     match_analysis&.dig("interview_tips") || []
   end
 
-  # マッチング概要を取得
+  # 面接アドバイスを取得（OpenAI）
+  def interview_tips_openai
+    match_analysis_openai&.dig("interview_tips") || []
+  end
+
+  # 面接アドバイスを取得（Gemini）
+  def interview_tips_gemini
+    match_analysis_gemini&.dig("interview_tips") || []
+  end
+
+  # マッチング概要を取得（既存カラム）
   def match_summary
     match_analysis&.dig("summary")
   end
 
-  # ランク情報を取得
+  # マッチング概要を取得（OpenAI）
+  def match_summary_openai
+    match_analysis_openai&.dig("summary")
+  end
+
+  # マッチング概要を取得（Gemini）
+  def match_summary_gemini
+    match_analysis_gemini&.dig("summary")
+  end
+
+  # ランク情報を取得（既存カラム）
   def rank_info
     JobMatchAnalysisService.rank_info(match_rank)
+  end
+
+  # ランク情報を取得（OpenAI）
+  def rank_info_openai
+    JobMatchAnalysisService.rank_info(match_rank_openai)
+  end
+
+  # ランク情報を取得（Gemini）
+  def rank_info_gemini
+    JobMatchAnalysisService.rank_info(match_rank_gemini)
   end
 
   # ランクに応じた色クラスを取得

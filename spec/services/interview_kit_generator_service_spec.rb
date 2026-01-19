@@ -8,13 +8,13 @@ RSpec.describe InterviewKitGeneratorService do
   describe ".call" do
     context "when API key is missing" do
       before do
-        allow(ENV).to receive(:[]).with("OPENAI_API_KEY").and_return("")
+        allow(ENV).to receive(:[]).with("GEMINI_API_KEY").and_return("")
       end
 
       it "raises APIKeyMissingError" do
         expect {
           described_class.call(job_description)
-        }.to raise_error(InterviewKitGeneratorService::APIKeyMissingError, /OpenAI の API キーが設定されていません/)
+        }.to raise_error(InterviewKitGeneratorService::APIKeyMissingError, /Gemini の API キーが設定されていません/)
       end
     end
 

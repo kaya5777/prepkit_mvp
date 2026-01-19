@@ -105,3 +105,14 @@
 .animate-pulse {
   animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
+
+/* Match analysis button fix */
+.match-analysis-button {
+  background: linear-gradient(to right, rgb(168, 85, 247), rgb(147, 51, 234)) !important;
+  color: white !important;
+  border: none !important;
+}
+
+.match-analysis-button:hover {
+  background: linear-gradient(to right, rgb(147, 51, 234), rgb(126, 34, 206)) !important;
+}

@@ -45,82 +45,206 @@
     </div>
   <% end %>
 
-  <!-- 総合スコア -->
-  <div class="mb-8 bg-gradient-to-br from-primary-500 via-primary-600 to-primary-700 rounded-3xl elevation-4 p-10 text-white">
-    <div class="text-center">
-      <h2 class="text-2xl font-bold mb-6">総合スコア</h2>
-      <div class="flex items-baseline justify-center gap-1">
-        <span class="text-3xl font-bold" id="scoreDisplay">0</span>
-        <span class="text-2xl font-medium opacity-80">/ 100点</span>
-      </div>
-      <div class="text-lg text-primary-100 mt-4">
-        <% case @resume.overall_score %>
-        <% when 90..100 %>
-          素晴らしい職務経歴書です
-        <% when 80..89 %>
-          良い職務経歴書です
-        <% when 70..79 %>
-          改善の余地があります
-        <% when 60..69 %>
-          いくつかの改善が必要です
-        <% else %>
-          大幅な改善をお勧めします
-        <% end %>
-      </div>
-    </div>
-  </div>
-
-  <!-- カテゴリ別スコア（アコーディオン） -->
+  <!-- タブレイアウト: OpenAI と Gemini -->
   <div class="mb-8">
-    <h3 class="text-xl font-bold text-secondary-900 mb-4">カテゴリ別スコア</h3>
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-      <% @analyses.each do |analysis| %>
-        <div class="bg-white rounded-xl shadow-sm border border-secondary-200 overflow-hidden">
-          <button type="button" class="w-full p-4 text-center hover:bg-secondary-50 transition-colors" onclick="toggleCategory('<%= analysis.category %>')">
-            <div class="text-sm text-secondary-500 mb-1"><%= analysis.category_name %></div>
-            <div class="text-3xl font-bold <%= analysis.score >= 80 ? 'text-green-600' : analysis.score >= 60 ? 'text-blue-600' : 'text-amber-600' %>">
-              <%= analysis.score %>
-            </div>
-            <div class="text-xs text-secondary-400 mt-1">/ 100点</div>
-            <svg class="w-4 h-4 mx-auto mt-2 text-secondary-400 transform transition-transform" id="icon-<%= analysis.category %>" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-            </svg>
-          </button>
-          <div class="hidden border-t border-secondary-200 p-4 bg-secondary-50" id="detail-<%= analysis.category %>">
-            <% if analysis.good_points.any? %>
-              <div class="mb-3">
-                <div class="text-xs font-medium text-green-700 mb-1">良い点</div>
-                <ul class="space-y-1">
-                  <% analysis.good_points.each do |point| %>
-                    <li class="text-xs text-secondary-600 flex items-start gap-1">
-                      <span class="text-green-500">+</span>
-                      <%= point %>
-                    </li>
-                  <% end %>
-                </ul>
-              </div>
-            <% end %>
+    <!-- タブヘッダー -->
+    <div class="flex border-b border-secondary-200 mb-6">
+      <button type="button" onclick="switchTab('openai')" id="tab-openai" class="tab-button px-6 py-3 font-medium text-sm transition-colors border-b-2 border-green-500 text-green-700">
+        <div class="flex items-center gap-2">
+          <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+            <path d="M10 2a8 8 0 100 16 8 8 0 000-16zm1 11H9v-2h2v2zm0-4H9V5h2v4z"/>
+          </svg>
+          OpenAI (gpt-4o-mini)
+        </div>
+      </button>
+      <button type="button" onclick="switchTab('gemini')" id="tab-gemini" class="tab-button px-6 py-3 font-medium text-sm transition-colors border-b-2 border-transparent text-secondary-500 hover:text-secondary-700">
+        <div class="flex items-center gap-2">
+          <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+            <path d="M10 2a8 8 0 100 16 8 8 0 000-16zm1 11H9v-2h2v2zm0-4H9V5h2v4z"/>
+          </svg>
+          Google Gemini (gemini-2.5-flash)
+        </div>
+      </button>
+    </div>
 
-            <% if analysis.issues.any? || analysis.suggestions.any? %>
-              <div>
-                <div class="text-xs font-medium text-amber-700 mb-1">改善点・提案</div>
-                <ul class="space-y-1">
-                  <% analysis.issues.each do |issue| %>
-                    <li class="text-xs text-secondary-600 flex items-start gap-1">
-                      <span class="text-amber-500">-</span>
-                      <%= issue %>
-                    </li>
+    <!-- OpenAI の分析結果 -->
+    <div id="content-openai" class="tab-content space-y-6">
+
+      <% if @analyses_openai.any? %>
+        <!-- 総合スコア（OpenAI） -->
+        <div class="bg-gradient-to-br from-green-500 via-green-600 to-green-700 rounded-3xl shadow-lg p-8">
+          <div class="text-center">
+            <h3 class="text-xl font-bold mb-4 text-white">総合スコア</h3>
+            <div class="flex items-baseline justify-center gap-1">
+              <span class="text-5xl font-bold text-white" id="scoreDisplayOpenai">0</span>
+              <span class="text-2xl font-medium text-white opacity-90">/ 100点</span>
+            </div>
+            <div class="text-base text-white mt-4 opacity-95">
+              <% case @resume.overall_score_openai %>
+              <% when 90..100 %>
+                素晴らしい職務経歴書です
+              <% when 80..89 %>
+                良い職務経歴書です
+              <% when 70..79 %>
+                改善の余地があります
+              <% when 60..69 %>
+                いくつかの改善が必要です
+              <% else %>
+                大幅な改善をお勧めします
+              <% end %>
+            </div>
+          </div>
+        </div>
+
+        <!-- カテゴリ別スコア（OpenAI） -->
+        <div>
+          <h4 class="text-lg font-bold text-secondary-900 mb-3">カテゴリ別スコア</h4>
+          <div class="grid grid-cols-2 gap-3">
+            <% @analyses_openai.each do |analysis| %>
+              <div class="bg-white rounded-xl shadow-sm border border-secondary-200 overflow-hidden">
+                <button type="button" class="w-full p-3 text-center hover:bg-secondary-50 transition-colors" onclick="toggleCategory('openai-<%= analysis.category %>')">
+                  <div class="text-xs text-secondary-500 mb-1"><%= analysis.category_name %></div>
+                  <div class="text-2xl font-bold <%= analysis.score >= 80 ? 'text-green-600' : analysis.score >= 60 ? 'text-blue-600' : 'text-amber-600' %>">
+                    <%= analysis.score %>
+                  </div>
+                  <div class="text-xs text-secondary-400 mt-1">/ 100点</div>
+                  <svg class="w-4 h-4 mx-auto mt-2 text-secondary-400 transform transition-transform" id="icon-openai-<%= analysis.category %>" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+                <div class="hidden border-t border-secondary-200 p-3 bg-white" id="detail-openai-<%= analysis.category %>">
+                  <% if analysis.good_points.any? %>
+                    <div class="mb-3">
+                      <div class="text-xs font-medium text-green-700 mb-1">良い点</div>
+                      <ul class="space-y-1">
+                        <% analysis.good_points.each do |point| %>
+                          <li class="text-xs text-secondary-600 flex items-start gap-1">
+                            <span class="text-green-500">+</span>
+                            <%= point %>
+                          </li>
+                        <% end %>
+                      </ul>
+                    </div>
                   <% end %>
-                  <% analysis.suggestions.each do |suggestion| %>
-                    <li class="text-xs text-secondary-600 flex items-start gap-1">
-                      <span class="text-blue-500">*</span>
-                      <%= suggestion %>
-                    </li>
+
+                  <% if analysis.issues.any? || analysis.suggestions.any? %>
+                    <div>
+                      <div class="text-xs font-medium text-amber-700 mb-1">改善点・提案</div>
+                      <ul class="space-y-1">
+                        <% analysis.issues.each do |issue| %>
+                          <li class="text-xs text-secondary-600 flex items-start gap-1">
+                            <span class="text-amber-500">-</span>
+                            <%= issue %>
+                          </li>
+                        <% end %>
+                        <% analysis.suggestions.each do |suggestion| %>
+                          <li class="text-xs text-secondary-600 flex items-start gap-1">
+                            <span class="text-blue-500">*</span>
+                            <%= suggestion %>
+                          </li>
+                        <% end %>
+                      </ul>
+                    </div>
                   <% end %>
-                </ul>
+                </div>
               </div>
             <% end %>
           </div>
+        </div>
+      <% else %>
+        <div class="bg-amber-50 border border-amber-200 rounded-xl p-4 text-center">
+          <p class="text-sm text-amber-700">OpenAI の分析結果がありません</p>
+        </div>
+      <% end %>
+    </div>
+
+    <!-- Gemini の分析結果 -->
+    <div id="content-gemini" class="tab-content space-y-6 hidden">
+
+      <% if @analyses_gemini.any? %>
+        <!-- 総合スコア（Gemini） -->
+        <div class="bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 rounded-3xl shadow-lg p-8">
+          <div class="text-center">
+            <h3 class="text-xl font-bold mb-4 text-white">総合スコア</h3>
+            <div class="flex items-baseline justify-center gap-1">
+              <span class="text-5xl font-bold text-white" id="scoreDisplayGemini">0</span>
+              <span class="text-2xl font-medium text-white opacity-90">/ 100点</span>
+            </div>
+            <div class="text-base text-white mt-4 opacity-95">
+              <% case @resume.overall_score_gemini %>
+              <% when 90..100 %>
+                素晴らしい職務経歴書です
+              <% when 80..89 %>
+                良い職務経歴書です
+              <% when 70..79 %>
+                改善の余地があります
+              <% when 60..69 %>
+                いくつかの改善が必要です
+              <% else %>
+                大幅な改善をお勧めします
+              <% end %>
+            </div>
+          </div>
+        </div>
+
+        <!-- カテゴリ別スコア（Gemini） -->
+        <div>
+          <h4 class="text-lg font-bold text-secondary-900 mb-3">カテゴリ別スコア</h4>
+          <div class="grid grid-cols-2 gap-3">
+            <% @analyses_gemini.each do |analysis| %>
+              <div class="bg-white rounded-xl shadow-sm border border-secondary-200 overflow-hidden">
+                <button type="button" class="w-full p-3 text-center hover:bg-secondary-50 transition-colors" onclick="toggleCategory('gemini-<%= analysis.category %>')">
+                  <div class="text-xs text-secondary-500 mb-1"><%= analysis.category_name %></div>
+                  <div class="text-2xl font-bold <%= analysis.score >= 80 ? 'text-green-600' : analysis.score >= 60 ? 'text-blue-600' : 'text-amber-600' %>">
+                    <%= analysis.score %>
+                  </div>
+                  <div class="text-xs text-secondary-400 mt-1">/ 100点</div>
+                  <svg class="w-4 h-4 mx-auto mt-2 text-secondary-400 transform transition-transform" id="icon-gemini-<%= analysis.category %>" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+                <div class="hidden border-t border-secondary-200 p-3 bg-white" id="detail-gemini-<%= analysis.category %>">
+                  <% if analysis.good_points.any? %>
+                    <div class="mb-3">
+                      <div class="text-xs font-medium text-green-700 mb-1">良い点</div>
+                      <ul class="space-y-1">
+                        <% analysis.good_points.each do |point| %>
+                          <li class="text-xs text-secondary-600 flex items-start gap-1">
+                            <span class="text-green-500">+</span>
+                            <%= point %>
+                          </li>
+                        <% end %>
+                      </ul>
+                    </div>
+                  <% end %>
+
+                  <% if analysis.issues.any? || analysis.suggestions.any? %>
+                    <div>
+                      <div class="text-xs font-medium text-amber-700 mb-1">改善点・提案</div>
+                      <ul class="space-y-1">
+                        <% analysis.issues.each do |issue| %>
+                          <li class="text-xs text-secondary-600 flex items-start gap-1">
+                            <span class="text-amber-500">-</span>
+                            <%= issue %>
+                          </li>
+                        <% end %>
+                        <% analysis.suggestions.each do |suggestion| %>
+                          <li class="text-xs text-secondary-600 flex items-start gap-1">
+                            <span class="text-blue-500">*</span>
+                            <%= suggestion %>
+                          </li>
+                        <% end %>
+                      </ul>
+                    </div>
+                  <% end %>
+                </div>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      <% else %>
+        <div class="bg-amber-50 border border-amber-200 rounded-xl p-4 text-center">
+          <p class="text-sm text-amber-700">Gemini の分析結果がありません</p>
         </div>
       <% end %>
     </div>
@@ -136,11 +260,22 @@
     <% end %>
 
     <div class="flex items-center gap-3">
-      <%= link_to download_resume_path(@resume, format: "docx"), class: "inline-flex items-center px-5 py-2.5 bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 rounded-xl font-bold text-white transition-all elevation-2 hover:elevation-3" do %>
-        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-        </svg>
-        改善版をダウンロード（Word）
+      <% if @analyses_openai.any? %>
+        <%= link_to download_resume_path(@resume, format: "docx", provider: "openai"), class: "inline-flex items-center px-4 py-2 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 rounded-xl font-medium text-white transition-all elevation-2 hover:elevation-3" do %>
+          <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+          </svg>
+          OpenAI版DL
+        <% end %>
+      <% end %>
+
+      <% if @analyses_gemini.any? %>
+        <%= link_to download_resume_path(@resume, format: "docx", provider: "gemini"), class: "inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 rounded-xl font-medium text-white transition-all elevation-2 hover:elevation-3" do %>
+          <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+          </svg>
+          Gemini版DL
+        <% end %>
       <% end %>
 
       <%= button_to resume_path(@resume), method: :delete, data: { turbo_confirm: "この職務経歴書を削除しますか？" }, class: "inline-flex items-center px-4 py-2 text-secondary-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors" do %>
@@ -154,30 +289,77 @@
 </div>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-  // スコアアニメーション
-  const targetScore = <%= @resume.overall_score || 0 %>;
-  const scoreDisplay = document.getElementById('scoreDisplay');
+// タブ切り替え関数
+function switchTab(provider) {
+  // 全てのタブボタンとコンテンツを取得
+  const tabs = document.querySelectorAll('.tab-button');
+  const contents = document.querySelectorAll('.tab-content');
 
+  // 全てのタブを非アクティブに
+  tabs.forEach(tab => {
+    tab.classList.remove('border-green-500', 'border-blue-500', 'text-green-700', 'text-blue-700');
+    tab.classList.add('border-transparent', 'text-secondary-500');
+  });
+
+  // 全てのコンテンツを非表示に
+  contents.forEach(content => {
+    content.classList.add('hidden');
+  });
+
+  // 選択されたタブをアクティブに
+  const selectedTab = document.getElementById('tab-' + provider);
+  const selectedContent = document.getElementById('content-' + provider);
+
+  if (provider === 'openai') {
+    selectedTab.classList.remove('border-transparent', 'text-secondary-500');
+    selectedTab.classList.add('border-green-500', 'text-green-700');
+  } else {
+    selectedTab.classList.remove('border-transparent', 'text-secondary-500');
+    selectedTab.classList.add('border-blue-500', 'text-blue-700');
+  }
+
+  selectedContent.classList.remove('hidden');
+
+  // スコアアニメーションを再実行
+  const scoreDisplay = document.getElementById('scoreDisplay' + (provider === 'openai' ? 'Openai' : 'Gemini'));
+  const targetScore = provider === 'openai' ? <%= @resume.overall_score_openai || 0 %> : <%= @resume.overall_score_gemini || 0 %>;
+
+  if (scoreDisplay) {
+    scoreDisplay.textContent = '0';
+    setTimeout(() => animateScore(scoreDisplay, targetScore), 100);
+  }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  // OpenAI スコアアニメーション（初期表示）
+  const targetScoreOpenai = <%= @resume.overall_score_openai || 0 %>;
+  const scoreDisplayOpenai = document.getElementById('scoreDisplayOpenai');
+
+  if (scoreDisplayOpenai) {
+    animateScore(scoreDisplayOpenai, targetScoreOpenai);
+  }
+});
+
+function animateScore(element, targetScore) {
   let currentScore = 0;
   const duration = 1500;
   const startTime = performance.now();
 
-  function animateScore(currentTime) {
+  function animate(currentTime) {
     const elapsed = currentTime - startTime;
     const progress = Math.min(elapsed / duration, 1);
 
     const easeOutQuart = 1 - Math.pow(1 - progress, 4);
     currentScore = Math.round(targetScore * easeOutQuart);
-    scoreDisplay.textContent = currentScore;
+    element.textContent = currentScore;
 
     if (progress < 1) {
-      requestAnimationFrame(animateScore);
+      requestAnimationFrame(animate);
     }
   }
 
-  requestAnimationFrame(animateScore);
-});
+  requestAnimationFrame(animate);
+}
 
 function toggleCategory(category) {
   const detail = document.getElementById('detail-' + category);

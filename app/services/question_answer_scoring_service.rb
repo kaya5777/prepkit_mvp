@@ -38,7 +38,7 @@ class QuestionAnswerScoringService
   end
 
   def generate_scoring_with_openai
-    client = LlmClient.new
+    client = LlmClient.new(provider: "gemini")
     client.chat(
       system: system_prompt,
       user: build_scoring_prompt,

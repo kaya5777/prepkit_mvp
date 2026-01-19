@@ -28,8 +28,8 @@ class LlmClient
     end
   end
 
-  def initialize(provider: nil)
-    @provider = provider || ENV.fetch("LLM_PROVIDER", "openai")
+  def initialize(provider:)
+    @provider = provider
     @client = create_client
   end
 
