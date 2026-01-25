@@ -33,8 +33,9 @@ class Resume < ApplicationRecord
   end
 
   # OpenAI の総合スコア
+  # providerが空（nil）の場合はOpenAIとして扱う（後方互換性）
   def overall_score_openai
-    analyses = resume_analyses.where(provider: "openai")
+    analyses = resume_analyses.where("provider = ? OR provider IS NULL", "openai")
     return nil if analyses.empty?
     analyses.average(:score)&.round
   end

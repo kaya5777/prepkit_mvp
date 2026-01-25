@@ -217,7 +217,7 @@
             </svg>
             <p class="text-lg text-secondary-700 mb-6">この求人とあなたの職務経歴書の相性を診断します</p>
           </div>
-          <form method="post" action="<%= analyze_match_history_path(history) %>" data-turbo="false">
+          <form method="post" action="<%= analyze_match_history_path(history) %>" data-turbo="false" onsubmit="showMatchAnalysisModal()">
             <%= hidden_field_tag :authenticity_token, form_authenticity_token %>
             <button type="submit" style="background: linear-gradient(to right, rgb(168, 85, 247), rgb(147, 51, 234)); color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 0.75rem; font-weight: bold; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);">
               <svg style="width: 1.25rem; height: 1.25rem; margin-right: 0.5rem; color: white;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -273,4 +273,33 @@ function switchMatchTab(provider) {
 
   selectedContent.classList.remove('hidden');
 }
+
+function showMatchAnalysisModal() {
+  const modal = document.getElementById('matchAnalysisModal');
+  if (modal) {
+    modal.classList.remove('hidden');
+  }
+}
 </script>
+
+<!-- 相性診断実行中モーダル -->
+<div id="matchAnalysisModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+  <div class="bg-white rounded-2xl elevation-4 max-w-md w-full p-8 text-center">
+    <div class="w-20 h-20 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-6">
+      <svg class="w-10 h-10 text-purple-600 animate-spin" fill="none" viewBox="0 0 24 24">
+        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+      </svg>
+    </div>
+    <h3 class="text-2xl font-bold text-secondary-900 mb-3">相性診断を実行中</h3>
+    <p class="text-secondary-600 mb-4">
+      OpenAI と Gemini で分析しています...<br>
+      <span class="text-sm">この処理には1〜2分程度かかります</span>
+    </p>
+    <div class="flex items-center justify-center gap-2 text-sm text-secondary-500">
+      <div class="w-2 h-2 bg-purple-500 rounded-full animate-bounce" style="animation-delay: 0s"></div>
+      <div class="w-2 h-2 bg-purple-500 rounded-full animate-bounce" style="animation-delay: 0.2s"></div>
+      <div class="w-2 h-2 bg-purple-500 rounded-full animate-bounce" style="animation-delay: 0.4s"></div>
+    </div>
+  </div>
+</div>

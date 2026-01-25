@@ -13,7 +13,8 @@ class ResumesController < ApplicationController
     end
 
     # OpenAI と Gemini の分析結果を分けて取得
-    @analyses_openai = @resume.resume_analyses.where(provider: "openai").order(:category)
+    # providerが空（nil）の場合はOpenAIとして扱う（後方互換性）
+    @analyses_openai = @resume.resume_analyses.where("provider = ? OR provider IS NULL", "openai").order(:category)
     @analyses_gemini = @resume.resume_analyses.where(provider: "gemini").order(:category)
 
     # 後方互換性のために全体も取得
