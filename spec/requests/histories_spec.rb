@@ -7,103 +7,6 @@ RSpec.describe "Histories", type: :request do
     sign_in user
   end
 
-  # Note: /histories route exists but no index.html.erb view exists
-  # The controller assigns @histories but doesn't render a view
-  # Commenting out these tests until view is created
-
-  describe "GET /histories/new" do
-    it "returns http success" do
-      get new_history_path
-      expect(response).to have_http_status(:success)
-    end
-  end
-
-  describe "POST /histories" do
-    context "with valid parameters" do
-      let(:valid_params) do
-        {
-          history: {
-            content: '{"questions": ["質問1", "質問2"]}',
-            company_name: "テスト企業"
-          }
-        }
-      end
-
-      it "creates a new history" do
-        expect {
-          post histories_path, params: valid_params
-        }.to change(History, :count).by(1)
-      end
-
-      it "assigns user to the history" do
-        post histories_path, params: valid_params
-        expect(History.last.user).to eq(user)
-      end
-
-      it "sets asked_at to current time if not provided" do
-        post histories_path, params: valid_params
-        expect(History.last.asked_at).to be_within(1.second).of(Time.current)
-      end
-
-      it "redirects to the created history" do
-        post histories_path, params: valid_params
-        expect(response).to redirect_to(History.last)
-      end
-
-      it "sets flash notice" do
-        post histories_path, params: valid_params
-        follow_redirect!
-        expect(response.body).to include("履歴を登録しました")
-      end
-    end
-
-    context "with invalid parameters" do
-      let(:invalid_params) do
-        {
-          history: {
-            content: ""
-          }
-        }
-      end
-
-      it "does not create a history" do
-        expect {
-          post histories_path, params: invalid_params
-        }.not_to change(History, :count)
-      end
-
-      it "renders the new template with unprocessable_entity status" do
-        post histories_path, params: invalid_params
-        expect(response).to have_http_status(:unprocessable_entity)
-      end
-    end
-
-    context "with edge case parameters" do
-      it "handles nil company_name gracefully" do
-        post histories_path, params: { history: { content: "test content", company_name: nil } }
-        expect(response.status).to be_in([ 200, 302 ])
-      end
-
-      it "sanitizes special characters in company_name" do
-        post histories_path, params: { history: { content: "test", company_name: "<script>alert('xss')</script>" } }
-        created_history = History.last
-        expect(created_history&.company_name).to eq("<script>alert('xss')</script>")
-      end
-
-      it "handles future asked_at dates" do
-        future_date = 1.year.from_now
-        post histories_path, params: { history: { content: "test", asked_at: future_date } }
-        expect(History.last&.asked_at).to be_within(1.second).of(future_date)
-      end
-
-      it "handles past asked_at dates" do
-        past_date = 1.year.ago
-        post histories_path, params: { history: { content: "test", asked_at: past_date } }
-        expect(History.last&.asked_at).to be_within(1.second).of(past_date)
-      end
-    end
-  end
-
   describe "GET /histories/:id" do
     let(:history) { create(:history, user: user, company_name: "テスト株式会社") }
 
@@ -307,13 +210,8 @@ RSpec.describe "Histories", type: :request do
   context "when not signed in" do
     before { sign_out user }
 
-    it "redirects GET /histories to sign in" do
-      get histories_path
-      expect(response).to redirect_to(new_user_session_path)
-    end
-
-    it "redirects POST /histories to sign in" do
-      post histories_path, params: { history: { company_name: "テスト" } }
+    it "redirects to sign in when accessing protected routes" do
+      get edit_history_path(create(:history))
       expect(response).to redirect_to(new_user_session_path)
     end
   end

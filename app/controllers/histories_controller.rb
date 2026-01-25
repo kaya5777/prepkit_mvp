@@ -1,10 +1,6 @@
 class HistoriesController < ApplicationController
   before_action :set_history, only: %i[show edit update destroy analyze_match generate_casual_note]
 
-  def index
-    @histories = History.order(asked_at: :desc)
-  end
-
   def show
     @presenter = HistoryPresenter.new(@history)
 
@@ -24,23 +20,8 @@ class HistoriesController < ApplicationController
     @grouped_answers = @history.question_answers.includes(:user).scored.recent_first.group_by(&:question_index)
   end
 
-  def new
-    @history = History.new
-  end
-
   def edit
     @presenter = HistoryPresenter.new(@history)
-  end
-
-  def create
-    @history = History.new(history_params)
-    @history.user = current_user
-    @history.asked_at ||= Time.current
-    if @history.save
-      redirect_to @history, notice: "履歴を登録しました。"
-    else
-      render :new, status: :unprocessable_entity
-    end
   end
 
   def update

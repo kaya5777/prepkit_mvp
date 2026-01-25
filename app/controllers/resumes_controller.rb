@@ -2,13 +2,9 @@ class ResumesController < ApplicationController
   before_action :authenticate_user!
   before_action :set_resume, only: [ :show, :destroy, :download ]
 
-  def index
-    @resumes = current_user.resumes.latest_first.includes(:resume_analyses, original_file_attachment: :blob)
-  end
-
   def show
     unless @resume.analyzed?
-      redirect_to resumes_path, alert: "この職務経歴書はまだ分析中または分析されていません"
+      redirect_to settings_path, alert: "この職務経歴書はまだ分析中または分析されていません"
       return
     end
 
@@ -45,12 +41,12 @@ class ResumesController < ApplicationController
 
   def destroy
     @resume.destroy
-    redirect_to resumes_path, notice: "職務経歴書を削除しました"
+    redirect_to settings_path, notice: "職務経歴書を削除しました"
   end
 
   def download
     unless @resume.analyzed?
-      redirect_to resumes_path, alert: "この職務経歴書はまだ分析されていません"
+      redirect_to settings_path, alert: "この職務経歴書はまだ分析されていません"
       return
     end
 

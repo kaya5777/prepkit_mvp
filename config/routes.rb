@@ -1,6 +1,6 @@
 Rails.application.routes.draw do
   devise_for :users, controllers: { omniauth_callbacks: "users/omniauth_callbacks" }
-  resources :histories, only: [ :index, :show, :new, :edit, :create, :update, :destroy ] do
+  resources :histories, only: [ :show, :edit, :update, :destroy ] do
     collection do
       get :my_histories
       get :all_histories
@@ -13,7 +13,7 @@ Rails.application.routes.draw do
   end
   root "preparations#new"
   resources :preparations, only: [ :new, :create ]
-  resources :resumes, only: [ :index, :show, :new, :create, :destroy ] do
+  resources :resumes, only: [ :show, :new, :create, :destroy ] do
     member do
       get :download
     end

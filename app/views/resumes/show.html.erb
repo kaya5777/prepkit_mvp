@@ -1,8 +1,17 @@
 <div class="max-w-5xl mx-auto">
+  <!-- Breadcrumb -->
+  <div class="mb-4 flex items-center gap-2 text-sm">
+    <%= link_to settings_path, class: "text-primary-600 hover:text-primary-700 font-medium" do %>
+      設定
+    <% end %>
+    <span class="text-secondary-400">/</span>
+    <span class="text-secondary-600">職務経歴書の分析結果</span>
+  </div>
+
   <!-- Header -->
   <div class="mb-8">
     <div class="flex items-center gap-4 mb-4">
-      <%= link_to resumes_path, class: "p-2 hover:bg-secondary-100 rounded-lg transition-colors" do %>
+      <%= link_to settings_path, class: "p-2 hover:bg-secondary-100 rounded-lg transition-colors" do %>
         <svg class="w-5 h-5 text-secondary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
         </svg>
@@ -252,11 +261,11 @@
 
   <!-- アクションボタン -->
   <div class="flex items-center justify-between pt-6 border-t border-secondary-200">
-    <%= link_to resumes_path, class: "inline-flex items-center px-4 py-2 text-secondary-600 hover:text-secondary-900 font-medium transition-colors" do %>
+    <%= link_to settings_path, class: "inline-flex items-center px-4 py-2 text-secondary-600 hover:text-secondary-900 font-medium transition-colors" do %>
       <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
       </svg>
-      一覧に戻る
+      設定に戻る
     <% end %>
 
     <div class="flex items-center gap-3">
