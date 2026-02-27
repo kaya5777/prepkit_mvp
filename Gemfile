@@ -40,7 +40,7 @@ group :test do
   gem "rails-controller-testing", "~> 1.0"
 end
 
-gem "tailwindcss-rails", "~> 4.3"
+gem "tailwindcss-rails", "~> 4.4"
 
 gem "sprockets-rails", "~> 3.5"
 
